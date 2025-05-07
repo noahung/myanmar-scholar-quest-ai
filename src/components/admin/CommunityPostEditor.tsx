@@ -18,11 +18,14 @@ const blogPostFormSchema = z.object({
   image: z.string().optional()
 });
 
-// Create a type for the form data that matches the schema output
-type BlogPostFormValues = z.infer<typeof blogPostFormSchema>;
+// Define the input type (what the form receives)
+type BlogPostFormInput = z.input<typeof blogPostFormSchema>;
+
+// Define the output type (what the schema transforms the data into)
+type BlogPostFormValues = z.output<typeof blogPostFormSchema>;
 
 export function CommunityPostEditor() {
-  const form = useForm<BlogPostFormValues>({
+  const form = useForm<BlogPostFormInput>({
     resolver: zodResolver(blogPostFormSchema),
     defaultValues: {
       title: "",
@@ -32,12 +35,16 @@ export function CommunityPostEditor() {
     }
   });
 
-  function onSubmit(values: BlogPostFormValues) {
+  function onSubmit(values: BlogPostFormInput) {
+    // The zodResolver transforms the input values according to the schema
+    // So tags will be automatically transformed from a comma-separated string to an array
+    const transformedValues = blogPostFormSchema.parse(values);
+    
     toast({
       title: "Post Created",
       description: "Your community post has been published.",
     });
-    console.log(values);
+    console.log(transformedValues);
     // This will be replaced with Supabase insert once integrated
   }
 
