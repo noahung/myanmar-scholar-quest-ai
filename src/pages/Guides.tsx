@@ -106,7 +106,7 @@ export default function Guides() {
                 <SelectValue placeholder="Filter by Country" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Countries</SelectItem>
+                <SelectItem value="all-countries">All Countries</SelectItem>
                 {Array.from(new Set(guides.map(guide => guide.country))).map(country => (
                   <SelectItem key={country} value={country}>{country}</SelectItem>
                 ))}

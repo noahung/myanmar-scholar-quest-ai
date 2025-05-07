@@ -86,7 +86,7 @@ export default function Scholarships() {
               <SelectValue placeholder="Filter by Country" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Countries</SelectItem>
+              <SelectItem value="all-countries">All Countries</SelectItem>
               {countries.map(country => (
                 <SelectItem key={country} value={country}>{country}</SelectItem>
               ))}
@@ -98,7 +98,7 @@ export default function Scholarships() {
               <SelectValue placeholder="Filter by Field of Study" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Fields</SelectItem>
+              <SelectItem value="all-fields">All Fields</SelectItem>
               {fields.map(field => (
                 <SelectItem key={field} value={field}>{field}</SelectItem>
               ))}
@@ -110,7 +110,7 @@ export default function Scholarships() {
               <SelectValue placeholder="Filter by Degree Level" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Levels</SelectItem>
+              <SelectItem value="all-levels">All Levels</SelectItem>
               {levels.map(level => (
                 <SelectItem key={level} value={level}>{level}</SelectItem>
               ))}
