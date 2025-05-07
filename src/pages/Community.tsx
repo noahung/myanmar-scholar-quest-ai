@@ -4,6 +4,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
 import { MessageCircle, Heart, Share, Plus, Filter, BookOpen } from "lucide-react";
 
 const posts = [
@@ -96,10 +97,12 @@ export default function Community() {
             <Filter className="h-4 w-4 mr-2" />
             Filter
           </Button>
-          <Button size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            New Post
-          </Button>
+          <Link to="/admin">
+            <Button size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              New Post
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -112,7 +115,7 @@ export default function Community() {
         <TabsContent value="popular" className="mt-4">
           <div className="space-y-6">
             {posts.sort((a, b) => b.likes - a.likes).map(post => (
-              <Card key={post.id}>
+              <Card key={post.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex justify-between">
                     <div className="flex items-center gap-2">
@@ -127,7 +130,11 @@ export default function Community() {
                       </div>
                     </div>
                   </div>
-                  <CardTitle className="text-lg mt-2">{post.title}</CardTitle>
+                  <Link to={`/community/${post.id}`}>
+                    <CardTitle className="text-lg mt-2 hover:text-myanmar-jade transition-colors">
+                      {post.title}
+                    </CardTitle>
+                  </Link>
                 </CardHeader>
                 <CardContent>
                   <p className="line-clamp-3 text-sm mb-4">{post.content}</p>
@@ -161,14 +168,123 @@ export default function Community() {
             ))}
           </div>
         </TabsContent>
-        <TabsContent value="recent">
-          <div className="text-center py-10">
-            <p>View most recent posts here.</p>
+        <TabsContent value="recent" className="mt-4">
+          <div className="space-y-6">
+            {posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(post => (
+              <Card key={post.id} className="hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <div className="flex justify-between">
+                    <div className="flex items-center gap-2">
+                      <Avatar>
+                        <img src={post.author.avatar} alt={post.author.name} />
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">{post.author.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(post.date).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <Link to={`/community/${post.id}`}>
+                    <CardTitle className="text-lg mt-2 hover:text-myanmar-jade transition-colors">
+                      {post.title}
+                    </CardTitle>
+                  </Link>
+                </CardHeader>
+                <CardContent>
+                  <p className="line-clamp-3 text-sm mb-4">{post.content}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {post.tags.map((tag, index) => (
+                      <Badge key={index} variant="outline" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <div className="w-full flex justify-between">
+                    <div className="flex gap-4">
+                      <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                        <Heart className="h-4 w-4" />
+                        <span>{post.likes}</span>
+                      </Button>
+                      <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                        <MessageCircle className="h-4 w-4" />
+                        <span>{post.comments}</span>
+                      </Button>
+                    </div>
+                    <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                      <Share className="h-4 w-4" />
+                      <span>Share</span>
+                    </Button>
+                  </div>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
         </TabsContent>
-        <TabsContent value="unanswered">
-          <div className="text-center py-10">
-            <p>View unanswered questions here.</p>
+        <TabsContent value="unanswered" className="mt-4">
+          <div className="space-y-6">
+            {posts.filter(post => post.comments === 0).length > 0 ? (
+              posts.filter(post => post.comments === 0).map(post => (
+                <Card key={post.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader>
+                    <div className="flex justify-between">
+                      <div className="flex items-center gap-2">
+                        <Avatar>
+                          <img src={post.author.avatar} alt={post.author.name} />
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{post.author.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(post.date).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <Link to={`/community/${post.id}`}>
+                      <CardTitle className="text-lg mt-2 hover:text-myanmar-jade transition-colors">
+                        {post.title}
+                      </CardTitle>
+                    </Link>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="line-clamp-3 text-sm mb-4">{post.content}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {post.tags.map((tag, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <div className="w-full flex justify-between">
+                      <div className="flex gap-4">
+                        <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                          <Heart className="h-4 w-4" />
+                          <span>{post.likes}</span>
+                        </Button>
+                        <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                          <MessageCircle className="h-4 w-4" />
+                          <span>{post.comments}</span>
+                        </Button>
+                      </div>
+                      <Button variant="ghost" size="sm" className="flex items-center gap-1">
+                        <Share className="h-4 w-4" />
+                        <span>Share</span>
+                      </Button>
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))
+            ) : (
+              <div className="text-center py-10">
+                <h3 className="text-lg font-medium">No unanswered posts found</h3>
+                <p className="text-muted-foreground mt-2">All posts have comments!</p>
+              </div>
+            )}
           </div>
         </TabsContent>
       </Tabs>

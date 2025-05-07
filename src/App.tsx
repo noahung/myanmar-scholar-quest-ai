@@ -11,9 +11,13 @@ import { AiAssistant } from "@/components/ai-assistant";
 
 import Home from "./pages/Home";
 import Scholarships from "./pages/Scholarships";
+import ScholarshipDetail from "./pages/ScholarshipDetail";
 import Community from "./pages/Community";
+import PostDetail from "./pages/PostDetail";
 import Guides from "./pages/Guides";
+import GuideDetail from "./pages/GuideDetail";
 import Login from "./pages/Login";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,9 +34,13 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/scholarships" element={<Scholarships />} />
+              <Route path="/scholarships/:id" element={<ScholarshipDetail />} />
               <Route path="/community" element={<Community />} />
+              <Route path="/community/:id" element={<PostDetail />} />
               <Route path="/guides" element={<Guides />} />
+              <Route path="/guides/:id" element={<GuideDetail />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/admin" element={<Admin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
