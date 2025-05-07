@@ -43,6 +43,9 @@ const blogPostFormSchema = z.object({
   image: z.string().optional()
 });
 
+// Create a type for the form data that matches the schema output
+type BlogPostFormValues = z.infer<typeof blogPostFormSchema>;
+
 export default function AdminPage() {
   const { isAdmin, isLoading } = useIsAdmin();
 
@@ -324,7 +327,7 @@ function GuideEditor() {
 }
 
 function CommunityPostEditor() {
-  const form = useForm({
+  const form = useForm<BlogPostFormValues>({
     resolver: zodResolver(blogPostFormSchema),
     defaultValues: {
       title: "",
@@ -334,7 +337,7 @@ function CommunityPostEditor() {
     }
   });
 
-  function onSubmit(values: z.infer<typeof blogPostFormSchema>) {
+  function onSubmit(values: BlogPostFormValues) {
     toast({
       title: "Post Created",
       description: "Your community post has been published.",
