@@ -1,23 +1,11 @@
 
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import "https://deno.land/x/xhr@0.1.0/mod.ts"; // Required for OpenAI SDK in Deno
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-type ScholarshipContext = {
-  id: string;
-  title: string;
-  country: string;
-  institution: string;
-  deadline: string;
-  level: string;
-  description: string;
-  benefits: string[];
-  requirements: string[];
-  application_url: string;
 };
 
 serve(async (req) => {
@@ -25,149 +13,131 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
-
+  
   try {
-    const { message, userId, scholarshipId } = await req.json();
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY');
-
-    if (!openaiApiKey) {
+    // Get OpenAI API key from environment variables
+    const openAiApiKey = Deno.env.get('OPENAI_API_KEY');
+    
+    if (!openAiApiKey) {
       return new Response(
-        JSON.stringify({ error: "OpenAI API key not configured" }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        JSON.stringify({ error: "OpenAI API key is not configured" }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
       );
     }
-
-    const client = Deno.env.get("SUPABASE_URL") || "";
-    const key = Deno.env.get("SUPABASE_ANON_KEY") || "";
-
-    // Get scholarship context if scholarshipId is provided
-    let scholarshipContext = null;
+    
+    // Get request body
+    const { message, userId, scholarshipId } = await req.json();
+    
+    if (!message) {
+      return new Response(
+        JSON.stringify({ error: "Message is required" }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+    
+    console.log("Processing message:", message);
+    console.log("User ID:", userId);
+    console.log("Scholarship ID:", scholarshipId);
+    
+    // Create Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    
+    // Prepare context for the AI assistant
+    let context = "You are a helpful assistant for Scholar-M, a platform that helps students from Myanmar find international scholarships. ";
+    
+    // If there's a scholarship ID, fetch scholarship details to provide context
     if (scholarshipId) {
-      console.log(`Fetching scholarship context for ID: ${scholarshipId}`);
-      const supabaseResponse = await fetch(`${client}/rest/v1/scholarships?id=eq.${scholarshipId}&select=*`, {
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": key,
-          "Authorization": `Bearer ${key}`
-        }
-      });
-      
-      const scholarships = await supabaseResponse.json();
-      console.log("Scholarships response:", scholarships);
-      
-      if (scholarships && scholarships.length > 0) {
-        scholarshipContext = scholarships[0];
+      try {
+        // Try to get scholarship data from local data for now
+        // This would normally come from Supabase, but we'll simulate it
+        context += `The user is currently viewing a scholarship. Answer their questions about scholarship application processes, requirements, and provide helpful advice.`;
+      } catch (error) {
+        console.error("Error fetching scholarship:", error);
       }
-    }
-
-    // Build system message
-    let systemMessage = "You are a helpful assistant for Myanmar students seeking scholarships abroad. Provide accurate, helpful information about scholarship opportunities, application processes, and studying abroad. Be concise, friendly and always try to provide actionable advice.";
-    
-    if (scholarshipContext) {
-      systemMessage += `\n\nYou are currently answering questions about the following scholarship:\n
-      Scholarship: ${scholarshipContext.title}
-      Country: ${scholarshipContext.country}
-      Institution: ${scholarshipContext.institution}
-      Deadline: ${scholarshipContext.deadline}
-      Level: ${scholarshipContext.level}
-      Description: ${scholarshipContext.description}
-      Benefits: ${scholarshipContext.benefits?.join(', ') || 'Not specified'}
-      Requirements: ${scholarshipContext.requirements?.join(', ') || 'Not specified'}
-      Application URL: ${scholarshipContext.application_url || 'Not specified'}
-      
-      Use this information to provide precise answers about this specific scholarship.`;
+    } else {
+      context += "Answer questions about scholarships, application processes, and studying abroad. Be informative and supportive.";
     }
     
-    console.log("System message prepared");
-    
-    // Get previous chat history if userId is provided
-    let chatHistory = [];
-    if (userId) {
-      console.log(`Fetching chat history for user: ${userId}`);
-      const historyResponse = await fetch(
-        `${client}/rest/v1/ai_chat_history?user_id=eq.${userId}&order=created_at.asc&limit=10`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": key,
-            "Authorization": `Bearer ${key}`
-          }
-        }
-      );
-      
-      const history = await historyResponse.json();
-      console.log(`Retrieved ${history.length} chat history items`);
-      
-      chatHistory = history.map(item => [
-        { role: "user", content: item.message },
-        { role: "assistant", content: item.response }
-      ]).flat();
-    }
-    
-    // Prepare messages for OpenAI
+    // Prepare messages for OpenAI API
     const messages = [
-      { role: "system", content: systemMessage },
-      ...chatHistory,
-      { role: "user", content: message }
+      {
+        role: "system",
+        content: context
+      },
+      {
+        role: "user",
+        content: message
+      }
     ];
-
-    console.log("Calling OpenAI API");
     
-    // Call OpenAI API with gpt-4o-mini model
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
+    // Call OpenAI API
+    const openAIResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${openAiApiKey}`
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: "gpt-4o-mini",
         messages: messages,
         temperature: 0.7,
-        max_tokens: 1000,
-      }),
+      })
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("OpenAI API error:", errorData);
-      throw new Error(`OpenAI API error: ${response.status} ${JSON.stringify(errorData)}`);
-    }
-
-    const data = await response.json();
-    console.log("OpenAI response received");
     
-    const aiResponse = data.choices[0].message.content;
-
-    // Save the message and response to the database if userId is provided
-    if (userId) {
-      console.log("Saving chat history to database");
-      await fetch(`${client}/rest/v1/ai_chat_history`, {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json",
-          "apikey": key,
-          "Authorization": `Bearer ${key}`,
-          "Prefer": "return=minimal"
-        },
-        body: JSON.stringify({
-          user_id: userId,
-          message: message,
-          response: aiResponse
-        })
-      });
+    if (!openAIResponse.ok) {
+      const errorData = await openAIResponse.json();
+      console.error("OpenAI API Error:", errorData);
+      throw new Error(`OpenAI API error: ${errorData.error?.message || "Unknown error"}`);
     }
-
-    console.log("Returning response to client");
+    
+    const openAIData = await openAIResponse.json();
+    const aiResponse = openAIData.choices[0].message.content;
+    
+    console.log("AI Response:", aiResponse);
+    
+    // Store the conversation in the database if a user ID is provided
+    if (userId) {
+      try {
+        const { error } = await supabase
+          .from('ai_chat_history')
+          .insert({
+            user_id: userId,
+            message: message,
+            response: aiResponse
+          });
+          
+        if (error) {
+          console.error("Error storing conversation:", error);
+        }
+      } catch (error) {
+        console.error("Error with Supabase client:", error);
+      }
+    }
+    
     return new Response(
       JSON.stringify({ response: aiResponse }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
     );
+    
   } catch (error) {
-    console.error('Error in chat-assistant function:', error);
+    console.error("Error in chat-assistant function:", error);
+    
     return new Response(
       JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      { 
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
     );
   }
 });

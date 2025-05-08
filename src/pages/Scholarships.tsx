@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,6 +38,7 @@ export type Scholarship = {
   created_at?: string;
   updated_at?: string;
   source_url?: string;
+  image_url?: string;
 };
 
 export default function Scholarships() {
@@ -58,58 +60,21 @@ export default function Scholarships() {
     try {
       setIsLoading(true);
       
-      // Try to fetch from Supabase first
-      const { data: scholarshipsData, error } = await supabase
-        .from('scholarships')
-        .select('*');
+      // Fetch scholarship data from the local file since the Supabase table doesn't exist yet
+      const localData = await import('@/data/scholarships');
+      const localScholarships = localData.scholarships as Scholarship[];
+      setScholarships(localScholarships);
       
-      if (error || !scholarshipsData || scholarshipsData.length === 0) {
-        console.log('Falling back to local data');
-        // Fallback to local data if Supabase fetch fails or returns empty
-        const localData = await import('@/data/scholarships');
-        const localScholarships = localData.scholarships as Scholarship[];
-        setScholarships(localScholarships);
-        
-        // Extract unique values from local data
-        const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country)));
-        const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields)));
-        const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level)));
-        
-        setCountries(uniqueCountries);
-        setFields(uniqueFields);
-        setLevels(uniqueLevels);
-      } else {
-        // Use Supabase data
-        setScholarships(scholarshipsData as Scholarship[]);
-        
-        // Extract unique values from Supabase data
-        const uniqueCountries = Array.from(new Set(scholarshipsData.map(s => s.country)));
-        const uniqueFields = Array.from(new Set(scholarshipsData.flatMap(s => s.fields)));
-        const uniqueLevels = Array.from(new Set(scholarshipsData.map(s => s.level)));
-        
-        setCountries(uniqueCountries as string[]);
-        setFields(uniqueFields as string[]);
-        setLevels(uniqueLevels as string[]);
-      }
+      // Extract unique values from local data
+      const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country)));
+      const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields)));
+      const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level)));
+      
+      setCountries(uniqueCountries);
+      setFields(uniqueFields);
+      setLevels(uniqueLevels);
     } catch (error) {
       console.error("Error in fetchScholarships:", error);
-      // Attempt to load local data as a last resort
-      try {
-        const localData = await import('@/data/scholarships');
-        const localScholarships = localData.scholarships as Scholarship[];
-        setScholarships(localScholarships);
-        
-        // Extract unique values
-        const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country)));
-        const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields)));
-        const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level)));
-        
-        setCountries(uniqueCountries);
-        setFields(uniqueFields);
-        setLevels(uniqueLevels);
-      } catch (fallbackError) {
-        console.error("Failed to load fallback data:", fallbackError);
-      }
     } finally {
       setIsLoading(false);
     }
@@ -169,7 +134,8 @@ export default function Scholarships() {
               <SelectValue placeholder="Filter by Country" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Countries</SelectItem>
+              {/* Fix: Empty value is not allowed in SelectItem */}
+              <SelectItem value="_all">All Countries</SelectItem>
               {countries.map(country => (
                 <SelectItem key={country} value={country}>{country}</SelectItem>
               ))}
@@ -181,7 +147,8 @@ export default function Scholarships() {
               <SelectValue placeholder="Filter by Field of Study" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Fields</SelectItem>
+              {/* Fix: Empty value is not allowed in SelectItem */}
+              <SelectItem value="_all">All Fields</SelectItem>
               {fields.map(field => (
                 <SelectItem key={field} value={field}>{field}</SelectItem>
               ))}
@@ -193,7 +160,8 @@ export default function Scholarships() {
               <SelectValue placeholder="Filter by Degree Level" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Levels</SelectItem>
+              {/* Fix: Empty value is not allowed in SelectItem */}
+              <SelectItem value="_all">All Levels</SelectItem>
               {levels.map(level => (
                 <SelectItem key={level} value={level}>{level}</SelectItem>
               ))}

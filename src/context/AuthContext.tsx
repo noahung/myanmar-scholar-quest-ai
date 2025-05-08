@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .from('profiles')
         .select('is_admin')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching user profile:', error);
@@ -122,19 +122,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
-      // Make sure to use the full URL including protocol for the redirect
-      const redirectTo = `${window.location.origin}/login`;
+      // Get the current window origin with protocol
+      const origin = window.location.origin;
       
+      // Use the window origin as the redirect URL
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: redirectTo,
+          redirectTo: `${origin}/login`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
           }
         },
       });
+      
       return { error };
     } catch (error) {
       console.error("Google sign-in error:", error);
