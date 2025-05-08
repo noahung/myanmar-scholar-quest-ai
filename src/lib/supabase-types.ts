@@ -111,21 +111,21 @@ export interface Database {
           guide_id: string
           title: string
           content: string
-          order: number
+          step_order: number
         }
         Insert: {
           id?: string
           guide_id: string
           title: string
           content: string
-          order: number
+          step_order: number
         }
         Update: {
           id?: string
           guide_id?: string
           title?: string
           content?: string
-          order?: number
+          step_order?: number
         }
       }
       community_posts: {
@@ -239,6 +239,52 @@ export interface Database {
           is_admin?: boolean
           created_at?: string
           updated_at?: string
+        }
+      }
+      static_pages: {
+        Row: {
+          id: string
+          page_id: string
+          content: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          page_id: string
+          content: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          page_id?: string
+          content?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      ai_chat_history: {
+        Row: {
+          id: string
+          user_id: string
+          message: string
+          response: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          message: string
+          response: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          message?: string
+          response?: string
+          created_at?: string
         }
       }
     }

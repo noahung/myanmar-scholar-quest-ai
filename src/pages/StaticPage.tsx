@@ -18,7 +18,7 @@ const PAGE_TITLES: Record<string, string> = {
 };
 
 export default function StaticPage() {
-  const { pageId = 'about' } = useParams<{ pageId: string }>();
+  const { pageId = 'about' } = useParams<{ pageId?: string }>();
   const [content, setContent] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);

@@ -17,9 +17,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { Scholarship } from "./Scholarships";
 import { AiAssistant } from "@/components/ai-assistant";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Scholarship } from "./Scholarships";
 
 export default function ScholarshipDetail() {
   const { id } = useParams<{ id: string }>();
@@ -34,18 +34,14 @@ export default function ScholarshipDetail() {
       
       try {
         setLoading(true);
-        const { data, error } = await supabase
-          .from('scholarships')
-          .select('*')
-          .eq('id', id)
-          .single();
-          
-        if (error) {
-          throw error;
-        }
         
-        if (data) {
-          setScholarship(data);
+        // Use mock data from the imported module for now
+        // Later we can replace this with a real Supabase query
+        const { data: scholarshipsData } = await import('@/data/scholarships');
+        const scholarship = scholarshipsData.scholarships.find(s => s.id === id);
+          
+        if (scholarship) {
+          setScholarship(scholarship);
         } else {
           setError("Scholarship not found");
         }

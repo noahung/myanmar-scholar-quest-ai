@@ -10,8 +10,12 @@ export interface Scholarship {
   description: string;
   benefits: string[];
   requirements: string[];
-  applicationUrl: string;
+  application_url: string;
   featured: boolean;
+  source_url?: string;
+  image_url?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const scholarships: Scholarship[] = [
@@ -38,7 +42,7 @@ export const scholarships: Scholarship[] = [
       "At least 2 years of relevant work experience",
       "English proficiency (IELTS 6.0 or equivalent)"
     ],
-    applicationUrl: "https://www.jica.go.jp/myanmar/",
+    application_url: "https://www.jica.go.jp/myanmar/",
     featured: true
   },
   {
@@ -64,7 +68,7 @@ export const scholarships: Scholarship[] = [
       "English language proficiency",
       "Return to Myanmar for at least two years after the scholarship"
     ],
-    applicationUrl: "https://www.chevening.org/",
+    application_url: "https://www.chevening.org/",
     featured: true
   },
   {
@@ -90,7 +94,7 @@ export const scholarships: Scholarship[] = [
       "English proficiency (IELTS 6.5 overall)",
       "Return to Myanmar for at least 2 years after completion"
     ],
-    applicationUrl: "https://www.dfat.gov.au/people-to-people/australia-awards/",
+    application_url: "https://www.dfat.gov.au/people-to-people/australia-awards/",
     featured: false
   },
   {
@@ -116,7 +120,7 @@ export const scholarships: Scholarship[] = [
       "Demonstrated leadership potential",
       "Commitment to return to Myanmar"
     ],
-    applicationUrl: "https://foreign.fulbrightonline.org/",
+    application_url: "https://foreign.fulbrightonline.org/",
     featured: false
   },
   {
@@ -142,7 +146,7 @@ export const scholarships: Scholarship[] = [
       "German or English proficiency depending on the program",
       "Maximum age of 36"
     ],
-    applicationUrl: "https://www.daad.de/en/",
+    application_url: "https://www.daad.de/en/",
     featured: false
   },
   {
@@ -168,7 +172,7 @@ export const scholarships: Scholarship[] = [
       "Relevant work experience",
       "Commitment to return to Myanmar after completion"
     ],
-    applicationUrl: "https://www.mfat.govt.nz/",
+    application_url: "https://www.mfat.govt.nz/",
     featured: true
   }
 ];

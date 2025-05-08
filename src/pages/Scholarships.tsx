@@ -21,23 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { Tables } from '@/lib/supabase-types';
 
-export interface Scholarship {
-  id: string;
-  title: string;
-  country: string;
-  institution: string;
-  deadline: string;
-  fields: string[];
-  level: string;
-  description: string;
-  benefits: string[];
-  requirements: string[];
-  application_url: string;
-  featured: boolean;
-  source_url?: string;
-  image_url?: string;
-}
+export type Scholarship = Tables<'scholarships'>;
 
 export default function Scholarships() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -57,27 +43,21 @@ export default function Scholarships() {
   async function fetchScholarships() {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('scholarships')
-        .select('*');
-
-      if (error) {
-        console.error("Error fetching scholarships:", error);
-        return;
-      }
-
-      if (data) {
-        setScholarships(data);
+      
+      // Use mock data from the imported module for now
+      // Later we can replace this with a real Supabase query
+      const { data: scholarshipsData } = await import('@/data/scholarships');
+      
+      setScholarships(scholarshipsData.scholarships);
         
-        // Extract unique countries, fields and levels
-        const uniqueCountries = Array.from(new Set(data.map(s => s.country)));
-        const uniqueFields = Array.from(new Set(data.flatMap(s => s.fields)));
-        const uniqueLevels = Array.from(new Set(data.map(s => s.level)));
-        
-        setCountries(uniqueCountries.sort());
-        setFields(uniqueFields.sort());
-        setLevels(uniqueLevels.sort());
-      }
+      // Extract unique countries, fields and levels
+      const uniqueCountries = Array.from(new Set(scholarshipsData.scholarships.map(s => s.country)));
+      const uniqueFields = Array.from(new Set(scholarshipsData.scholarships.flatMap(s => s.fields)));
+      const uniqueLevels = Array.from(new Set(scholarshipsData.scholarships.map(s => s.level)));
+      
+      setCountries(uniqueCountries.sort());
+      setFields(uniqueFields.sort());
+      setLevels(uniqueLevels.sort());
     } catch (error) {
       console.error("Error in fetchScholarships:", error);
     } finally {
