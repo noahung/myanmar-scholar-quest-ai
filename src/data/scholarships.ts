@@ -1,4 +1,3 @@
-
 export interface Scholarship {
   id: string;
   title: string;
@@ -18,7 +17,7 @@ export interface Scholarship {
   updated_at?: string;
 }
 
-export const scholarships: Scholarship[] = [
+export const scholarships = [
   {
     id: "1",
     title: "Japan International Cooperation Agency (JICA) Scholarship",
@@ -176,3 +175,5 @@ export const scholarships: Scholarship[] = [
     featured: true
   }
 ];
+
+export const data = { scholarships };

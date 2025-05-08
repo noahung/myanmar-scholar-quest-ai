@@ -2,6 +2,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
+import { useToast } from "@/components/ui/use-toast";
 
 type AuthContextType = {
   user: User | null;
@@ -21,11 +22,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log("Auth state changed:", event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
 
@@ -78,6 +81,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
+      
+      if (!error) {
+        toast({
+          title: "Signed in successfully",
+          description: "Welcome back!"
+        });
+      }
+      
       return { error };
     } catch (error) {
       return { error };
@@ -95,6 +106,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           },
         },
       });
+      
+      if (!error) {
+        toast({
+          title: "Account created",
+          description: "Please check your email to verify your account."
+        });
+      }
+      
       return { error };
     } catch (error) {
       return { error };
@@ -103,14 +122,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
+      // Make sure to use the full URL including protocol for the redirect
+      const redirectTo = `${window.location.origin}/login`;
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: redirectTo,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         },
       });
       return { error };
     } catch (error) {
+      console.error("Google sign-in error:", error);
       return { error };
     }
   };

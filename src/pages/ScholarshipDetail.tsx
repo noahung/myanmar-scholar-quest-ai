@@ -35,15 +35,27 @@ export default function ScholarshipDetail() {
       try {
         setLoading(true);
         
-        // Use mock data from the imported module for now
-        // Later we can replace this with a real Supabase query
-        const { data: scholarshipsData } = await import('@/data/scholarships');
-        const scholarship = scholarshipsData.scholarships.find(s => s.id === id);
+        // Try to fetch from Supabase first
+        const { data: scholarshipData, error } = await supabase
+          .from('scholarships')
+          .select('*')
+          .eq('id', id)
+          .single();
           
-        if (scholarship) {
-          setScholarship(scholarship);
+        if (error || !scholarshipData) {
+          console.log('Falling back to local data');
+          // Fallback to local data if Supabase fetch fails
+          const localData = await import('@/data/scholarships');
+          const localScholarship = localData.scholarships.find(s => s.id === id);
+            
+          if (localScholarship) {
+            setScholarship(localScholarship);
+          } else {
+            setError("Scholarship not found");
+          }
         } else {
-          setError("Scholarship not found");
+          // Use Supabase data
+          setScholarship(scholarshipData);
         }
       } catch (err: any) {
         console.error("Failed to load scholarship:", err);

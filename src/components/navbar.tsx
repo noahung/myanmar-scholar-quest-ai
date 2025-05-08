@@ -8,16 +8,55 @@ import {
   Search,
   User,
   Menu,
-  X
+  X,
+  UserCircle,
+  LogOut,
+  Settings
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "@/components/ui/use-toast";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, session, signOut, isLoading } = useAuth();
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await signOut();
+      if (error) {
+        toast({
+          title: "Sign out failed",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Signed out",
+          description: "You have been signed out successfully."
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Sign out failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   };
 
   const navItems = [
@@ -25,6 +64,11 @@ export function Navbar() {
     { name: "Community", href: "/community", icon: MessageCircle },
     { name: "Guides", href: "/guides", icon: Search },
   ];
+
+  const getInitials = (name: string | null) => {
+    if (!name) return "U";
+    return name.split(' ').map(part => part[0]).join('').toUpperCase();
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
@@ -54,12 +98,63 @@ export function Navbar() {
         
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/login">
+          
+          {isLoading ? (
+            <Button variant="outline" size="sm" disabled>
               <User className="h-4 w-4 mr-2" />
-              Login
-            </Link>
-          </Button>
+              Loading...
+            </Button>
+          ) : user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src={user.user_metadata?.avatar_url || ""} />
+                    <AvatarFallback>{getInitials(user.user_metadata?.full_name || user.email)}</AvatarFallback>
+                  </Avatar>
+                  <span className="hidden md:inline">{user.user_metadata?.full_name || user.email?.split('@')[0]}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="cursor-pointer flex items-center">
+                    <UserCircle className="h-4 w-4 mr-2" />
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/saved-scholarships" className="cursor-pointer flex items-center">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    Saved Scholarships
+                  </Link>
+                </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="cursor-pointer flex items-center">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/login">
+                <User className="h-4 w-4 mr-2" />
+                Login
+              </Link>
+            </Button>
+          )}
           
           {/* Mobile menu toggle */}
           <Button 
@@ -94,6 +189,51 @@ export function Navbar() {
               <span>{item.name}</span>
             </Link>
           ))}
+          
+          {user && (
+            <>
+              <Link 
+                to="/profile" 
+                className="flex items-center gap-2 p-2 text-lg border-b border-border"
+                onClick={toggleMobileMenu}
+              >
+                <UserCircle className="h-5 w-5" />
+                <span>Profile</span>
+              </Link>
+              
+              <Link 
+                to="/saved-scholarships" 
+                className="flex items-center gap-2 p-2 text-lg border-b border-border"
+                onClick={toggleMobileMenu}
+              >
+                <BookOpen className="h-5 w-5" />
+                <span>Saved Scholarships</span>
+              </Link>
+              
+              {isAdmin && (
+                <Link 
+                  to="/admin" 
+                  className="flex items-center gap-2 p-2 text-lg border-b border-border"
+                  onClick={toggleMobileMenu}
+                >
+                  <Settings className="h-5 w-5" />
+                  <span>Admin Dashboard</span>
+                </Link>
+              )}
+              
+              <Button 
+                variant="ghost" 
+                className="flex items-center justify-start gap-2 p-2 text-lg w-full border-b border-border"
+                onClick={() => {
+                  handleSignOut();
+                  toggleMobileMenu();
+                }}
+              >
+                <LogOut className="h-5 w-5" />
+                <span>Sign Out</span>
+              </Button>
+            </>
+          )}
         </nav>
       </div>
     </header>

@@ -17,7 +17,7 @@ type ScholarshipContext = {
   description: string;
   benefits: string[];
   requirements: string[];
-  applicationUrl: string;
+  application_url: string;
 };
 
 serve(async (req) => {
@@ -43,6 +43,7 @@ serve(async (req) => {
     // Get scholarship context if scholarshipId is provided
     let scholarshipContext = null;
     if (scholarshipId) {
+      console.log(`Fetching scholarship context for ID: ${scholarshipId}`);
       const supabaseResponse = await fetch(`${client}/rest/v1/scholarships?id=eq.${scholarshipId}&select=*`, {
         headers: {
           "Content-Type": "application/json",
@@ -52,6 +53,8 @@ serve(async (req) => {
       });
       
       const scholarships = await supabaseResponse.json();
+      console.log("Scholarships response:", scholarships);
+      
       if (scholarships && scholarships.length > 0) {
         scholarshipContext = scholarships[0];
       }
@@ -68,16 +71,19 @@ serve(async (req) => {
       Deadline: ${scholarshipContext.deadline}
       Level: ${scholarshipContext.level}
       Description: ${scholarshipContext.description}
-      Benefits: ${scholarshipContext.benefits.join(', ')}
-      Requirements: ${scholarshipContext.requirements.join(', ')}
-      Application URL: ${scholarshipContext.application_url}
+      Benefits: ${scholarshipContext.benefits?.join(', ') || 'Not specified'}
+      Requirements: ${scholarshipContext.requirements?.join(', ') || 'Not specified'}
+      Application URL: ${scholarshipContext.application_url || 'Not specified'}
       
       Use this information to provide precise answers about this specific scholarship.`;
     }
     
+    console.log("System message prepared");
+    
     // Get previous chat history if userId is provided
     let chatHistory = [];
     if (userId) {
+      console.log(`Fetching chat history for user: ${userId}`);
       const historyResponse = await fetch(
         `${client}/rest/v1/ai_chat_history?user_id=eq.${userId}&order=created_at.asc&limit=10`,
         {
@@ -90,6 +96,8 @@ serve(async (req) => {
       );
       
       const history = await historyResponse.json();
+      console.log(`Retrieved ${history.length} chat history items`);
+      
       chatHistory = history.map(item => [
         { role: "user", content: item.message },
         { role: "assistant", content: item.response }
@@ -103,7 +111,9 @@ serve(async (req) => {
       { role: "user", content: message }
     ];
 
-    // Call OpenAI API
+    console.log("Calling OpenAI API");
+    
+    // Call OpenAI API with gpt-4o-mini model
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -118,11 +128,20 @@ serve(async (req) => {
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("OpenAI API error:", errorData);
+      throw new Error(`OpenAI API error: ${response.status} ${JSON.stringify(errorData)}`);
+    }
+
     const data = await response.json();
+    console.log("OpenAI response received");
+    
     const aiResponse = data.choices[0].message.content;
 
     // Save the message and response to the database if userId is provided
     if (userId) {
+      console.log("Saving chat history to database");
       await fetch(`${client}/rest/v1/ai_chat_history`, {
         method: 'POST',
         headers: {
@@ -139,6 +158,7 @@ serve(async (req) => {
       });
     }
 
+    console.log("Returning response to client");
     return new Response(
       JSON.stringify({ response: aiResponse }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

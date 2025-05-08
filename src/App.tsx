@@ -14,10 +14,12 @@ import Home from "./pages/Home";
 import Scholarships from "./pages/Scholarships";
 import ScholarshipDetail from "./pages/ScholarshipDetail";
 import Community from "./pages/Community";
+import CreatePost from "./pages/CreatePost";
 import PostDetail from "./pages/PostDetail";
 import Guides from "./pages/Guides";
 import GuideDetail from "./pages/GuideDetail";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import StaticPage from "./pages/StaticPage";
 import NotFound from "./pages/NotFound";
@@ -39,10 +41,12 @@ const App = () => (
                 <Route path="/scholarships" element={<Scholarships />} />
                 <Route path="/scholarships/:id" element={<ScholarshipDetail />} />
                 <Route path="/community" element={<Community />} />
+                <Route path="/create-post" element={<CreatePost />} />
                 <Route path="/community/:id" element={<PostDetail />} />
                 <Route path="/guides" element={<Guides />} />
                 <Route path="/guides/:id" element={<GuideDetail />} />
                 <Route path="/login" element={<Login />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/about" element={<StaticPage />} />
                 <Route path="/faq" element={<StaticPage />} />
