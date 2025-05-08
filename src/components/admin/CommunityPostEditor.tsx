@@ -8,14 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { FileText, Image } from "lucide-react";
+import { FileText, Image, Loader2 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 // Schema for the blog post form
 const blogPostFormSchema = z.object({
   title: z.string().min(5, { message: "Title must be at least 5 characters" }),
   content: z.string().min(20, { message: "Content must be at least 20 characters" }),
   tags: z.string().transform(val => val.split(',').map(tag => tag.trim()).filter(Boolean)),
-  image: z.string().optional()
+  image: z.instanceof(FileList).optional().transform(val => val && val.length > 0 ? val : undefined)
 });
 
 // Define the input type (what the form receives)
@@ -25,27 +28,98 @@ type BlogPostFormInput = z.input<typeof blogPostFormSchema>;
 type BlogPostFormValues = z.output<typeof blogPostFormSchema>;
 
 export function CommunityPostEditor() {
+  const { user } = useAuth();
+  const [isUploading, setIsUploading] = useState(false);
+  
   const form = useForm<BlogPostFormInput>({
     resolver: zodResolver(blogPostFormSchema),
     defaultValues: {
       title: "",
       content: "",
       tags: "",
-      image: ""
+      image: undefined
     }
   });
 
-  function onSubmit(values: BlogPostFormInput) {
-    // The zodResolver transforms the input values according to the schema
-    // So tags will be automatically transformed from a comma-separated string to an array
-    const transformedValues = blogPostFormSchema.parse(values);
+  async function onSubmit(values: BlogPostFormInput) {
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: "You must be logged in to create a post.",
+      });
+      return;
+    }
     
-    toast({
-      title: "Post Created",
-      description: "Your community post has been published.",
-    });
-    console.log(transformedValues);
-    // This will be replaced with Supabase insert once integrated
+    setIsUploading(true);
+    
+    try {
+      // The zodResolver transforms the input values according to the schema
+      // So tags will be automatically transformed from a comma-separated string to an array
+      const transformedValues = blogPostFormSchema.parse(values);
+      let imageUrl = null;
+      
+      // Upload image if provided
+      if (transformedValues.image && transformedValues.image.length > 0) {
+        const file = transformedValues.image[0];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+        const filePath = `community-posts/${fileName}`;
+        
+        // Create storage bucket if it doesn't exist (this will be handled by Supabase policies)
+        
+        // Upload the file
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('images')
+          .upload(filePath, file);
+        
+        if (uploadError) {
+          throw uploadError;
+        }
+        
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('images')
+          .getPublicUrl(filePath);
+          
+        imageUrl = publicUrl;
+      }
+      
+      // Insert post into database
+      const { data, error } = await supabase
+        .from('community_posts')
+        .insert([
+          {
+            title: transformedValues.title,
+            content: transformedValues.content,
+            tags: transformedValues.tags,
+            image_url: imageUrl,
+            author_id: user.id,
+          }
+        ]);
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast({
+        title: "Post Created",
+        description: "Your community post has been published.",
+      });
+      
+      // Reset form
+      form.reset();
+      
+    } catch (error: any) {
+      console.error("Error creating post:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to create post. Please try again.",
+      });
+    } finally {
+      setIsUploading(false);
+    }
   }
 
   return (
@@ -80,7 +154,7 @@ export function CommunityPostEditor() {
                 {...form.register("content")}
               />
               <p className="text-xs text-muted-foreground">
-                Markdown formatting is supported (rich text editor will be implemented)
+                Markdown formatting is supported
               </p>
               {form.formState.errors.content && (
                 <p className="text-sm text-red-500">{form.formState.errors.content.message}</p>
@@ -101,26 +175,31 @@ export function CommunityPostEditor() {
 
             <div className="grid gap-2">
               <Label htmlFor="image">Featured Image</Label>
-              <div className="flex gap-2">
-                <Input 
-                  id="image" 
-                  placeholder="http://example.com/image.jpg"
-                  {...form.register("image")} 
-                />
-                <Button type="button" variant="outline" size="icon">
-                  <Image className="h-4 w-4" />
-                </Button>
-              </div>
+              <Input 
+                id="image" 
+                type="file"
+                accept="image/*"
+                {...form.register("image")}
+              />
               <p className="text-xs text-muted-foreground">
-                Enter a URL or upload an image (Supabase storage will be implemented)
+                Upload an image for your post (optional)
               </p>
             </div>
           </div>
           
           <div className="mt-6">
-            <Button type="submit" className="w-full">
-              <FileText className="h-4 w-4 mr-2" />
-              Publish Post
+            <Button type="submit" className="w-full" disabled={isUploading}>
+              {isUploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Publishing...
+                </>
+              ) : (
+                <>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Publish Post
+                </>
+              )}
             </Button>
           </div>
         </form>

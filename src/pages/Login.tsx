@@ -1,46 +1,101 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogIn } from "lucide-react";
+import { LogIn, AlertCircle } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "@/components/ui/use-toast";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const { signIn, signUp, signInWithGoogle, user } = useAuth();
+  const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  // If user is already logged in, redirect to home
+  if (user) {
+    return <Navigate to="/" />;
+  }
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate login request
-    setTimeout(() => {
-      console.log("Login with:", { email, password });
-      setIsLoading(false);
-    }, 1000);
+    setErrorMessage("");
+    
+    const { error } = await signIn(email, password);
+    
+    if (error) {
+      setErrorMessage(error.message);
+      toast({
+        variant: "destructive",
+        title: "Login failed",
+        description: error.message,
+      });
+    } else {
+      toast({
+        title: "Login successful",
+        description: "You have been logged in successfully.",
+      });
+      navigate("/");
+    }
+    
+    setIsLoading(false);
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate signup request
-    setTimeout(() => {
-      console.log("Signup with:", { name, email, password });
+    setErrorMessage("");
+    
+    if (password.length < 6) {
+      setErrorMessage("Password must be at least 6 characters long.");
       setIsLoading(false);
-    }, 1000);
+      return;
+    }
+    
+    const { error } = await signUp(email, password, name);
+    
+    if (error) {
+      setErrorMessage(error.message);
+      toast({
+        variant: "destructive",
+        title: "Signup failed",
+        description: error.message,
+      });
+    } else {
+      toast({
+        title: "Account created",
+        description: "Check your email to confirm your account.",
+      });
+    }
+    
+    setIsLoading(false);
   };
 
-  const handleGoogleAuth = () => {
+  const handleGoogleAuth = async () => {
     setIsLoading(true);
-    // Simulate Google auth redirect
-    setTimeout(() => {
-      console.log("Authenticating with Google");
-      setIsLoading(false);
-    }, 1000);
+    setErrorMessage("");
+    
+    const { error } = await signInWithGoogle();
+    
+    if (error) {
+      setErrorMessage(error.message);
+      toast({
+        variant: "destructive",
+        title: "Google login failed",
+        description: error.message,
+      });
+    }
+    
+    setIsLoading(false);
   };
 
   return (
@@ -61,6 +116,12 @@ export default function Login() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {errorMessage && (
+                  <Alert variant="destructive" className="mb-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{errorMessage}</AlertDescription>
+                  </Alert>
+                )}
                 <form onSubmit={handleLogin}>
                   <div className="grid gap-4">
                     <div className="grid gap-2">
@@ -77,12 +138,6 @@ export default function Login() {
                     <div className="grid gap-2">
                       <div className="flex items-center justify-between">
                         <Label htmlFor="password">Password</Label>
-                        <Link
-                          to="/forgot-password"
-                          className="text-sm text-muted-foreground hover:text-foreground"
-                        >
-                          Forgot password?
-                        </Link>
                       </div>
                       <Input
                         id="password"
@@ -156,6 +211,12 @@ export default function Login() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {errorMessage && (
+                  <Alert variant="destructive" className="mb-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{errorMessage}</AlertDescription>
+                  </Alert>
+                )}
                 <form onSubmit={handleSignup}>
                   <div className="grid gap-4">
                     <div className="grid gap-2">
@@ -190,7 +251,7 @@ export default function Login() {
                         required
                       />
                       <p className="text-xs text-muted-foreground">
-                        Password must be at least 8 characters long
+                        Password must be at least 6 characters long
                       </p>
                     </div>
                     <Button type="submit" disabled={isLoading} className="mt-2">
@@ -243,13 +304,7 @@ export default function Login() {
               <CardFooter className="flex flex-col items-center gap-2">
                 <p className="text-xs text-muted-foreground text-center">
                   By creating an account, you agree to our{" "}
-                  <Link to="/terms" className="underline">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link to="/privacy" className="underline">
-                    Privacy Policy
-                  </Link>
+                  Terms of Service and Privacy Policy
                 </p>
               </CardFooter>
             </Card>

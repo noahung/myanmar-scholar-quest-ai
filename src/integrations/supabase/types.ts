@@ -9,7 +9,176 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      ai_chat_history: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          response: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          response: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          response?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      community_posts: {
+        Row: {
+          author_id: string
+          comments: number | null
+          content: string
+          date: string
+          id: string
+          image_url: string | null
+          likes: number | null
+          tags: string[] | null
+          title: string
+        }
+        Insert: {
+          author_id: string
+          comments?: number | null
+          content: string
+          date?: string
+          id?: string
+          image_url?: string | null
+          likes?: number | null
+          tags?: string[] | null
+          title: string
+        }
+        Update: {
+          author_id?: string
+          comments?: number | null
+          content?: string
+          date?: string
+          id?: string
+          image_url?: string | null
+          likes?: number | null
+          tags?: string[] | null
+          title?: string
+        }
+        Relationships: []
+      }
+      guide_steps: {
+        Row: {
+          content: string
+          guide_id: string
+          id: string
+          step_order: number
+          title: string
+        }
+        Insert: {
+          content: string
+          guide_id: string
+          id?: string
+          step_order: number
+          title: string
+        }
+        Update: {
+          content?: string
+          guide_id?: string
+          id?: string
+          step_order?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_steps_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "guides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guides: {
+        Row: {
+          author_id: string | null
+          category: string
+          country: string
+          created_at: string
+          description: string
+          id: string
+          image: string | null
+          steps: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          category: string
+          country: string
+          created_at?: string
+          description: string
+          id?: string
+          image?: string | null
+          steps?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          category?: string
+          country?: string
+          created_at?: string
+          description?: string
+          id?: string
+          image?: string | null
+          steps?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          education: string | null
+          email: string
+          full_name: string | null
+          id: string
+          interests: string[] | null
+          is_admin: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          education?: string | null
+          email: string
+          full_name?: string | null
+          id: string
+          interests?: string[] | null
+          is_admin?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          education?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          interests?: string[] | null
+          is_admin?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,7 +1,12 @@
 
-// Mock admin check - will be replaced with Supabase auth check
+import { useAuth } from "@/context/AuthContext";
+
+// Admin check using the AuthContext
 export const useIsAdmin = () => {
-  // For now, we'll just return true for demo purposes
-  // In production, this would check if the current user is an admin
-  return { isAdmin: true, isLoading: false };
+  const { user, isLoading, isAdmin } = useAuth();
+  
+  return { 
+    isAdmin: isAdmin, 
+    isLoading: isLoading
+  };
 };

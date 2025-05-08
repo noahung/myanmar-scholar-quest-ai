@@ -1,7 +1,6 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { scholarships, Scholarship } from "@/data/scholarships";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +10,8 @@ import {
   ArrowRight, 
   Search,
   Filter,
-  BookOpen
+  BookOpen,
+  Loader2
 } from "lucide-react";
 import {
   Select,
@@ -20,17 +20,70 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+
+export interface Scholarship {
+  id: string;
+  title: string;
+  country: string;
+  institution: string;
+  deadline: string;
+  fields: string[];
+  level: string;
+  description: string;
+  benefits: string[];
+  requirements: string[];
+  application_url: string;
+  featured: boolean;
+  source_url?: string;
+  image_url?: string;
+}
 
 export default function Scholarships() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedField, setSelectedField] = useState<string>("");
   const [selectedLevel, setSelectedLevel] = useState<string>("");
+  const [scholarships, setScholarships] = useState<Scholarship[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [countries, setCountries] = useState<string[]>([]);
+  const [fields, setFields] = useState<string[]>([]);
+  const [levels, setLevels] = useState<string[]>([]);
 
-  // Get unique countries, fields and levels from scholarships
-  const countries = Array.from(new Set(scholarships.map(s => s.country)));
-  const fields = Array.from(new Set(scholarships.flatMap(s => s.fields)));
-  const levels = Array.from(new Set(scholarships.map(s => s.level)));
+  useEffect(() => {
+    fetchScholarships();
+  }, []);
+
+  async function fetchScholarships() {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('scholarships')
+        .select('*');
+
+      if (error) {
+        console.error("Error fetching scholarships:", error);
+        return;
+      }
+
+      if (data) {
+        setScholarships(data);
+        
+        // Extract unique countries, fields and levels
+        const uniqueCountries = Array.from(new Set(data.map(s => s.country)));
+        const uniqueFields = Array.from(new Set(data.flatMap(s => s.fields)));
+        const uniqueLevels = Array.from(new Set(data.map(s => s.level)));
+        
+        setCountries(uniqueCountries.sort());
+        setFields(uniqueFields.sort());
+        setLevels(uniqueLevels.sort());
+      }
+    } catch (error) {
+      console.error("Error in fetchScholarships:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   // Filter scholarships based on user input
   const filteredScholarships = scholarships.filter(scholarship => {
@@ -86,7 +139,7 @@ export default function Scholarships() {
               <SelectValue placeholder="Filter by Country" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all-countries">All Countries</SelectItem>
+              <SelectItem value="">All Countries</SelectItem>
               {countries.map(country => (
                 <SelectItem key={country} value={country}>{country}</SelectItem>
               ))}
@@ -98,7 +151,7 @@ export default function Scholarships() {
               <SelectValue placeholder="Filter by Field of Study" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all-fields">All Fields</SelectItem>
+              <SelectItem value="">All Fields</SelectItem>
               {fields.map(field => (
                 <SelectItem key={field} value={field}>{field}</SelectItem>
               ))}
@@ -110,7 +163,7 @@ export default function Scholarships() {
               <SelectValue placeholder="Filter by Degree Level" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all-levels">All Levels</SelectItem>
+              <SelectItem value="">All Levels</SelectItem>
               {levels.map(level => (
                 <SelectItem key={level} value={level}>{level}</SelectItem>
               ))}
@@ -127,10 +180,33 @@ export default function Scholarships() {
         </span>
       </div>
 
+      {/* Loading state */}
+      {isLoading && (
+        <div className="flex justify-center items-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-myanmar-jade" />
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!isLoading && scholarships.length === 0 && (
+        <div className="text-center py-10">
+          <h3 className="text-lg font-medium">No scholarships found</h3>
+          <p className="text-muted-foreground mt-2">Try importing scholarship data from your web scraper</p>
+        </div>
+      )}
+
+      {/* No results after filtering */}
+      {!isLoading && scholarships.length > 0 && filteredScholarships.length === 0 && (
+        <div className="text-center py-10">
+          <h3 className="text-lg font-medium">No scholarships match your filters</h3>
+          <p className="text-muted-foreground mt-2">Try adjusting your filters or search term</p>
+        </div>
+      )}
+
       {/* Scholarships grid */}
-      {filteredScholarships.length > 0 ? (
+      {!isLoading && filteredScholarships.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredScholarships.map((scholarship: Scholarship) => (
+          {filteredScholarships.map((scholarship) => (
             <Card key={scholarship.id} className="scholarship-card">
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -166,11 +242,6 @@ export default function Scholarships() {
               </CardFooter>
             </Card>
           ))}
-        </div>
-      ) : (
-        <div className="text-center py-10">
-          <h3 className="text-lg font-medium">No scholarships found</h3>
-          <p className="text-muted-foreground mt-2">Try adjusting your filters or search term</p>
         </div>
       )}
     </div>

@@ -1,36 +1,63 @@
 
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Scholarship } from "@/data/scholarships";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, ArrowLeft, Globe, GraduationCap, FileText, Link as LinkIcon, Calendar as CalendarIcon } from "lucide-react";
+import { 
+  Calendar, 
+  ArrowLeft, 
+  Globe, 
+  GraduationCap, 
+  FileText, 
+  Link as LinkIcon, 
+  Calendar as CalendarIcon,
+  MessageSquare
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase/client";
+import { Scholarship } from "./Scholarships";
+import { AiAssistant } from "@/components/ai-assistant";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 export default function ScholarshipDetail() {
   const { id } = useParams<{ id: string }>();
   const [scholarship, setScholarship] = useState<Scholarship | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAiChat, setShowAiChat] = useState(false);
 
   useEffect(() => {
-    // This will be replaced with an actual Supabase query
-    // For now, we're using the mock data
-    import("@/data/scholarships").then(({ scholarships }) => {
-      const found = scholarships.find(s => s.id === id);
-      if (found) {
-        setScholarship(found);
-      } else {
-        setError("Scholarship not found");
+    async function fetchScholarship() {
+      if (!id) return;
+      
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('scholarships')
+          .select('*')
+          .eq('id', id)
+          .single();
+          
+        if (error) {
+          throw error;
+        }
+        
+        if (data) {
+          setScholarship(data);
+        } else {
+          setError("Scholarship not found");
+        }
+      } catch (err: any) {
+        console.error("Failed to load scholarship:", err);
+        setError(err.message || "Failed to load scholarship data");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    }).catch(err => {
-      console.error("Failed to load scholarship:", err);
-      setError("Failed to load scholarship data");
-      setLoading(false);
-    });
+    }
+    
+    fetchScholarship();
   }, [id]);
 
   if (loading) {
@@ -159,15 +186,49 @@ export default function ScholarshipDetail() {
           </ul>
         </div>
 
-        {/* Application button */}
-        <div className="mt-6 flex justify-center">
+        {/* Application button and AI chat */}
+        <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
           <Button size="lg" asChild>
-            <a href={scholarship.applicationUrl} target="_blank" rel="noopener noreferrer">
+            <a href={scholarship.application_url} target="_blank" rel="noopener noreferrer">
               <LinkIcon className="mr-2 h-4 w-4" />
               Apply Now
             </a>
           </Button>
+
+          <Dialog open={showAiChat} onOpenChange={setShowAiChat}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="lg">
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Ask AI About This Scholarship
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="w-full max-w-[800px] p-0 h-[500px] max-h-[80vh]">
+              <div className="h-full flex flex-col">
+                <div className="p-4 border-b bg-primary text-primary-foreground">
+                  <h2 className="text-lg font-semibold">Scholarship Assistant</h2>
+                  <p className="text-sm">Ask any questions about this scholarship</p>
+                </div>
+                <div className="flex-1 overflow-hidden">
+                  <AiAssistant scholarshipId={scholarship.id} />
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
+
+        {/* Show original source */}
+        {scholarship.source_url && (
+          <div className="mt-4 text-center">
+            <a 
+              href={scholarship.source_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              View original source
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
