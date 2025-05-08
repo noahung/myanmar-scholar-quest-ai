@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,9 +20,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { Tables } from '@/lib/supabase-types';
 
-export type Scholarship = Tables<'scholarships'>;
+export type Scholarship = {
+  id: string;
+  title: string;
+  country: string;
+  institution: string;
+  deadline: string;
+  fields: string[];
+  level: "Masters" | "Undergraduate" | "PhD" | "Research" | "Training";
+  description: string;
+  benefits: string[];
+  requirements: string[];
+  application_url: string;
+  featured: boolean;
+  created_at?: string;
+  updated_at?: string;
+  source_url?: string;
+};
 
 export default function Scholarships() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -53,35 +67,46 @@ export default function Scholarships() {
         console.log('Falling back to local data');
         // Fallback to local data if Supabase fetch fails or returns empty
         const localData = await import('@/data/scholarships');
-        setScholarships(localData.scholarships);
+        const localScholarships = localData.scholarships as Scholarship[];
+        setScholarships(localScholarships);
         
         // Extract unique values from local data
-        const uniqueCountries = Array.from(new Set(localData.scholarships.map(s => s.country)));
-        const uniqueFields = Array.from(new Set(localData.scholarships.flatMap(s => s.fields)));
-        const uniqueLevels = Array.from(new Set(localData.scholarships.map(s => s.level)));
+        const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country)));
+        const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields)));
+        const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level)));
         
-        setCountries(uniqueCountries.sort());
-        setFields(uniqueFields.sort());
-        setLevels(uniqueLevels.sort());
+        setCountries(uniqueCountries);
+        setFields(uniqueFields);
+        setLevels(uniqueLevels);
       } else {
         // Use Supabase data
-        setScholarships(scholarshipsData);
+        setScholarships(scholarshipsData as Scholarship[]);
         
         // Extract unique values from Supabase data
         const uniqueCountries = Array.from(new Set(scholarshipsData.map(s => s.country)));
-        const uniqueFields = Array.from(new Set(scholarshipsData.flatMap(s => s.fields as string[])));
+        const uniqueFields = Array.from(new Set(scholarshipsData.flatMap(s => s.fields)));
         const uniqueLevels = Array.from(new Set(scholarshipsData.map(s => s.level)));
         
-        setCountries(uniqueCountries.sort() as string[]);
-        setFields(uniqueFields.sort() as string[]);
-        setLevels(uniqueLevels.sort() as string[]);
+        setCountries(uniqueCountries as string[]);
+        setFields(uniqueFields as string[]);
+        setLevels(uniqueLevels as string[]);
       }
     } catch (error) {
       console.error("Error in fetchScholarships:", error);
       // Attempt to load local data as a last resort
       try {
         const localData = await import('@/data/scholarships');
-        setScholarships(localData.scholarships);
+        const localScholarships = localData.scholarships as Scholarship[];
+        setScholarships(localScholarships);
+        
+        // Extract unique values
+        const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country)));
+        const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields)));
+        const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level)));
+        
+        setCountries(uniqueCountries);
+        setFields(uniqueFields);
+        setLevels(uniqueLevels);
       } catch (fallbackError) {
         console.error("Failed to load fallback data:", fallbackError);
       }

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -36,17 +35,18 @@ export default function ScholarshipDetail() {
         setLoading(true);
         
         // Try to fetch from Supabase first
-        const { data: scholarshipData, error } = await supabase
+        let { data: scholarshipData, error } = await supabase
           .from('scholarships')
           .select('*')
           .eq('id', id)
-          .single();
+          .maybeSingle();
           
         if (error || !scholarshipData) {
           console.log('Falling back to local data');
           // Fallback to local data if Supabase fetch fails
           const localData = await import('@/data/scholarships');
-          const localScholarship = localData.scholarships.find(s => s.id === id);
+          const localScholarships = localData.scholarships as Scholarship[];
+          const localScholarship = localScholarships.find(s => s.id === id);
             
           if (localScholarship) {
             setScholarship(localScholarship);
@@ -55,7 +55,7 @@ export default function ScholarshipDetail() {
           }
         } else {
           // Use Supabase data
-          setScholarship(scholarshipData);
+          setScholarship(scholarshipData as Scholarship);
         }
       } catch (err: any) {
         console.error("Failed to load scholarship:", err);

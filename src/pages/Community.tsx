@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Link, useNavigate } from "react-router-dom";
 import { MessageCircle, Heart, Share, Plus, Filter, BookOpen, Loader2 } from "lucide-react";
@@ -40,35 +40,52 @@ export default function Community() {
     try {
       setIsLoading(true);
       
+      // Query posts and join with profiles for author information
       const { data: postsData, error } = await supabase
         .from('community_posts')
         .select(`
-          *,
+          id,
+          title,
+          content,
           author_id,
-          profiles:author_id (id, full_name, avatar_url)
-        `)
-        .order('date', { ascending: false });
+          date,
+          likes,
+          comments,
+          tags,
+          image_url
+        `);
 
       if (error) {
         throw error;
       }
 
-      // Transform the data into the expected format
-      const formattedPosts = postsData.map(post => ({
-        id: post.id,
-        title: post.title,
-        content: post.content,
-        author: {
-          id: post.author_id,
-          name: post.profiles?.full_name || 'Anonymous',
-          avatar: post.profiles?.avatar_url
-        },
-        date: post.date,
-        likes: post.likes || 0,
-        comments: post.comments || 0,
-        tags: post.tags || [],
-        image_url: post.image_url
-      }));
+      // For each post, fetch the author's profile
+      const formattedPosts: Post[] = [];
+      
+      for (const post of postsData || []) {
+        // Get author profile
+        const { data: authorData } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url')
+          .eq('id', post.author_id)
+          .single();
+          
+        formattedPosts.push({
+          id: post.id,
+          title: post.title,
+          content: post.content,
+          author: {
+            id: post.author_id,
+            name: authorData?.full_name || 'Anonymous',
+            avatar: authorData?.avatar_url || undefined
+          },
+          date: post.date,
+          likes: post.likes || 0,
+          comments: post.comments || 0,
+          tags: post.tags || [],
+          image_url: post.image_url
+        });
+      }
 
       setPosts(formattedPosts);
     } catch (error) {
@@ -162,7 +179,7 @@ export default function Community() {
       return;
     }
 
-    // Direct normal users to create post page instead of admin area
+    // Direct users to create post page
     navigate("/create-post");
   };
 
@@ -217,7 +234,8 @@ export default function Community() {
                     <div className="flex justify-between">
                       <div className="flex items-center gap-2">
                         <Avatar>
-                          <img src={post.author.avatar} alt={post.author.name} />
+                          <AvatarImage src={post.author.avatar} alt={post.author.name} />
+                          <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div>
                           <p className="font-medium">{post.author.name}</p>
@@ -273,7 +291,8 @@ export default function Community() {
                     <div className="flex justify-between">
                       <div className="flex items-center gap-2">
                         <Avatar>
-                          <img src={post.author.avatar} alt={post.author.name} />
+                          <AvatarImage src={post.author.avatar} alt={post.author.name} />
+                          <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div>
                           <p className="font-medium">{post.author.name}</p>
@@ -330,7 +349,8 @@ export default function Community() {
                       <div className="flex justify-between">
                         <div className="flex items-center gap-2">
                           <Avatar>
-                            <img src={post.author.avatar} alt={post.author.name} />
+                            <AvatarImage src={post.author.avatar} alt={post.author.name} />
+                            <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div>
                             <p className="font-medium">{post.author.name}</p>
