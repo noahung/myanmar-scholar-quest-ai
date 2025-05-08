@@ -26,9 +26,8 @@ serve(async (req) => {
     
     // Create storage buckets
     const buckets = [
-      { name: 'profile_images', public: true },
-      { name: 'post_images', public: true },
-      { name: 'guide_images', public: true },
+      { name: 'avatars', public: true },
+      { name: 'posts', public: true },
     ];
     
     const results = [];

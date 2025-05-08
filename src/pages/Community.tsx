@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Link, useNavigate } from "react-router-dom";
-import { MessageCircle, Heart, Share, Plus, Filter, BookOpen, Loader2 } from "lucide-react";
+import { MessageCircle, Heart, Share, Plus, Filter, BookOpen, Loader2, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/components/ui/use-toast";
@@ -24,6 +25,7 @@ type Post = {
   comments: number;
   tags: string[];
   image_url?: string;
+  isLiked?: boolean;
 };
 
 export default function Community() {
@@ -34,7 +36,7 @@ export default function Community() {
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [user]);
 
   async function fetchPosts() {
     try {
@@ -53,7 +55,8 @@ export default function Community() {
           comments,
           tags,
           image_url
-        `);
+        `)
+        .order('date', { ascending: false });
 
       if (error) {
         throw error;
@@ -70,6 +73,20 @@ export default function Community() {
           .eq('id', post.author_id)
           .single();
           
+        // Check if the current user has liked this post
+        let isLiked = false;
+        
+        if (user) {
+          const { data: likeData } = await supabase
+            .from('post_likes')
+            .select('id')
+            .eq('post_id', post.id)
+            .eq('user_id', user.id)
+            .single();
+            
+          isLiked = !!likeData;
+        }
+        
         formattedPosts.push({
           id: post.id,
           title: post.title,
@@ -83,7 +100,8 @@ export default function Community() {
           likes: post.likes || 0,
           comments: post.comments || 0,
           tags: post.tags || [],
-          image_url: post.image_url
+          image_url: post.image_url,
+          isLiked
         });
       }
 
@@ -104,7 +122,8 @@ export default function Community() {
           date: "2025-04-10",
           likes: 24,
           comments: 8,
-          tags: ["JICA", "Japan", "Experience"]
+          tags: ["JICA", "Japan", "Experience"],
+          isLiked: false
         },
         {
           id: "2",
@@ -118,7 +137,8 @@ export default function Community() {
           date: "2025-04-05",
           likes: 32,
           comments: 15,
-          tags: ["IELTS", "Language Test", "Study Tips"]
+          tags: ["IELTS", "Language Test", "Study Tips"],
+          isLiked: false
         },
         {
           id: "3",
@@ -132,7 +152,8 @@ export default function Community() {
           date: "2025-04-02",
           likes: 10,
           comments: 22,
-          tags: ["Fulbright", "USA", "SoP", "Help Needed"]
+          tags: ["Fulbright", "USA", "SoP", "Help Needed"],
+          isLiked: false
         },
         {
           id: "4",
@@ -146,7 +167,8 @@ export default function Community() {
           date: "2025-03-28",
           likes: 56,
           comments: 13,
-          tags: ["Success Story", "UK", "Cambridge"]
+          tags: ["Success Story", "UK", "Cambridge"],
+          isLiked: false
         },
         {
           id: "5",
@@ -160,7 +182,8 @@ export default function Community() {
           date: "2025-03-25",
           likes: 41,
           comments: 17,
-          tags: ["Germany", "Practical Tips", "Relocation"]
+          tags: ["Germany", "Practical Tips", "Relocation"],
+          isLiked: false
         }
       ]);
     } finally {
@@ -181,6 +204,124 @@ export default function Community() {
 
     // Direct users to create post page
     navigate("/create-post");
+  };
+
+  const handleLikePost = async (postId: string, isLiked: boolean) => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please log in to like posts",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Optimistically update UI
+      const updatedPosts = posts.map(post => {
+        if (post.id === postId) {
+          return {
+            ...post,
+            likes: isLiked ? post.likes - 1 : post.likes + 1,
+            isLiked: !isLiked
+          };
+        }
+        return post;
+      });
+      
+      setPosts(updatedPosts);
+
+      if (isLiked) {
+        // Unlike post
+        const { error } = await supabase
+          .from('post_likes')
+          .delete()
+          .eq('post_id', postId)
+          .eq('user_id', user.id);
+          
+        if (error) throw error;
+          
+        // Update post like count
+        await supabase
+          .from('community_posts')
+          .update({ likes: updatedPosts.find(p => p.id === postId)?.likes || 0 })
+          .eq('id', postId);
+      } else {
+        // Like post
+        const { error } = await supabase
+          .from('post_likes')
+          .insert({
+            post_id: postId,
+            user_id: user.id
+          });
+          
+        if (error) throw error;
+        
+        // Update post like count
+        await supabase
+          .from('community_posts')
+          .update({ likes: updatedPosts.find(p => p.id === postId)?.likes || 0 })
+          .eq('id', postId);
+      }
+    } catch (error) {
+      console.error("Error liking post:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update like",
+        variant: "destructive"
+      });
+      // Revert optimistic update
+      fetchPosts();
+    }
+  };
+
+  const handleSharePost = async (post: Post) => {
+    try {
+      const shareUrl = `${window.location.origin}/community/${post.id}`;
+      
+      // Try to use the Web Share API if available
+      if (navigator.share) {
+        await navigator.share({
+          title: post.title,
+          text: `Check out this post on Scholar-M: ${post.title}`,
+          url: shareUrl
+        });
+        
+        toast({
+          title: "Post shared successfully",
+          description: "The post has been shared"
+        });
+      } else {
+        // Fallback to clipboard copy
+        await navigator.clipboard.writeText(shareUrl);
+        
+        toast({
+          title: "Link copied to clipboard",
+          description: "You can now paste the link anywhere"
+        });
+      }
+      
+      // Increment share count in database
+      const { error } = await supabase
+        .from('community_posts')
+        .update({ 
+          share_count: (post.share_count || 0) + 1 
+        })
+        .eq('id', post.id);
+        
+      if (error) throw error;
+        
+    } catch (error) {
+      console.error("Error sharing post:", error);
+      // If it's not a user abort, show an error
+      if (!(error instanceof DOMException && error.name === 'AbortError')) {
+        toast({
+          title: "Error",
+          description: "Failed to share post",
+          variant: "destructive"
+        });
+      }
+    }
   };
 
   return (
@@ -229,114 +370,24 @@ export default function Community() {
           <TabsContent value="popular" className="mt-4">
             <div className="space-y-6">
               {posts.sort((a, b) => b.likes - a.likes).map(post => (
-                <Card key={post.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between">
-                      <div className="flex items-center gap-2">
-                        <Avatar>
-                          <AvatarImage src={post.author.avatar} alt={post.author.name} />
-                          <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{post.author.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(post.date).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <Link to={`/community/${post.id}`}>
-                      <CardTitle className="text-lg mt-2 hover:text-myanmar-jade transition-colors">
-                        {post.title}
-                      </CardTitle>
-                    </Link>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="line-clamp-3 text-sm mb-4">{post.content}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {post.tags.map((tag, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <div className="w-full flex justify-between">
-                      <div className="flex gap-4">
-                        <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                          <Heart className="h-4 w-4" />
-                          <span>{post.likes}</span>
-                        </Button>
-                        <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                          <MessageCircle className="h-4 w-4" />
-                          <span>{post.comments}</span>
-                        </Button>
-                      </div>
-                      <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                        <Share className="h-4 w-4" />
-                        <span>Share</span>
-                      </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
+                <PostCard 
+                  key={post.id} 
+                  post={post} 
+                  onLike={handleLikePost} 
+                  onShare={handleSharePost}
+                />
               ))}
             </div>
           </TabsContent>
           <TabsContent value="recent" className="mt-4">
             <div className="space-y-6">
               {posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(post => (
-                <Card key={post.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between">
-                      <div className="flex items-center gap-2">
-                        <Avatar>
-                          <AvatarImage src={post.author.avatar} alt={post.author.name} />
-                          <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{post.author.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(post.date).toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <Link to={`/community/${post.id}`}>
-                      <CardTitle className="text-lg mt-2 hover:text-myanmar-jade transition-colors">
-                        {post.title}
-                      </CardTitle>
-                    </Link>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="line-clamp-3 text-sm mb-4">{post.content}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {post.tags.map((tag, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <div className="w-full flex justify-between">
-                      <div className="flex gap-4">
-                        <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                          <Heart className="h-4 w-4" />
-                          <span>{post.likes}</span>
-                        </Button>
-                        <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                          <MessageCircle className="h-4 w-4" />
-                          <span>{post.comments}</span>
-                        </Button>
-                      </div>
-                      <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                        <Share className="h-4 w-4" />
-                        <span>Share</span>
-                      </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
+                <PostCard 
+                  key={post.id} 
+                  post={post} 
+                  onLike={handleLikePost} 
+                  onShare={handleSharePost}
+                />
               ))}
             </div>
           </TabsContent>
@@ -344,57 +395,12 @@ export default function Community() {
             <div className="space-y-6">
               {posts.filter(post => post.comments === 0).length > 0 ? (
                 posts.filter(post => post.comments === 0).map(post => (
-                  <Card key={post.id} className="hover:shadow-md transition-shadow">
-                    <CardHeader>
-                      <div className="flex justify-between">
-                        <div className="flex items-center gap-2">
-                          <Avatar>
-                            <AvatarImage src={post.author.avatar} alt={post.author.name} />
-                            <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium">{post.author.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {new Date(post.date).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <Link to={`/community/${post.id}`}>
-                        <CardTitle className="text-lg mt-2 hover:text-myanmar-jade transition-colors">
-                          {post.title}
-                        </CardTitle>
-                      </Link>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="line-clamp-3 text-sm mb-4">{post.content}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {post.tags.map((tag, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <div className="w-full flex justify-between">
-                        <div className="flex gap-4">
-                          <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                            <Heart className="h-4 w-4" />
-                            <span>{post.likes}</span>
-                          </Button>
-                          <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                            <MessageCircle className="h-4 w-4" />
-                            <span>{post.comments}</span>
-                          </Button>
-                        </div>
-                        <Button variant="ghost" size="sm" className="flex items-center gap-1">
-                          <Share className="h-4 w-4" />
-                          <span>Share</span>
-                        </Button>
-                      </div>
-                    </CardFooter>
-                  </Card>
+                  <PostCard 
+                    key={post.id} 
+                    post={post} 
+                    onLike={handleLikePost} 
+                    onShare={handleSharePost}
+                  />
                 ))
               ) : (
                 <div className="text-center py-10">
@@ -407,5 +413,93 @@ export default function Community() {
         </Tabs>
       )}
     </div>
+  );
+}
+
+interface PostCardProps {
+  post: Post;
+  onLike: (postId: string, isLiked: boolean) => void;
+  onShare: (post: Post) => void;
+}
+
+function PostCard({ post, onLike, onShare }: PostCardProps) {
+  return (
+    <Card className="hover:shadow-md transition-shadow">
+      <CardHeader>
+        <div className="flex justify-between">
+          <div className="flex items-center gap-2">
+            <Avatar>
+              <AvatarImage src={post.author.avatar} alt={post.author.name} />
+              <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-medium">{post.author.name}</p>
+              <p className="text-xs text-muted-foreground">
+                {new Date(post.date).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+        </div>
+        <Link to={`/community/${post.id}`}>
+          <CardTitle className="text-lg mt-2 hover:text-myanmar-jade transition-colors">
+            {post.title}
+          </CardTitle>
+        </Link>
+      </CardHeader>
+      <CardContent>
+        <p className="line-clamp-3 text-sm mb-4">{post.content}</p>
+        {post.image_url && (
+          <div className="mt-4 mb-4">
+            <img
+              src={post.image_url}
+              alt={post.title}
+              className="rounded-md max-h-48 object-cover w-full"
+            />
+          </div>
+        )}
+        <div className="flex flex-wrap gap-2">
+          {post.tags.map((tag, index) => (
+            <Badge key={index} variant="outline" className="text-xs">
+              {tag}
+            </Badge>
+          ))}
+        </div>
+      </CardContent>
+      <CardFooter>
+        <div className="w-full flex justify-between">
+          <div className="flex gap-4">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className={`flex items-center gap-1 ${post.isLiked ? 'text-red-500' : ''}`}
+              onClick={() => onLike(post.id, !!post.isLiked)}
+            >
+              <Heart className={`h-4 w-4 ${post.isLiked ? 'fill-current' : ''}`} />
+              <span>{post.likes}</span>
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="flex items-center gap-1"
+              onClick={() => {
+                window.location.href = `/community/${post.id}`;
+              }}
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span>{post.comments}</span>
+            </Button>
+          </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="flex items-center gap-1"
+            onClick={() => onShare(post)}
+          >
+            <Share className="h-4 w-4" />
+            <span>Share</span>
+          </Button>
+        </div>
+      </CardFooter>
+    </Card>
   );
 }

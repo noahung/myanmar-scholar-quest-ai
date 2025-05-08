@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Calendar, 
   ArrowLeft, 
   Globe, 
   GraduationCap, 
@@ -18,7 +17,25 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AiAssistant } from "@/components/ai-assistant";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Scholarship } from "./Scholarships";
+import { scholarships } from "@/data/scholarships";
+import { UserNotes } from "@/components/user-notes";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+export type Scholarship = {
+  id: string;
+  title: string;
+  institution: string;
+  country: string;
+  deadline: string;
+  level: string;
+  fields: string[];
+  description: string;
+  requirements: string[];
+  benefits: string[];
+  application_url: string;
+  source_url?: string;
+  featured?: boolean;
+};
 
 export default function ScholarshipDetail() {
   const { id } = useParams<{ id: string }>();
@@ -35,9 +52,7 @@ export default function ScholarshipDetail() {
         setLoading(true);
         
         // Try to fetch from local data since Supabase table doesn't exist yet
-        const localData = await import('@/data/scholarships');
-        const localScholarships = localData.scholarships as Scholarship[];
-        const localScholarship = localScholarships.find(s => s.id === id);
+        const localScholarship = scholarships.find(s => s.id === id);
             
         if (localScholarship) {
           setScholarship(localScholarship);
@@ -110,120 +125,139 @@ export default function ScholarshipDetail() {
           {deadlinePassed && <Badge variant="destructive">Deadline Passed</Badge>}
         </div>
 
-        {/* Key information card */}
-        <Card className="mb-8">
-          <CardHeader>
-            <h2 className="text-xl font-semibold">Key Information</h2>
-          </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2">
-            <div className="flex items-start gap-2">
-              <Globe className="h-5 w-5 text-myanmar-jade mt-0.5" />
-              <div>
-                <p className="font-medium">Institution</p>
-                <p className="text-sm text-muted-foreground">{scholarship.institution}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <CalendarIcon className="h-5 w-5 text-myanmar-jade mt-0.5" />
-              <div>
-                <p className="font-medium">Application Deadline</p>
-                <p className="text-sm text-muted-foreground">{formattedDeadline}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <GraduationCap className="h-5 w-5 text-myanmar-jade mt-0.5" />
-              <div>
-                <p className="font-medium">Degree Level</p>
-                <p className="text-sm text-muted-foreground">{scholarship.level}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <FileText className="h-5 w-5 text-myanmar-jade mt-0.5" />
-              <div>
-                <p className="font-medium">Fields of Study</p>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {scholarship.fields.map((field, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {field}
-                    </Badge>
-                  ))}
+        <Tabs defaultValue="details" className="w-full mb-8">
+          <TabsList className="w-full">
+            <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsTrigger value="ai-assistant">AI Assistant</TabsTrigger>
+            <TabsTrigger value="my-notes">My Notes</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="details" className="mt-6">
+            {/* Key information card */}
+            <Card className="mb-8">
+              <CardHeader>
+                <h2 className="text-xl font-semibold">Key Information</h2>
+              </CardHeader>
+              <CardContent className="grid gap-4 md:grid-cols-2">
+                <div className="flex items-start gap-2">
+                  <Globe className="h-5 w-5 text-myanmar-jade mt-0.5" />
+                  <div>
+                    <p className="font-medium">Institution</p>
+                    <p className="text-sm text-muted-foreground">{scholarship.institution}</p>
+                  </div>
                 </div>
-              </div>
+                <div className="flex items-start gap-2">
+                  <CalendarIcon className="h-5 w-5 text-myanmar-jade mt-0.5" />
+                  <div>
+                    <p className="font-medium">Application Deadline</p>
+                    <p className="text-sm text-muted-foreground">{formattedDeadline}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <GraduationCap className="h-5 w-5 text-myanmar-jade mt-0.5" />
+                  <div>
+                    <p className="font-medium">Degree Level</p>
+                    <p className="text-sm text-muted-foreground">{scholarship.level}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <FileText className="h-5 w-5 text-myanmar-jade mt-0.5" />
+                  <div>
+                    <p className="font-medium">Fields of Study</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {scholarship.fields.map((field, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {field}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Description */}
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4">Description</h2>
+              <p className="text-muted-foreground whitespace-pre-line">{scholarship.description}</p>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Description */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Description</h2>
-          <p className="text-muted-foreground whitespace-pre-line">{scholarship.description}</p>
-        </div>
+            <Separator className="my-6" />
 
-        <Separator className="my-6" />
+            {/* Benefits */}
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4">Benefits</h2>
+              <ul className="space-y-2 list-disc pl-5">
+                {scholarship.benefits.map((benefit, index) => (
+                  <li key={index} className="text-muted-foreground">{benefit}</li>
+                ))}
+              </ul>
+            </div>
 
-        {/* Benefits */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Benefits</h2>
-          <ul className="space-y-2 list-disc pl-5">
-            {scholarship.benefits.map((benefit, index) => (
-              <li key={index} className="text-muted-foreground">{benefit}</li>
-            ))}
-          </ul>
-        </div>
+            {/* Requirements */}
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold mb-4">Eligibility Requirements</h2>
+              <ul className="space-y-2 list-disc pl-5">
+                {scholarship.requirements.map((requirement, index) => (
+                  <li key={index} className="text-muted-foreground">{requirement}</li>
+                ))}
+              </ul>
+            </div>
 
-        {/* Requirements */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Eligibility Requirements</h2>
-          <ul className="space-y-2 list-disc pl-5">
-            {scholarship.requirements.map((requirement, index) => (
-              <li key={index} className="text-muted-foreground">{requirement}</li>
-            ))}
-          </ul>
-        </div>
+            {/* Application button and AI chat */}
+            <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
+              <Button size="lg" asChild>
+                <a href={scholarship.application_url} target="_blank" rel="noopener noreferrer">
+                  <LinkIcon className="mr-2 h-4 w-4" />
+                  Apply Now
+                </a>
+              </Button>
 
-        {/* Application button and AI chat */}
-        <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-          <Button size="lg" asChild>
-            <a href={scholarship.application_url} target="_blank" rel="noopener noreferrer">
-              <LinkIcon className="mr-2 h-4 w-4" />
-              Apply Now
-            </a>
-          </Button>
-
-          <Dialog open={showAiChat} onOpenChange={setShowAiChat}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="lg">
+              <Button 
+                variant="outline" 
+                size="lg" 
+                onClick={() => document.getElementById('ai-tab-trigger')?.click()}
+              >
                 <MessageSquare className="mr-2 h-4 w-4" />
                 Ask AI About This Scholarship
               </Button>
-            </DialogTrigger>
-            <DialogContent className="w-full max-w-[800px] p-0 h-[500px] max-h-[80vh]">
-              <div className="h-full flex flex-col">
-                <div className="p-4 border-b bg-primary text-primary-foreground">
-                  <h2 className="text-lg font-semibold">Scholarship Assistant</h2>
-                  <p className="text-sm">Ask any questions about this scholarship</p>
-                </div>
-                <div className="flex-1 overflow-hidden">
-                  <AiAssistant scholarshipId={scholarship.id} />
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+            </div>
 
-        {/* Show original source */}
-        {scholarship.source_url && (
-          <div className="mt-4 text-center">
-            <a 
-              href={scholarship.source_url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
-              View original source
-            </a>
-          </div>
-        )}
+            {/* Show original source */}
+            {scholarship.source_url && (
+              <div className="mt-4 text-center">
+                <a 
+                  href={scholarship.source_url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  View original source
+                </a>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="ai-assistant" id="ai-tab-trigger" className="mt-6">
+            <Card>
+              <CardHeader>
+                <h2 className="text-xl font-semibold">Scholarship Assistant</h2>
+                <p className="text-sm text-muted-foreground">Ask any questions about this scholarship</p>
+              </CardHeader>
+              <CardContent className="h-[500px]">
+                <AiAssistant 
+                  scholarshipId={scholarship.id}
+                  isScholarshipAssistant={true}
+                  initialMessage={`Tell me more about the ${scholarship.title} scholarship.`}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="my-notes" className="mt-6">
+            <UserNotes scholarshipId={scholarship.id} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

@@ -56,14 +56,40 @@ serve(async (req) => {
     // If there's a scholarship ID, fetch scholarship details to provide context
     if (scholarshipId) {
       try {
-        // Try to get scholarship data from local data for now
-        // This would normally come from Supabase, but we'll simulate it
-        context += `The user is currently viewing a scholarship. Answer their questions about scholarship application processes, requirements, and provide helpful advice.`;
+        // Get the scholarship details from the previous chat context or from a database
+        context += `The user is currently viewing a scholarship with ID ${scholarshipId}. Answer their questions about scholarship application processes, requirements, and provide helpful advice. Take the role of a knowledgeable scholarship advisor who has helped many Myanmar students successfully apply for international scholarships. Be detailed in your responses, but keep a conversational tone. If asked about specific scholarship details that you don't have, suggest where they might find that information on the scholarship website.`;
+        
+        // For scholarships stored locally, we could add some generic information
+        context += `\n\nSome general scholarship advice:\n
+        1. Always check eligibility requirements carefully before applying
+        2. Pay attention to deadlines and prepare documents well in advance
+        3. Take time to craft a strong personal statement that shows your passion and goals
+        4. Request recommendation letters from professors or employers who know you well
+        5. Research the institution and program thoroughly before applying`;
       } catch (error) {
-        console.error("Error fetching scholarship:", error);
+        console.error("Error preparing scholarship context:", error);
       }
     } else {
-      context += "Answer questions about scholarships, application processes, and studying abroad. Be informative and supportive.";
+      context += "Answer questions about scholarships, application processes, and studying abroad. Be informative and supportive. Use a friendly, helpful tone, and provide detailed responses that would be useful for students from Myanmar looking to study abroad.";
+    }
+    
+    // Get chat history if user is logged in
+    let chatHistory = [];
+    if (userId) {
+      try {
+        const { data, error } = await supabase
+          .from('ai_chat_history')
+          .select('message, response')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: true })
+          .limit(5);
+        
+        if (!error && data) {
+          chatHistory = data;
+        }
+      } catch (error) {
+        console.error("Error fetching chat history:", error);
+      }
     }
     
     // Prepare messages for OpenAI API
@@ -71,12 +97,28 @@ serve(async (req) => {
       {
         role: "system",
         content: context
-      },
-      {
-        role: "user",
-        content: message
       }
     ];
+    
+    // Add previous messages from chat history
+    chatHistory.forEach(item => {
+      messages.push({
+        role: "user",
+        content: item.message
+      });
+      messages.push({
+        role: "assistant",
+        content: item.response
+      });
+    });
+    
+    // Add current message
+    messages.push({
+      role: "user",
+      content: message
+    });
+    
+    console.log("Sending messages to OpenAI:", messages);
     
     // Call OpenAI API
     const openAIResponse = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -111,7 +153,8 @@ serve(async (req) => {
           .insert({
             user_id: userId,
             message: message,
-            response: aiResponse
+            response: aiResponse,
+            scholarship_id: scholarshipId || null
           });
           
         if (error) {

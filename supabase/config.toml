@@ -61,3 +61,5 @@ redirect_uri = "http://localhost:3000/auth/callback"
 [functions]
 [functions.chat-assistant]
 verify_jwt = false
+[functions.create-storage-buckets]
+verify_jwt = false

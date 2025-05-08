@@ -9,9 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Save, UserCircle, BookOpen, MessageCircle, History } from "lucide-react";
+import { Loader2, Save, UserCircle, BookOpen, MessageCircle, History, BookmarkIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { UserNotes } from "@/components/user-notes";
 
 export default function Profile() {
   const { user, isLoading } = useAuth();
@@ -162,17 +163,6 @@ export default function Profile() {
     try {
       setIsUpdating(true);
       
-      // Create a storage bucket for profile images if it doesn't exist
-      const { data: bucketData, error: bucketError } = await supabase
-        .storage
-        .getBucket('profile_images');
-      
-      if (bucketError && bucketError.message.includes("not found")) {
-        await supabase.storage.createBucket('profile_images', {
-          public: true
-        });
-      }
-      
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}.${fileExt}`;
@@ -181,7 +171,7 @@ export default function Profile() {
       // Upload the image
       const { error: uploadError } = await supabase
         .storage
-        .from('profile_images')
+        .from('avatars')
         .upload(filePath, file, {
           upsert: true
         });
@@ -193,7 +183,7 @@ export default function Profile() {
       // Get the public URL
       const { data } = supabase
         .storage
-        .from('profile_images')
+        .from('avatars')
         .getPublicUrl(filePath);
       
       const avatarUrl = data.publicUrl;
@@ -250,7 +240,7 @@ export default function Profile() {
         <h1 className="text-3xl font-bold tracking-tighter mb-8">My Profile</h1>
         
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <UserCircle className="h-4 w-4" />
               <span>Profile</span>
@@ -262,6 +252,10 @@ export default function Profile() {
             <TabsTrigger value="posts" className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4" />
               <span>My Posts</span>
+            </TabsTrigger>
+            <TabsTrigger value="notes" className="flex items-center gap-2">
+              <BookmarkIcon className="h-4 w-4" />
+              <span>My Notes</span>
             </TabsTrigger>
             <TabsTrigger value="chat-history" className="flex items-center gap-2">
               <History className="h-4 w-4" />
@@ -393,6 +387,10 @@ export default function Profile() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="notes" className="mt-6 space-y-4">
+            <UserNotes className="w-full" />
+          </TabsContent>
           
           <TabsContent value="chat-history" className="mt-6 space-y-4">
             <Card>
@@ -410,7 +408,17 @@ export default function Profile() {
                   </div>
                 ) : (
                   <ul className="space-y-4">
-                    {/* Display chat history here */}
+                    {chatHistory.map((chat: any) => (
+                      <li key={chat.id} className="border rounded p-3">
+                        <p className="font-medium">You:</p>
+                        <p className="text-sm text-muted-foreground mb-2">{chat.message}</p>
+                        <p className="font-medium">AI:</p>
+                        <p className="text-sm text-muted-foreground">{chat.response}</p>
+                        <div className="text-xs text-muted-foreground mt-2">
+                          {new Date(chat.created_at).toLocaleString()}
+                        </div>
+                      </li>
+                    ))}
                   </ul>
                 )}
               </CardContent>

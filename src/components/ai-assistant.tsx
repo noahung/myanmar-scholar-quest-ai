@@ -5,12 +5,14 @@ import {
   MessageCircle, 
   X, 
   Send,
-  Loader
+  Loader,
+  BookmarkPlus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/components/ui/use-toast";
+import { SaveToNotesButton } from "@/components/user-notes";
 
 type Message = {
   id: string;
@@ -21,18 +23,13 @@ type Message = {
 
 interface AiAssistantProps {
   scholarshipId?: string;
+  initialMessage?: string;
+  isScholarshipAssistant?: boolean;
 }
 
-export function AiAssistant({ scholarshipId }: AiAssistantProps = {}) {
+export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssistant = false }: AiAssistantProps = {}) {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: "မင်္ဂလာပါ! အခန်းဘာသာစကားဖြင့် ပညာသင်ခွင့်ရှာဖွေနေပါက ကျွန်ုပ်က ကူညီပေးနိုင်ပါသည်။ (Hi there! I'm your Scholar-M assistant. How can I help you with finding scholarships today?)",
-      sender: 'assistant',
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -41,6 +38,29 @@ export function AiAssistant({ scholarshipId }: AiAssistantProps = {}) {
   const toggleChat = () => {
     setIsOpen(!isOpen);
   };
+
+  useEffect(() => {
+    // Set initial welcome message based on context
+    if (isScholarshipAssistant && scholarshipId) {
+      setMessages([
+        {
+          id: '1',
+          content: "Hello! Ask me any questions about this scholarship, and I'll help you understand the requirements, benefits, and application process.",
+          sender: 'assistant',
+          timestamp: new Date()
+        }
+      ]);
+    } else {
+      setMessages([
+        {
+          id: '1',
+          content: "မင်္ဂလာပါ! အခန်းဘာသာစကားဖြင့် ပညာသင်ခွင့်ရှာဖွေနေပါက ကျွန်ုပ်က ကူညီပေးနိုင်ပါသည်။ (Hi there! I'm your Scholar-M assistant. How can I help you with finding scholarships today?)",
+          sender: 'assistant',
+          timestamp: new Date()
+        }
+      ]);
+    }
+  }, [isScholarshipAssistant, scholarshipId]);
 
   useEffect(() => {
     // Scroll to bottom whenever messages change
@@ -54,18 +74,30 @@ export function AiAssistant({ scholarshipId }: AiAssistantProps = {}) {
     if (user && isOpen) {
       loadChatHistory();
     }
-  }, [user, isOpen]);
+  }, [user, isOpen, scholarshipId]);
+
+  useEffect(() => {
+    // If initialMessage is provided, send it automatically
+    if (initialMessage && isOpen && messages.length === 1) {
+      handleSendMessage(initialMessage);
+    }
+  }, [initialMessage, isOpen, messages]);
 
   async function loadChatHistory() {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('ai_chat_history')
         .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: true })
-        .limit(20);
+        .order('created_at', { ascending: true });
+        
+      if (scholarshipId) {
+        query = query.eq('scholarship_id', scholarshipId);
+      }
+      
+      const { data, error } = await query.limit(20);
 
       if (error) {
         console.error("Error loading chat history:", error);
@@ -96,14 +128,13 @@ export function AiAssistant({ scholarshipId }: AiAssistantProps = {}) {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputMessage.trim()) return;
+  const handleSendMessage = async (message = inputMessage) => {
+    if (!message.trim()) return;
 
     // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: inputMessage,
+      content: message,
       sender: 'user',
       timestamp: new Date()
     };
@@ -115,7 +146,7 @@ export function AiAssistant({ scholarshipId }: AiAssistantProps = {}) {
     try {
       const { data, error } = await supabase.functions.invoke('chat-assistant', {
         body: {
-          message: inputMessage,
+          message: message,
           userId: user?.id,
           scholarshipId: scholarshipId
         }
@@ -156,20 +187,36 @@ export function AiAssistant({ scholarshipId }: AiAssistantProps = {}) {
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSendMessage();
+  };
+
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      {isOpen ? (
-        <div className="bg-card border rounded-lg shadow-lg w-80 sm:w-96 flex flex-col h-96 transition-all duration-300 animate-fade-in">
-          <div className="flex items-center justify-between bg-primary text-primary-foreground p-3 rounded-t-lg">
-            <h3 className="font-medium">
-              {scholarshipId ? "Scholarship Assistant" : "Scholar-M AI Assistant"}
-            </h3>
-            <Button variant="ghost" size="icon" onClick={toggleChat} className="h-8 w-8 text-primary-foreground">
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+    <div className={cn(
+      "fixed bottom-4 right-4 z-50",
+      isScholarshipAssistant ? "relative bottom-0 right-0" : ""
+    )}>
+      {isOpen || isScholarshipAssistant ? (
+        <div className={cn(
+          "bg-card border rounded-lg shadow-lg flex flex-col transition-all duration-300 animate-fade-in",
+          isScholarshipAssistant ? "w-full h-full" : "w-80 sm:w-96 h-96"
+        )}>
+          {!isScholarshipAssistant && (
+            <div className="flex items-center justify-between bg-primary text-primary-foreground p-3 rounded-t-lg">
+              <h3 className="font-medium">
+                {scholarshipId ? "Scholarship Assistant" : "Scholar-M AI Assistant"}
+              </h3>
+              <Button variant="ghost" size="icon" onClick={toggleChat} className="h-8 w-8 text-primary-foreground">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
           
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className={cn(
+            "flex-1 overflow-y-auto p-4 space-y-4",
+            isScholarshipAssistant ? "h-[calc(100%-100px)]" : ""
+          )}>
             {messages.map((message) => (
               <div 
                 key={message.id}
@@ -181,9 +228,18 @@ export function AiAssistant({ scholarshipId }: AiAssistantProps = {}) {
                 )}
               >
                 <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                <span className="text-xs opacity-70 mt-1 block">
-                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
+                <div className="flex justify-between items-center mt-1">
+                  <span className="text-xs opacity-70">
+                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                  
+                  {message.sender === 'assistant' && (
+                    <SaveToNotesButton 
+                      content={message.content}
+                      scholarshipId={scholarshipId}
+                    />
+                  )}
+                </div>
               </div>
             ))}
             {isLoading && (
