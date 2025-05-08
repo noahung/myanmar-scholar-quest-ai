@@ -26,7 +26,7 @@ export const scholarships = [
     deadline: "2025-10-15",
     fields: ["Engineering", "Environmental Studies", "Public Policy", "Economics"],
     level: "Masters",
-    description: "The JICA Scholarship Program offers opportunity for Myanmar students to pursue Master's degrees in Japan's top universities, fully funded by the Japanese government.",
+    description: "The JICA Scholarship Program offers opportunities for Myanmar students to pursue Master's degrees in Japan's top universities, fully funded by the Japanese government.",
     benefits: [
       "Full tuition coverage",
       "Monthly stipend for living expenses",
@@ -173,6 +173,103 @@ export const scholarships = [
     ],
     application_url: "https://www.mfat.govt.nz/",
     featured: true
+  },
+  {
+    id: "7",
+    title: "Italian Government Scholarships for Foreign Students",
+    country: "Italy",
+    institution: "Italian Higher Education Institutes",
+    deadline: "2025-05-16",
+    fields: ["Bachelor’s Degree", "Single Cycle Degree", "Master’s Degree", "Arts, Music, and Dance", "PhD program", "Research", "Italian Language and Culture"],
+    level: "Masters",
+    description: "Offered by the Ministry of Foreign Affairs and International Cooperation (MAECI), these scholarships foster international cooperation, promote Italian language and culture, and support Italy’s economic system. Grants support study, training, and research at public and legally recognized Italian institutions.",
+    benefits: [
+      "Possible tuition fee exemption",
+      "Health and medical insurance",
+      "Financial grant of 9,000 euros for most courses"
+    ],
+    requirements: [
+      "Appropriate academic qualifications",
+      "Age limits: ≤28 for Masters, ≤30 for PhD, ≤40 for Research",
+      "Language skills: B2 Italian or English",
+      "Eligible for citizens of specific countries, including Myanmar"
+    ],
+    application_url: "https://www.esteri.it/en/opportunita/borse-di-studio/per-cittadini-stranieri/borsestudio_stranieri/",
+    featured: false,
+    source_url: "https://www.scholars4dev.com/3282/italian-government-scholarships-for-international-students/"
+  },
+  {
+    id: "8",
+    title: "University of Sydney International Stipend Scholarship (USYDIS)",
+    country: "Australia",
+    institution: "University of Sydney",
+    deadline: "2025-09-12",
+    fields: ["All fields"],
+    level: "Masters",
+    description: "This scholarship supports high-quality international postgraduate students pursuing master’s by research or PhD at the University of Sydney, funded by the university. It aims to attract talented researchers for 2026 programs.",
+    benefits: [
+      "Annual stipend of $41,753",
+      "Support for tuition fees and living costs"
+    ],
+    requirements: [
+      "International student status",
+      "Outstanding academic achievement",
+      "Unconditional offer or enrollment in a master’s by research or PhD"
+    ],
+    application_url: "https://sydney.edu.au/scholarships/e/university-sydney-international-scholarship.html",
+    featured: false,
+    source_url: "https://www.scholars4dev.com/2053/international-scholarships-at-university-of-sydney/"
+  },
+  {
+    id: "9",
+    title: "Joint Japan World Bank Graduate Scholarship Program",
+    country: "Multiple Countries",
+    institution: "Universities in U.S., Europe, Africa, Oceania, Japan",
+    deadline: "2025-02-28",
+    fields: ["Development Studies"],
+    level: "Masters",
+    description: "This program supports students from developing countries, including Myanmar, with professional experience in development, to pursue master’s degrees in development-related fields at participating universities worldwide.",
+    benefits: [
+      "Full tuition",
+      "Monthly living stipend",
+      "Round-trip airfare",
+      "Health insurance",
+      "Travel allowance"
+    ],
+    requirements: [
+      "Citizen of a World Bank member developing country",
+      "No dual citizenship of a developed country",
+      "Bachelor’s degree earned 3+ years prior",
+      "3 years of development-related employment",
+      "Admission to a participating master’s program"
+    ],
+    application_url: "http://www.worldbank.org/en/programs/scholarships",
+    featured: false,
+    source_url: "https://www.scholars4dev.com/2735/japan-world-bank-graduate-scholarships-for-development-related-studies/"
+  },
+  {
+    id: "10",
+    title: "Government of Flanders Master Mind Scholarships",
+    country: "Belgium",
+    institution: "Flemish Universities",
+    deadline: "2025-04-27",
+    fields: ["All fields"],
+    level: "Masters",
+    description: "The Flemish Ministry of Education offers scholarships for master’s programs in Flanders and Brussels to outstanding students worldwide, including Myanmar, to promote the region as a top study destination.",
+    benefits: [
+      "€10,000 grant per academic year",
+      "Tuition fee waiver (€136.50 for 2025-2026)"
+    ],
+    requirements: [
+      "GPA of 3.5/4.0",
+      "Good English proficiency",
+      "Acceptance by a Flemish institution",
+      "Degree from outside Flanders",
+      "Not enrolled in a Flemish institution"
+    ],
+    application_url: "https://www.studyinflanders.be/scholarships/master-mind-scholarships",
+    featured: false,
+    source_url: "https://www.scholars4dev.com/14865/government-of-flanders-master-mind-scholarships-for-international-students/"
   }
 ];
 
