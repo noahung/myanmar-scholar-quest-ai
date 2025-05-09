@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -12,6 +13,7 @@ import { supabase } from "@/lib/supabase-client";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { SaveToNotesButton } from "@/components/user-notes";
+import { API_URL, SUPABASE_ANON_KEY } from "@/lib/constants";
 
 type Message = {
   id: string;
@@ -33,6 +35,7 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
