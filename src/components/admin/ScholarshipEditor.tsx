@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { API_URL, SUPABASE_ANON_KEY } from "@/lib/constants";
 import { Trash, Save, Plus, Search, Pencil } from "lucide-react";
 import { 
   Table,
@@ -87,11 +89,11 @@ export function ScholarshipEditor() {
       try {
         const session = await supabase.auth.getSession();
         if (session.data.session) {
-          const response = await fetch(`${supabase.supabaseUrl}/rest/v1/scholarships?select=*`, {
+          const response = await fetch(`${API_URL}/scholarships?select=*`, {
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${session.data.session.access_token}`,
-              'apikey': supabase.supabaseKey
+              'apikey': SUPABASE_ANON_KEY
             }
           });
           
@@ -174,12 +176,12 @@ export function ScholarshipEditor() {
       try {
         const session = await supabase.auth.getSession();
         if (session.data.session) {
-          const response = await fetch(`${supabase.supabaseUrl}/rest/v1/scholarships?id=eq.${id}`, {
+          const response = await fetch(`${API_URL}/scholarships?id=eq.${id}`, {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${session.data.session.access_token}`,
-              'apikey': supabase.supabaseKey
+              'apikey': SUPABASE_ANON_KEY
             }
           });
           
@@ -227,7 +229,7 @@ export function ScholarshipEditor() {
           const headers = {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${session.data.session.access_token}`,
-            'apikey': supabase.supabaseKey
+            'apikey': SUPABASE_ANON_KEY
           };
           
           const scholarshipData = { 
@@ -239,14 +241,14 @@ export function ScholarshipEditor() {
           let response;
           if (editingId) {
             // Update existing scholarship
-            response = await fetch(`${supabase.supabaseUrl}/rest/v1/scholarships?id=eq.${editingId}`, {
+            response = await fetch(`${API_URL}/scholarships?id=eq.${editingId}`, {
               method: 'PATCH',
               headers,
               body: JSON.stringify(scholarshipData)
             });
           } else {
             // Create new scholarship
-            response = await fetch(`${supabase.supabaseUrl}/rest/v1/scholarships`, {
+            response = await fetch(`${API_URL}/scholarships`, {
               method: 'POST',
               headers,
               body: JSON.stringify(scholarshipData)
