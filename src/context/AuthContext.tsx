@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log("Auth state changed:", event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
@@ -50,8 +50,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (session?.user) {
         fetchUserProfile(session.user.id);
+      } else {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     });
 
     return () => {
@@ -61,20 +62,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function fetchUserProfile(userId: string) {
     try {
+      // First, check if the profile exists
       const { data, error } = await supabase
         .from('profiles')
-        .select('is_admin')
+        .select('is_admin, full_name, avatar_url, email')
         .eq('id', userId)
-        .maybeSingle();
+        .single();
 
-      if (error) {
-        console.error('Error fetching user profile:', error);
-        return;
+      if (error || !data) {
+        // If profile doesn't exist, create one
+        const { data: userData } = await supabase.auth.getUser(userId);
+        if (userData?.user) {
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert({
+              id: userId,
+              full_name: userData.user.user_metadata?.full_name || userData.user.email?.split('@')[0],
+              email: userData.user.email,
+              avatar_url: userData.user.user_metadata?.avatar_url || null,
+              is_admin: false
+            });
+          
+          if (insertError) {
+            console.error('Error creating user profile:', insertError);
+          }
+          
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAdmin(!!data.is_admin);
       }
-
-      setIsAdmin(!!data?.is_admin);
+      
+      setIsLoading(false);
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);
+      setIsLoading(false);
     }
   }
 
@@ -122,14 +144,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
-      // Get the current window origin with protocol
+      // Get the current origin with protocol
       const origin = window.location.origin;
       
-      // Use the window origin as the redirect URL
+      // Use the origin as the redirect URL
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${origin}/login`,
+          redirectTo: `${origin}`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',

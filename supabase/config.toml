@@ -5,17 +5,11 @@ project_id = "aysvkiyuzqktcumdzxqh"
 enabled = true
 port = 54321
 schemas = ["public", "storage", "graphql_public"]
-extra_search_path = ["public", "extensions"]
-max_rows = 1000
 
 [db]
 port = 54322
 shadow_port = 54320
 major_version = 15
-
-[db.pooler]
-enabled = false
-port = 54329
 
 [realtime]
 enabled = true
@@ -31,7 +25,6 @@ port = 54324
 
 [storage]
 enabled = true
-file_size_limit = "50MiB"
 
 [auth]
 enabled = true
@@ -55,11 +48,10 @@ enable_confirmations = true
 enabled = true
 client_id = "env(GOOGLE_CLIENT_ID)"
 secret = "env(GOOGLE_CLIENT_SECRET)"
-# Important: Update these URLs for production
-redirect_uri = "http://localhost:3000/auth/callback"
 
 [functions]
 [functions.chat-assistant]
-verify_jwt = false
-[functions.create-storage-buckets]
-verify_jwt = false
+verify_jwt = true
+
+[functions.seed-scholarships]
+verify_jwt = true

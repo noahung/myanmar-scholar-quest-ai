@@ -16,10 +16,12 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AiAssistant } from "@/components/ai-assistant";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { scholarships } from "@/data/scholarships";
 import { UserNotes } from "@/components/user-notes";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
+import { scholarships } from "@/data/scholarships";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "@/components/ui/use-toast";
 
 export type Scholarship = {
   id: string;
@@ -42,7 +44,8 @@ export default function ScholarshipDetail() {
   const [scholarship, setScholarship] = useState<Scholarship | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showAiChat, setShowAiChat] = useState(false);
+  const [activeTab, setActiveTab] = useState("details");
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     async function fetchScholarship() {
@@ -51,13 +54,24 @@ export default function ScholarshipDetail() {
       try {
         setLoading(true);
         
-        // Try to fetch from local data since Supabase table doesn't exist yet
-        const localScholarship = scholarships.find(s => s.id === id);
-            
-        if (localScholarship) {
-          setScholarship(localScholarship);
+        // Try to fetch from Supabase first
+        const { data: supabaseScholarship, error } = await supabase
+          .from('scholarships')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+          
+        if (supabaseScholarship) {
+          setScholarship(supabaseScholarship as Scholarship);
         } else {
-          setError("Scholarship not found");
+          // Fall back to local data if not found in Supabase
+          const localScholarship = scholarships.find(s => s.id === id);
+              
+          if (localScholarship) {
+            setScholarship(localScholarship);
+          } else {
+            setError("Scholarship not found");
+          }
         }
       } catch (err: any) {
         console.error("Failed to load scholarship:", err);
@@ -102,6 +116,12 @@ export default function ScholarshipDetail() {
   // Check if deadline has passed
   const deadlinePassed = deadlineDate < new Date();
 
+  const handleAiButtonClick = () => {
+    setActiveTab("ai-assistant");
+    // Find the AI tab and click it
+    document.getElementById('ai-tab')?.click();
+  };
+
   return (
     <div className="container py-8 md:py-12">
       <div className="flex flex-col max-w-4xl mx-auto">
@@ -123,12 +143,23 @@ export default function ScholarshipDetail() {
           <Badge variant="outline">{scholarship.country}</Badge>
           {scholarship.featured && <Badge variant="secondary">Featured</Badge>}
           {deadlinePassed && <Badge variant="destructive">Deadline Passed</Badge>}
+          {isAdmin && (
+            <Link to="/admin">
+              <Badge variant="outline" className="cursor-pointer hover:bg-muted">
+                Edit in Admin
+              </Badge>
+            </Link>
+          )}
         </div>
 
-        <Tabs defaultValue="details" className="w-full mb-8">
+        <Tabs 
+          value={activeTab} 
+          onValueChange={setActiveTab}
+          className="w-full mb-8"
+        >
           <TabsList className="w-full">
             <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="ai-assistant">AI Assistant</TabsTrigger>
+            <TabsTrigger value="ai-assistant" id="ai-tab">AI Assistant</TabsTrigger>
             <TabsTrigger value="my-notes">My Notes</TabsTrigger>
           </TabsList>
 
@@ -216,7 +247,7 @@ export default function ScholarshipDetail() {
               <Button 
                 variant="outline" 
                 size="lg" 
-                onClick={() => document.getElementById('ai-tab-trigger')?.click()}
+                onClick={handleAiButtonClick}
               >
                 <MessageSquare className="mr-2 h-4 w-4" />
                 Ask AI About This Scholarship
@@ -238,7 +269,7 @@ export default function ScholarshipDetail() {
             )}
           </TabsContent>
 
-          <TabsContent value="ai-assistant" id="ai-tab-trigger" className="mt-6">
+          <TabsContent value="ai-assistant" className="mt-6">
             <Card>
               <CardHeader>
                 <h2 className="text-xl font-semibold">Scholarship Assistant</h2>

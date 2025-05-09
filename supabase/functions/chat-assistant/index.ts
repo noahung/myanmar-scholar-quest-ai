@@ -56,16 +56,38 @@ serve(async (req) => {
     // If there's a scholarship ID, fetch scholarship details to provide context
     if (scholarshipId) {
       try {
-        // Get the scholarship details from the previous chat context or from a database
-        context += `The user is currently viewing a scholarship with ID ${scholarshipId}. Answer their questions about scholarship application processes, requirements, and provide helpful advice. Take the role of a knowledgeable scholarship advisor who has helped many Myanmar students successfully apply for international scholarships. Be detailed in your responses, but keep a conversational tone. If asked about specific scholarship details that you don't have, suggest where they might find that information on the scholarship website.`;
-        
-        // For scholarships stored locally, we could add some generic information
-        context += `\n\nSome general scholarship advice:\n
-        1. Always check eligibility requirements carefully before applying
-        2. Pay attention to deadlines and prepare documents well in advance
-        3. Take time to craft a strong personal statement that shows your passion and goals
-        4. Request recommendation letters from professors or employers who know you well
-        5. Research the institution and program thoroughly before applying`;
+        // Try to get the scholarship from our database
+        const { data: scholarship, error } = await supabase
+          .from('scholarships')
+          .select('*')
+          .eq('id', scholarshipId)
+          .maybeSingle();
+
+        if (scholarship) {
+          context += `The user is currently viewing a scholarship with the following details:
+          Title: ${scholarship.title}
+          Institution: ${scholarship.institution}
+          Country: ${scholarship.country}
+          Deadline: ${scholarship.deadline}
+          Level: ${scholarship.level}
+          Fields: ${scholarship.fields.join(', ')}
+          Description: ${scholarship.description}
+          Requirements: ${scholarship.requirements.join(', ')}
+          Benefits: ${scholarship.benefits.join(', ')}
+          
+          Answer questions about this specific scholarship using the provided details. If the user asks something that's not covered in the details, acknowledge that you don't have that specific information and suggest they check the official website.`;
+        } else {
+          // If not in database, try to get from local data
+          context += `The user is currently viewing a scholarship with ID ${scholarshipId}. Answer their questions about scholarship application processes, requirements, and provide helpful advice. Take the role of a knowledgeable scholarship advisor who has helped many Myanmar students successfully apply for international scholarships. Be detailed in your responses, but keep a conversational tone. If asked about specific scholarship details that you don't have, suggest where they might find that information on the scholarship website.`;
+          
+          // For scholarships stored locally, we could add some generic information
+          context += `\n\nSome general scholarship advice:\n
+          1. Always check eligibility requirements carefully before applying
+          2. Pay attention to deadlines and prepare documents well in advance
+          3. Take time to craft a strong personal statement that shows your passion and goals
+          4. Request recommendation letters from professors or employers who know you well
+          5. Research the institution and program thoroughly before applying`;
+        }
       } catch (error) {
         console.error("Error preparing scholarship context:", error);
       }
@@ -77,12 +99,18 @@ serve(async (req) => {
     let chatHistory = [];
     if (userId) {
       try {
-        const { data, error } = await supabase
+        // If scholarship ID is provided, filter chat history by scholarship ID
+        let query = supabase
           .from('ai_chat_history')
           .select('message, response')
           .eq('user_id', userId)
-          .order('created_at', { ascending: true })
-          .limit(5);
+          .order('created_at', { ascending: true });
+          
+        if (scholarshipId) {
+          query = query.eq('scholarship_id', scholarshipId);
+        }
+        
+        const { data, error } = await query.limit(5);
         
         if (!error && data) {
           chatHistory = data;
@@ -128,7 +156,7 @@ serve(async (req) => {
         "Authorization": `Bearer ${openAiApiKey}`
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: "gpt-4o-mini",
         messages: messages,
         temperature: 0.7,
       })

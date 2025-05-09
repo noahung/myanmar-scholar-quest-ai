@@ -27,7 +27,7 @@ interface AiAssistantProps {
   isScholarshipAssistant?: boolean;
 }
 
-export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssistant = false }: AiAssistantProps = {}) {
+export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssistant = false }: AiAssistantProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
@@ -71,17 +71,17 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
 
   useEffect(() => {
     // Load chat history if user is logged in
-    if (user && isOpen) {
+    if (user && (isOpen || isScholarshipAssistant)) {
       loadChatHistory();
     }
-  }, [user, isOpen, scholarshipId]);
+  }, [user, isOpen, scholarshipId, isScholarshipAssistant]);
 
   useEffect(() => {
     // If initialMessage is provided, send it automatically
-    if (initialMessage && isOpen && messages.length === 1) {
+    if (initialMessage && (isOpen || isScholarshipAssistant) && messages.length === 1) {
       handleSendMessage(initialMessage);
     }
-  }, [initialMessage, isOpen, messages]);
+  }, [initialMessage, isOpen, isScholarshipAssistant, messages]);
 
   async function loadChatHistory() {
     if (!user) return;
@@ -95,6 +95,8 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
         
       if (scholarshipId) {
         query = query.eq('scholarship_id', scholarshipId);
+      } else {
+        query = query.is('scholarship_id', null);
       }
       
       const { data, error } = await query.limit(20);

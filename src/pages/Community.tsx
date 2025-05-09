@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Link, useNavigate } from "react-router-dom";
-import { MessageCircle, Heart, Share, Plus, Filter, BookOpen, Loader2, Copy } from "lucide-react";
+import { MessageCircle, Heart, Share, Plus, Filter, BookOpen, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/components/ui/use-toast";
@@ -23,6 +23,7 @@ type Post = {
   date: string;
   likes: number;
   comments: number;
+  share_count?: number;
   tags: string[];
   image_url?: string;
   isLiked?: boolean;
@@ -54,7 +55,8 @@ export default function Community() {
           likes,
           comments,
           tags,
-          image_url
+          image_url,
+          share_count
         `)
         .order('date', { ascending: false });
 
@@ -86,6 +88,16 @@ export default function Community() {
             
           isLiked = !!likeData;
         }
+
+        // Get actual comment count
+        const { count: commentCount, error: commentError } = await supabase
+          .from('post_comments')
+          .select('id', { count: 'exact', head: true })
+          .eq('post_id', post.id);
+
+        if (commentError) {
+          console.error("Error fetching comment count:", commentError);
+        }
         
         formattedPosts.push({
           id: post.id,
@@ -98,10 +110,11 @@ export default function Community() {
           },
           date: post.date,
           likes: post.likes || 0,
-          comments: post.comments || 0,
+          comments: commentCount || 0,
           tags: post.tags || [],
           image_url: post.image_url,
-          isLiked
+          isLiked,
+          share_count: post.share_count
         });
       }
 
