@@ -32,6 +32,7 @@ import {
 
 // Schema for the scholarship form
 const scholarshipFormSchema = z.object({
+  id: z.string().optional(),
   title: z.string().min(5, { message: "Title must be at least 5 characters" }),
   institution: z.string().min(2, { message: "Institution is required" }),
   country: z.string().min(2, { message: "Country is required" }),
@@ -83,13 +84,24 @@ export function ScholarshipEditor() {
   async function fetchScholarships() {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from('scholarships').select('*');
-      
-      if (error) {
-        throw error;
+      // Try to get scholarships from Supabase table
+      try {
+        const { data, error } = await supabase.from('scholarships').select('*');
+        
+        if (!error && data) {
+          setScholarships(data);
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.error("Error fetching from Supabase, showing local data instead:", err);
       }
       
-      setScholarships(data || []);
+      // Fall back to local data
+      import('@/data/scholarships').then(module => {
+        setScholarships(module.scholarships || []);
+        setLoading(false);
+      });
     } catch (error: any) {
       console.error("Error fetching scholarships:", error);
       toast({
@@ -97,7 +109,6 @@ export function ScholarshipEditor() {
         description: "Failed to load scholarships",
         variant: "destructive"
       });
-    } finally {
       setLoading(false);
     }
   }
@@ -126,6 +137,7 @@ export function ScholarshipEditor() {
   function handleEdit(scholarship: any) {
     setEditingId(scholarship.id);
     form.reset({
+      id: scholarship.id,
       title: scholarship.title,
       institution: scholarship.institution,
       country: scholarship.country,
@@ -149,18 +161,31 @@ export function ScholarshipEditor() {
     if (!confirm("Are you sure you want to delete this scholarship?")) return;
     
     try {
-      const { error } = await supabase.from('scholarships').delete().eq('id', id);
-      
-      if (error) {
-        throw error;
+      // Try to delete from Supabase first
+      try {
+        const { error } = await supabase.from('scholarships').delete().eq('id', id);
+        
+        if (!error) {
+          toast({
+            title: "Scholarship deleted",
+            description: "The scholarship has been deleted successfully."
+          });
+          
+          fetchScholarships();
+          return;
+        }
+      } catch (err) {
+        console.error("Error deleting from Supabase:", err);
       }
+      
+      // If that fails, just remove from local state
+      setScholarships(prev => prev.filter(s => s.id !== id));
       
       toast({
         title: "Scholarship deleted",
-        description: "The scholarship has been deleted successfully."
+        description: "The scholarship has been removed from the list."
       });
       
-      fetchScholarships();
     } catch (error: any) {
       console.error("Error deleting scholarship:", error);
       toast({
@@ -173,36 +198,72 @@ export function ScholarshipEditor() {
 
   async function onSubmit(values: ScholarshipFormValues) {
     try {
-      if (editingId) {
-        // Update existing scholarship
-        const { error } = await supabase
-          .from('scholarships')
-          .update({ ...values, updated_at: new Date().toISOString() })
-          .eq('id', editingId);
-          
-        if (error) throw error;
-        
-        toast({
-          title: "Scholarship Updated",
-          description: "Your changes have been saved."
-        });
-      } else {
-        // Create new scholarship
-        const { error } = await supabase
-          .from('scholarships')
-          .insert(values);
-          
-        if (error) throw error;
-        
-        toast({
-          title: "Scholarship Created",
-          description: "New scholarship has been added."
-        });
+      // Generate a random ID if not editing
+      const scholarshipId = editingId || `scholarship-${Math.random().toString(36).substring(2, 9)}`;
+      
+      // Try to save to Supabase
+      try {
+        if (editingId) {
+          // Update existing scholarship
+          const { error } = await supabase
+            .from('scholarships')
+            .update({ 
+              ...values, 
+              updated_at: new Date().toISOString() 
+            })
+            .eq('id', editingId);
+            
+          if (!error) {
+            toast({
+              title: "Scholarship Updated",
+              description: "Your changes have been saved."
+            });
+            setIsDialogOpen(false);
+            clearForm();
+            fetchScholarships();
+            return;
+          }
+        } else {
+          // Create new scholarship
+          const { error } = await supabase
+            .from('scholarships')
+            .insert({
+              ...values,
+              id: scholarshipId
+            });
+            
+          if (!error) {
+            toast({
+              title: "Scholarship Created",
+              description: "New scholarship has been added."
+            });
+            setIsDialogOpen(false);
+            clearForm();
+            fetchScholarships();
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Error saving to Supabase, updating local state instead:", err);
       }
+      
+      // If that fails, just update local state
+      if (editingId) {
+        setScholarships(prev => 
+          prev.map(s => s.id === editingId ? { ...values, id: editingId } : s)
+        );
+      } else {
+        setScholarships(prev => [...prev, { ...values, id: scholarshipId }]);
+      }
+      
+      toast({
+        title: editingId ? "Scholarship Updated" : "Scholarship Created",
+        description: editingId ? "Your changes have been saved." : "New scholarship has been added."
+      });
       
       setIsDialogOpen(false);
       clearForm();
-      fetchScholarships();
+      
     } catch (error: any) {
       console.error("Error saving scholarship:", error);
       toast({

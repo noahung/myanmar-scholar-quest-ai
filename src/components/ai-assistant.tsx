@@ -197,12 +197,12 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
   return (
     <div className={cn(
       "fixed bottom-4 right-4 z-50",
-      isScholarshipAssistant ? "relative bottom-0 right-0" : ""
+      isScholarshipAssistant ? "relative bottom-0 right-0 w-full h-full" : ""
     )}>
       {isOpen || isScholarshipAssistant ? (
         <div className={cn(
           "bg-card border rounded-lg shadow-lg flex flex-col transition-all duration-300 animate-fade-in",
-          isScholarshipAssistant ? "w-full h-full" : "w-80 sm:w-96 h-96"
+          isScholarshipAssistant ? "w-full h-[500px]" : "w-80 sm:w-96 h-96"
         )}>
           {!isScholarshipAssistant && (
             <div className="flex items-center justify-between bg-primary text-primary-foreground p-3 rounded-t-lg">
@@ -217,7 +217,7 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
           
           <div className={cn(
             "flex-1 overflow-y-auto p-4 space-y-4",
-            isScholarshipAssistant ? "h-[calc(100%-100px)]" : ""
+            isScholarshipAssistant ? "" : ""
           )}>
             {messages.map((message) => (
               <div 

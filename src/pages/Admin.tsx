@@ -32,9 +32,27 @@ export default function AdminPage() {
 
     try {
       setMakingAdmin(true);
-      const { data, error } = await supabase.rpc('make_user_admin', {
-        user_email: email.trim()
-      });
+      
+      // First, get the user's profile to check if it exists
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email.trim())
+        .maybeSingle();
+        
+      if (profileError) {
+        throw new Error(`Error finding user: ${profileError.message}`);
+      }
+      
+      if (!profileData) {
+        throw new Error(`No user found with email ${email}`);
+      }
+      
+      // Update the profile to make the user an admin
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_admin: true })
+        .eq('id', profileData.id);
       
       if (error) throw error;
       

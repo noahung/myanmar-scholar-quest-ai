@@ -13,6 +13,7 @@ import { Loader2, Save, UserCircle, BookOpen, MessageCircle, History, BookmarkIc
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { UserNotes } from "@/components/user-notes";
+import { SavedScholarships } from "@/components/saved-scholarships";
 
 export default function Profile() {
   const { user, isLoading } = useAuth();
@@ -25,7 +26,6 @@ export default function Profile() {
     avatar_url: ""
   });
   const [isUpdating, setIsUpdating] = useState(false);
-  const [savedScholarships, setSavedScholarships] = useState([]);
   const [userPosts, setUserPosts] = useState([]);
   const [chatHistory, setChatHistory] = useState([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -35,7 +35,6 @@ export default function Profile() {
       navigate("/login");
     } else if (user) {
       fetchUserProfile();
-      fetchSavedScholarships();
       fetchUserPosts();
       fetchChatHistory();
     }
@@ -75,11 +74,6 @@ export default function Profile() {
     } finally {
       setLoadingProfile(false);
     }
-  }
-
-  async function fetchSavedScholarships() {
-    // This would be implemented once we have a saved_scholarships table
-    setSavedScholarships([]);
   }
 
   async function fetchUserPosts() {
@@ -348,21 +342,7 @@ export default function Profile() {
           </TabsContent>
           
           <TabsContent value="scholarships" className="mt-6 space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Saved Scholarships</CardTitle>
-                <CardDescription>Scholarships you've saved for later reference.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                {/* This would show saved scholarships once we implement that feature */}
-                <div className="text-center py-8 text-muted-foreground">
-                  <p>You haven't saved any scholarships yet.</p>
-                  <Button variant="link" onClick={() => navigate('/scholarships')}>
-                    Browse Scholarships
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <SavedScholarships className="w-full" />
           </TabsContent>
           
           <TabsContent value="posts" className="mt-6 space-y-4">
@@ -389,7 +369,7 @@ export default function Profile() {
           </TabsContent>
 
           <TabsContent value="notes" className="mt-6 space-y-4">
-            <UserNotes className="w-full" />
+            <UserNotes scholarshipId={undefined} />
           </TabsContent>
           
           <TabsContent value="chat-history" className="mt-6 space-y-4">

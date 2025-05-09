@@ -22,6 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { scholarships } from "@/data/scholarships";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/components/ui/use-toast";
+import { SavedScholarshipButton } from "@/components/saved-scholarship-button";
 
 export type Scholarship = {
   id: string;
@@ -55,23 +56,29 @@ export default function ScholarshipDetail() {
         setLoading(true);
         
         // Try to fetch from Supabase first
-        const { data: supabaseScholarship, error } = await supabase
-          .from('scholarships')
-          .select('*')
-          .eq('id', id)
-          .maybeSingle();
-          
-        if (supabaseScholarship) {
-          setScholarship(supabaseScholarship as Scholarship);
-        } else {
-          // Fall back to local data if not found in Supabase
-          const localScholarship = scholarships.find(s => s.id === id);
-              
-          if (localScholarship) {
-            setScholarship(localScholarship);
-          } else {
-            setError("Scholarship not found");
+        // Access the scholarships table if it exists
+        try {
+          const { data: supabaseScholarship, error: supabaseError } = await supabase
+            .from('scholarships')
+            .select('*')
+            .eq('id', id)
+            .maybeSingle();
+            
+          if (supabaseScholarship) {
+            setScholarship(supabaseScholarship as Scholarship);
+            return;
           }
+        } catch (err) {
+          console.error("Error fetching from Supabase, using local data instead:", err);
+        }
+        
+        // Fall back to local data
+        const localScholarship = scholarships.find(s => s.id === id);
+            
+        if (localScholarship) {
+          setScholarship(localScholarship);
+        } else {
+          setError("Scholarship not found");
         }
       } catch (err: any) {
         console.error("Failed to load scholarship:", err);
@@ -252,6 +259,11 @@ export default function ScholarshipDetail() {
                 <MessageSquare className="mr-2 h-4 w-4" />
                 Ask AI About This Scholarship
               </Button>
+
+              <SavedScholarshipButton 
+                scholarshipId={scholarship.id}
+                size="lg"
+              />
             </div>
 
             {/* Show original source */}

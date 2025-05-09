@@ -55,3 +55,4 @@ verify_jwt = true
 
 [functions.seed-scholarships]
 verify_jwt = true
+
