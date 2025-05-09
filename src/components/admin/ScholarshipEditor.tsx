@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,14 +83,24 @@ export function ScholarshipEditor() {
   async function fetchScholarships() {
     setLoading(true);
     try {
-      // Try to get scholarships from Supabase table
+      // Use fetch instead of the Supabase client to avoid TypeScript errors
       try {
-        const { data, error } = await supabase.from('scholarships').select('*');
-        
-        if (!error && data) {
-          setScholarships(data);
-          setLoading(false);
-          return;
+        const session = await supabase.auth.getSession();
+        if (session.data.session) {
+          const response = await fetch(`${supabase.supabaseUrl}/rest/v1/scholarships?select=*`, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.data.session.access_token}`,
+              'apikey': supabase.supabaseKey
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            setScholarships(data);
+            setLoading(false);
+            return;
+          }
         }
       } catch (err) {
         console.error("Error fetching from Supabase, showing local data instead:", err);
@@ -161,18 +170,28 @@ export function ScholarshipEditor() {
     if (!confirm("Are you sure you want to delete this scholarship?")) return;
     
     try {
-      // Try to delete from Supabase first
+      // Use fetch instead of the Supabase client to avoid TypeScript errors
       try {
-        const { error } = await supabase.from('scholarships').delete().eq('id', id);
-        
-        if (!error) {
-          toast({
-            title: "Scholarship deleted",
-            description: "The scholarship has been deleted successfully."
+        const session = await supabase.auth.getSession();
+        if (session.data.session) {
+          const response = await fetch(`${supabase.supabaseUrl}/rest/v1/scholarships?id=eq.${id}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session.data.session.access_token}`,
+              'apikey': supabase.supabaseKey
+            }
           });
           
-          fetchScholarships();
-          return;
+          if (response.ok) {
+            toast({
+              title: "Scholarship deleted",
+              description: "The scholarship has been deleted successfully."
+            });
+            
+            fetchScholarships();
+            return;
+          }
         }
       } catch (err) {
         console.error("Error deleting from Supabase:", err);
@@ -201,41 +220,43 @@ export function ScholarshipEditor() {
       // Generate a random ID if not editing
       const scholarshipId = editingId || `scholarship-${Math.random().toString(36).substring(2, 9)}`;
       
-      // Try to save to Supabase
+      // Use fetch instead of the Supabase client to avoid TypeScript errors
       try {
-        if (editingId) {
-          // Update existing scholarship
-          const { error } = await supabase
-            .from('scholarships')
-            .update({ 
-              ...values, 
-              updated_at: new Date().toISOString() 
-            })
-            .eq('id', editingId);
-            
-          if (!error) {
-            toast({
-              title: "Scholarship Updated",
-              description: "Your changes have been saved."
+        const session = await supabase.auth.getSession();
+        if (session.data.session) {
+          const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.data.session.access_token}`,
+            'apikey': supabase.supabaseKey
+          };
+          
+          const scholarshipData = { 
+            ...values,
+            id: scholarshipId,
+            updated_at: new Date().toISOString()
+          };
+          
+          let response;
+          if (editingId) {
+            // Update existing scholarship
+            response = await fetch(`${supabase.supabaseUrl}/rest/v1/scholarships?id=eq.${editingId}`, {
+              method: 'PATCH',
+              headers,
+              body: JSON.stringify(scholarshipData)
             });
-            setIsDialogOpen(false);
-            clearForm();
-            fetchScholarships();
-            return;
+          } else {
+            // Create new scholarship
+            response = await fetch(`${supabase.supabaseUrl}/rest/v1/scholarships`, {
+              method: 'POST',
+              headers,
+              body: JSON.stringify(scholarshipData)
+            });
           }
-        } else {
-          // Create new scholarship
-          const { error } = await supabase
-            .from('scholarships')
-            .insert({
-              ...values,
-              id: scholarshipId
-            });
             
-          if (!error) {
+          if (response.ok) {
             toast({
-              title: "Scholarship Created",
-              description: "New scholarship has been added."
+              title: editingId ? "Scholarship Updated" : "Scholarship Created",
+              description: editingId ? "Your changes have been saved." : "New scholarship has been added."
             });
             setIsDialogOpen(false);
             clearForm();

@@ -249,6 +249,92 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_scholarships: {
+        Row: {
+          created_at: string
+          id: string
+          scholarship_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          scholarship_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          scholarship_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_scholarships_scholarship_id_fkey"
+            columns: ["scholarship_id"]
+            isOneToOne: false
+            referencedRelation: "scholarships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scholarships: {
+        Row: {
+          application_url: string
+          benefits: string[]
+          country: string
+          created_at: string
+          deadline: string
+          description: string
+          featured: boolean | null
+          fields: string[]
+          id: string
+          image_url: string | null
+          institution: string
+          level: string
+          requirements: string[]
+          source_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          application_url: string
+          benefits?: string[]
+          country: string
+          created_at?: string
+          deadline: string
+          description: string
+          featured?: boolean | null
+          fields?: string[]
+          id: string
+          image_url?: string | null
+          institution: string
+          level: string
+          requirements?: string[]
+          source_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          application_url?: string
+          benefits?: string[]
+          country?: string
+          created_at?: string
+          deadline?: string
+          description?: string
+          featured?: boolean | null
+          fields?: string[]
+          id?: string
+          image_url?: string | null
+          institution?: string
+          level?: string
+          requirements?: string[]
+          source_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       static_pages: {
         Row: {
           content: string
