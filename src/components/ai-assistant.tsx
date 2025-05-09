@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -9,9 +8,9 @@ import {
   BookmarkPlus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase-client";
 import { useAuth } from "@/context/AuthContext";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { SaveToNotesButton } from "@/components/user-notes";
 
 type Message = {
@@ -87,43 +86,50 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
     if (!user) return;
 
     try {
-      let query = supabase
-        .from('ai_chat_history')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: true });
+      // Use REST API for fetching chat history
+      const session = await supabase.auth.getSession();
+      if (session.data.session) {
+        let endpoint = `${API_URL}/ai_chat_history?user_id=eq.${user.id}&order=created_at.asc&limit=20`;
         
-      if (scholarshipId) {
-        query = query.eq('scholarship_id', scholarshipId);
-      } else {
-        query = query.is('scholarship_id', null);
-      }
-      
-      const { data, error } = await query.limit(20);
-
-      if (error) {
-        console.error("Error loading chat history:", error);
-        return;
-      }
-
-      if (data && data.length > 0) {
-        const historyMessages: Message[] = data.flatMap(item => [
-          {
-            id: `user-${item.id}`,
-            content: item.message,
-            sender: 'user' as const,
-            timestamp: new Date(item.created_at)
-          },
-          {
-            id: `assistant-${item.id}`,
-            content: item.response,
-            sender: 'assistant' as const,
-            timestamp: new Date(item.created_at)
+        if (scholarshipId) {
+          endpoint += `&scholarship_id=eq.${scholarshipId}`;
+        } else {
+          endpoint += `&scholarship_id=is.null`;
+        }
+        
+        const response = await fetch(endpoint, {
+          headers: {
+            'Authorization': `Bearer ${session.data.session.access_token}`,
+            'apikey': SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json'
           }
-        ]);
+        });
 
-        // Replace the initial welcome message with the history
-        setMessages(historyMessages);
+        if (!response.ok) {
+          throw new Error('Failed to load chat history');
+        }
+
+        const data = await response.json();
+
+        if (data && data.length > 0) {
+          const historyMessages: Message[] = data.flatMap(item => [
+            {
+              id: `user-${item.id}`,
+              content: item.message,
+              sender: 'user' as const,
+              timestamp: new Date(item.created_at)
+            },
+            {
+              id: `assistant-${item.id}`,
+              content: item.response,
+              sender: 'assistant' as const,
+              timestamp: new Date(item.created_at)
+            }
+          ]);
+
+          // Replace the initial welcome message with the history
+          setMessages(historyMessages);
+        }
       }
     } catch (error) {
       console.error("Error in loadChatHistory:", error);
