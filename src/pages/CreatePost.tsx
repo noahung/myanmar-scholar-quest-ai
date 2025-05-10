@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -82,28 +81,29 @@ export default function CreatePost() {
       
       let imageUrl = null;
       
-      // If there's an image, upload it first
-      if (image) {
-        // Create a storage bucket for post images if it doesn't exist
-        const { data: bucketData, error: bucketError } = await supabase
-          .storage
-          .getBucket('post_images');
+      // Check if images bucket exists and create if needed
+      try {
+        const { data: buckets } = await supabase.storage.listBuckets();
+        const imagesBucketExists = buckets?.some(bucket => bucket.name === 'images');
         
-        if (bucketError && bucketError.message.includes("not found")) {
-          await supabase.storage.createBucket('post_images', {
-            public: true
-          });
+        if (!imagesBucketExists) {
+          await supabase.storage.createBucket('images', { public: true });
         }
-        
+      } catch (err) {
+        console.error("Error checking/creating bucket:", err);
+      }
+      
+      // If there's an image, upload it
+      if (image) {
         // Generate a unique filename
         const fileExt = image.name.split('.').pop();
         const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
-        const filePath = `${fileName}`;
+        const filePath = `community-posts/${fileName}`;
         
         // Upload the image
-        const { error: uploadError } = await supabase
+        const { error: uploadError, data: uploadData } = await supabase
           .storage
-          .from('post_images')
+          .from('images')
           .upload(filePath, image);
 
         if (uploadError) {
@@ -113,7 +113,7 @@ export default function CreatePost() {
         // Get the public URL
         const { data } = supabase
           .storage
-          .from('post_images')
+          .from('images')
           .getPublicUrl(filePath);
         
         imageUrl = data.publicUrl;

@@ -60,21 +60,62 @@ export default function Scholarships() {
     try {
       setIsLoading(true);
       
-      // Fetch scholarship data from the local file since the Supabase table doesn't exist yet
-      const localData = await import('@/data/scholarships');
-      const localScholarships = localData.scholarships as Scholarship[];
-      setScholarships(localScholarships);
+      // First try to fetch from Supabase
+      const { data: supabaseScholarships, error } = await supabase
+        .from('scholarships')
+        .select('*');
       
-      // Extract unique values from local data
-      const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country)));
-      const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields)));
-      const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level)));
+      if (error) {
+        throw error;
+      }
       
-      setCountries(uniqueCountries);
-      setFields(uniqueFields);
-      setLevels(uniqueLevels);
+      // If we have data in Supabase, use it
+      if (supabaseScholarships && supabaseScholarships.length > 0) {
+        setScholarships(supabaseScholarships as Scholarship[]);
+        
+        // Extract unique values
+        const uniqueCountries = Array.from(new Set(supabaseScholarships.map(s => s.country)));
+        const uniqueFields = Array.from(new Set(supabaseScholarships.flatMap(s => s.fields)));
+        const uniqueLevels = Array.from(new Set(supabaseScholarships.map(s => s.level)));
+        
+        setCountries(uniqueCountries);
+        setFields(uniqueFields);
+        setLevels(uniqueLevels);
+      } else {
+        // Fallback to local data if no data in Supabase
+        const localData = await import('@/data/scholarships');
+        const localScholarships = localData.scholarships as Scholarship[];
+        setScholarships(localScholarships);
+        
+        // Extract unique values from local data
+        const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country)));
+        const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields)));
+        const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level)));
+        
+        setCountries(uniqueCountries);
+        setFields(uniqueFields);
+        setLevels(uniqueLevels);
+      }
     } catch (error) {
       console.error("Error in fetchScholarships:", error);
+      // Fallback to local data on error
+      try {
+        const localData = await import('@/data/scholarships');
+        const localScholarships = localData.scholarships as Scholarship[];
+        setScholarships(localScholarships);
+        
+        // Extract unique values from local data
+        const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country)));
+        const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields)));
+        const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level)));
+        
+        setCountries(uniqueCountries);
+        setFields(uniqueFields);
+        setLevels(uniqueLevels);
+      } catch (fallbackError) {
+        console.error("Fallback error:", fallbackError);
+        setScholarships([]);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -87,16 +128,28 @@ export default function Scholarships() {
       scholarship.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       scholarship.institution.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesCountry = selectedCountry ? scholarship.country === selectedCountry : true;
+    const matchesCountry = !selectedCountry || selectedCountry === "_all" || scholarship.country === selectedCountry;
     
-    const matchesField = selectedField 
-      ? scholarship.fields.some(field => field === selectedField)
-      : true;
+    const matchesField = !selectedField || selectedField === "_all" 
+      ? true
+      : scholarship.fields && Array.isArray(scholarship.fields) && scholarship.fields.some(field => field === selectedField);
       
-    const matchesLevel = selectedLevel ? scholarship.level === selectedLevel : true;
+    const matchesLevel = !selectedLevel || selectedLevel === "_all" || scholarship.level === selectedLevel;
 
     return matchesSearch && matchesCountry && matchesField && matchesLevel;
   });
+
+  const handleCountryChange = (value: string) => {
+    setSelectedCountry(value === "_all" ? "" : value);
+  };
+
+  const handleFieldChange = (value: string) => {
+    setSelectedField(value === "_all" ? "" : value);
+  };
+
+  const handleLevelChange = (value: string) => {
+    setSelectedLevel(value === "_all" ? "" : value);
+  };
 
   return (
     <div className="container py-8 md:py-12">
@@ -129,12 +182,11 @@ export default function Scholarships() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+          <Select value={selectedCountry || "_all"} onValueChange={handleCountryChange}>
             <SelectTrigger>
               <SelectValue placeholder="Filter by Country" />
             </SelectTrigger>
             <SelectContent>
-              {/* Fix: Empty value is not allowed in SelectItem */}
               <SelectItem value="_all">All Countries</SelectItem>
               {countries.map(country => (
                 <SelectItem key={country} value={country}>{country}</SelectItem>
@@ -142,12 +194,11 @@ export default function Scholarships() {
             </SelectContent>
           </Select>
           
-          <Select value={selectedField} onValueChange={setSelectedField}>
+          <Select value={selectedField || "_all"} onValueChange={handleFieldChange}>
             <SelectTrigger>
               <SelectValue placeholder="Filter by Field of Study" />
             </SelectTrigger>
             <SelectContent>
-              {/* Fix: Empty value is not allowed in SelectItem */}
               <SelectItem value="_all">All Fields</SelectItem>
               {fields.map(field => (
                 <SelectItem key={field} value={field}>{field}</SelectItem>
@@ -155,12 +206,11 @@ export default function Scholarships() {
             </SelectContent>
           </Select>
           
-          <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+          <Select value={selectedLevel || "_all"} onValueChange={handleLevelChange}>
             <SelectTrigger>
               <SelectValue placeholder="Filter by Degree Level" />
             </SelectTrigger>
             <SelectContent>
-              {/* Fix: Empty value is not allowed in SelectItem */}
               <SelectItem value="_all">All Levels</SelectItem>
               {levels.map(level => (
                 <SelectItem key={level} value={level}>{level}</SelectItem>
@@ -220,7 +270,7 @@ export default function Scholarships() {
                   <span>Deadline: {new Date(scholarship.deadline).toLocaleDateString()}</span>
                 </div>
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {scholarship.fields.map((field, index) => (
+                  {Array.isArray(scholarship.fields) && scholarship.fields.map((field, index) => (
                     <Badge key={index} variant="outline" className="text-xs">
                       {field}
                     </Badge>
