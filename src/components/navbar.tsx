@@ -26,10 +26,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
+import { useLanguage } from "@/context/LanguageContext";
+import { LanguageSelector } from "@/components/language-selector";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, session, signOut, isLoading, isAdmin } = useAuth();
+  const { t } = useLanguage();
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -60,9 +63,9 @@ export function Navbar() {
   };
 
   const navItems = [
-    { name: "Scholarships", href: "/scholarships", icon: BookOpen },
-    { name: "Community", href: "/community", icon: MessageCircle },
-    { name: "Guides", href: "/guides", icon: Search },
+    { name: 'Scholarships', href: "/scholarships", icon: BookOpen },
+    { name: 'Community', href: "/community", icon: MessageCircle },
+    { name: 'Guides', href: "/guides", icon: Search },
   ];
 
   const getInitials = (name: string | null) => {
@@ -91,12 +94,13 @@ export function Navbar() {
               className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
             >
               <item.icon className="h-4 w-4" />
-              <span>{item.name}</span>
+              <span>{t(item.name)}</span>
             </Link>
           ))}
         </nav>
         
         <div className="flex items-center gap-2">
+          <LanguageSelector />
           <ThemeToggle />
           
           {isLoading ? (
@@ -120,13 +124,13 @@ export function Navbar() {
                 <DropdownMenuItem asChild>
                   <Link to="/profile" className="cursor-pointer flex items-center">
                     <UserCircle className="h-4 w-4 mr-2" />
-                    Profile
+                    {t('Profile')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link to="/saved-scholarships" className="cursor-pointer flex items-center">
                     <BookOpen className="h-4 w-4 mr-2" />
-                    Saved Scholarships
+                    {t('Saved Scholarships')}
                   </Link>
                 </DropdownMenuItem>
                 {isAdmin && (
@@ -135,7 +139,7 @@ export function Navbar() {
                     <DropdownMenuItem asChild>
                       <Link to="/admin" className="cursor-pointer flex items-center">
                         <Settings className="h-4 w-4 mr-2" />
-                        Admin Dashboard
+                        {t('Admin Dashboard')}
                       </Link>
                     </DropdownMenuItem>
                   </>
@@ -143,7 +147,7 @@ export function Navbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
                   <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
+                  {t('Sign Out')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -151,7 +155,7 @@ export function Navbar() {
             <Button variant="outline" size="sm" asChild>
               <Link to="/login">
                 <User className="h-4 w-4 mr-2" />
-                Login
+                {t('Login')}
               </Link>
             </Button>
           )}
@@ -186,7 +190,7 @@ export function Navbar() {
               onClick={toggleMobileMenu}
             >
               <item.icon className="h-5 w-5" />
-              <span>{item.name}</span>
+              <span>{t(item.name)}</span>
             </Link>
           ))}
           
@@ -198,7 +202,7 @@ export function Navbar() {
                 onClick={toggleMobileMenu}
               >
                 <UserCircle className="h-5 w-5" />
-                <span>Profile</span>
+                <span>{t('Profile')}</span>
               </Link>
               
               <Link 
@@ -207,7 +211,7 @@ export function Navbar() {
                 onClick={toggleMobileMenu}
               >
                 <BookOpen className="h-5 w-5" />
-                <span>Saved Scholarships</span>
+                <span>{t('Saved Scholarships')}</span>
               </Link>
               
               {isAdmin && (
@@ -217,7 +221,7 @@ export function Navbar() {
                   onClick={toggleMobileMenu}
                 >
                   <Settings className="h-5 w-5" />
-                  <span>Admin Dashboard</span>
+                  <span>{t('Admin Dashboard')}</span>
                 </Link>
               )}
               
@@ -230,7 +234,7 @@ export function Navbar() {
                 }}
               >
                 <LogOut className="h-5 w-5" />
-                <span>Sign Out</span>
+                <span>{t('Sign Out')}</span>
               </Button>
             </>
           )}

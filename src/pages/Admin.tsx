@@ -8,70 +8,14 @@ import { useIsAdmin } from "@/components/admin/AdminCheck";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, UserCheck, Shield, Settings } from "lucide-react";
-import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { useLanguage } from "@/context/LanguageContext";
+import { UserAdminTable } from "@/components/admin/UserAdminTable";
 
 export default function AdminPage() {
   const { isAdmin, isLoading } = useIsAdmin();
-  const [email, setEmail] = useState("");
-  const [makingAdmin, setMakingAdmin] = useState(false);
   const { toast } = useToast();
-
-  // Function to make a user an admin
-  const makeUserAdmin = async () => {
-    if (!email.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid email address",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      setMakingAdmin(true);
-      
-      // First, get the user's profile to check if it exists
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', email.trim())
-        .maybeSingle();
-        
-      if (profileError) {
-        throw new Error(`Error finding user: ${profileError.message}`);
-      }
-      
-      if (!profileData) {
-        throw new Error(`No user found with email ${email}`);
-      }
-      
-      // Update the profile to make the user an admin
-      const { error } = await supabase
-        .from('profiles')
-        .update({ is_admin: true })
-        .eq('id', profileData.id);
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Success",
-        description: `User ${email} has been made an admin`
-      });
-      setEmail("");
-    } catch (error: any) {
-      console.error("Error making user admin:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to make user an admin",
-        variant: "destructive"
-      });
-    } finally {
-      setMakingAdmin(false);
-    }
-  };
+  const { t } = useLanguage();
 
   if (isLoading) {
     return <div className="container py-8">Loading...</div>;
@@ -90,7 +34,7 @@ export default function AdminPage() {
     <div className="container py-8 md:py-12">
       <div className="flex flex-col items-center justify-center mb-8 text-center">
         <div className="pattern-border pb-2">
-          <h1 className="text-3xl font-bold tracking-tighter mb-2">Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tighter mb-2">{t('Admin Dashboard')}</h1>
         </div>
         <p className="max-w-[600px] text-muted-foreground">
           Manage content for Scholar-M
@@ -105,37 +49,13 @@ export default function AdminPage() {
         </AlertDescription>
       </Alert>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <UserCheck className="h-5 w-5" />
-            User Administration
-          </CardTitle>
-          <CardDescription>
-            Grant admin privileges to other users
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-2">
-            <Input 
-              placeholder="Enter user email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)} 
-              className="max-w-xs"
-            />
-            <Button onClick={makeUserAdmin} disabled={makingAdmin}>
-              <Shield className="h-4 w-4 mr-2" />
-              {makingAdmin ? "Processing..." : "Make Admin"}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <UserAdminTable />
 
-      <Tabs defaultValue="scholarships" className="w-full">
+      <Tabs defaultValue="scholarships" className="w-full mt-8">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="scholarships">Scholarships</TabsTrigger>
-          <TabsTrigger value="guides">Educational Guides</TabsTrigger>
-          <TabsTrigger value="community">Community Posts</TabsTrigger>
+          <TabsTrigger value="scholarships">{t('Scholarships')}</TabsTrigger>
+          <TabsTrigger value="guides">{t('Educational Guides')}</TabsTrigger>
+          <TabsTrigger value="community">{t('Community Posts')}</TabsTrigger>
         </TabsList>
         
         <TabsContent value="scholarships" className="mt-6">

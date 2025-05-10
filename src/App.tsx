@@ -9,6 +9,7 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { AiAssistant } from "@/components/ai-assistant";
 import { AuthProvider } from "@/context/AuthContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 
 import Home from "./pages/Home";
 import Scholarships from "./pages/Scholarships";
@@ -31,33 +32,35 @@ const App = () => (
     <ThemeProvider defaultTheme="light">
       <TooltipProvider>
         <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Navbar />
-            <main>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/scholarships" element={<Scholarships />} />
-                <Route path="/scholarships/:id" element={<ScholarshipDetail />} />
-                <Route path="/community" element={<Community />} />
-                <Route path="/create-post" element={<CreatePost />} />
-                <Route path="/community/:id" element={<PostDetail />} />
-                <Route path="/guides" element={<Guides />} />
-                <Route path="/guides/:id" element={<GuideDetail />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/about" element={<StaticPage />} />
-                <Route path="/faq" element={<StaticPage />} />
-                <Route path="/privacy" element={<StaticPage />} />
-                <Route path="/terms" element={<StaticPage />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-            <AiAssistant />
-          </BrowserRouter>
+          <LanguageProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Navbar />
+              <main>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/scholarships" element={<Scholarships />} />
+                  <Route path="/scholarships/:id" element={<ScholarshipDetail />} />
+                  <Route path="/community" element={<Community />} />
+                  <Route path="/create-post" element={<CreatePost />} />
+                  <Route path="/community/:id" element={<PostDetail />} />
+                  <Route path="/guides" element={<Guides />} />
+                  <Route path="/guides/:id" element={<GuideDetail />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/about" element={<StaticPage />} />
+                  <Route path="/faq" element={<StaticPage />} />
+                  <Route path="/privacy" element={<StaticPage />} />
+                  <Route path="/terms" element={<StaticPage />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
+              <Footer />
+              <AiAssistant />
+            </BrowserRouter>
+          </LanguageProvider>
         </AuthProvider>
       </TooltipProvider>
     </ThemeProvider>
