@@ -39,12 +39,17 @@ const guideFormSchema = z.object({
 });
 
 type Guide = z.infer<typeof guideFormSchema>;
+// Define a Step type to avoid type confusion
+type Step = {
+  title: string;
+  content: string;
+};
 
 export function GuideEditor() {
   const { user } = useAuth();
   const [guides, setGuides] = useState<Guide[]>([]);
   const [loading, setLoading] = useState(false);
-  const [steps, setSteps] = useState([{ title: "", content: "" }]);
+  const [steps, setSteps] = useState<Step[]>([{ title: "", content: "" }]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingGuide, setEditingGuide] = useState<Guide | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,7 +82,12 @@ export function GuideEditor() {
         image: editingGuide.image || "",
         steps: editingGuide.steps
       });
-      setSteps(editingGuide.steps);
+      // Ensure the steps array has the required properties when setting state
+      const formattedSteps: Step[] = editingGuide.steps.map(step => ({
+        title: step.title || "",
+        content: step.content || ""
+      }));
+      setSteps(formattedSteps);
     } else {
       form.reset({
         title: "",
@@ -297,7 +307,7 @@ export function GuideEditor() {
   }
 
   const addStep = () => {
-    const newSteps = [...steps, { title: "", content: "" }];
+    const newSteps: Step[] = [...steps, { title: "", content: "" }];
     setSteps(newSteps);
     form.setValue("steps", newSteps);
   };
