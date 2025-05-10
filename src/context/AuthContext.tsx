@@ -39,6 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }, 0);
         } else {
           setIsAdmin(false);
+          setIsLoading(false);
         }
       }
     );
@@ -62,15 +63,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function fetchUserProfile(userId: string) {
     try {
+      console.log("Fetching user profile for:", userId);
       // First, check if the profile exists
       const { data, error } = await supabase
         .from('profiles')
         .select('is_admin, full_name, avatar_url, email')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      if (error || !data) {
+      if (error) {
+        console.error("Error fetching profile:", error);
+      }
+
+      if (!data) {
         // If profile doesn't exist, create one
+        console.log("Profile doesn't exist, creating one");
         const { data: userData } = await supabase.auth.getUser(userId);
         if (userData?.user) {
           const { error: insertError } = await supabase
@@ -90,6 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setIsAdmin(false);
         }
       } else {
+        console.log("Found profile with is_admin:", data.is_admin);
         setIsAdmin(!!data.is_admin);
       }
       
@@ -144,24 +152,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
+      console.log("Starting Google sign-in process");
+      
       // Get the current origin with protocol
-      const origin = window.location.origin;
+      const redirectTo = window.location.origin;
+      console.log("Redirect URL:", redirectTo);
       
       // Use the origin as the redirect URL
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${origin}`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
+          redirectTo: redirectTo,
         },
       });
       
+      console.log("SignInWithOAuth response:", { data, error });
+      
+      if (error) {
+        console.error("Google sign-in error:", error);
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: error.message
+        });
+      }
+      
       return { error };
     } catch (error) {
-      console.error("Google sign-in error:", error);
+      console.error("Google sign-in exception:", error);
+      toast({
+        variant: "destructive",
+        title: "Login Error",
+        description: "An unexpected error occurred"
+      });
       return { error };
     }
   };
@@ -169,6 +192,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
+      if (!error) {
+        toast({
+          title: "Signed out successfully",
+        });
+      }
       return { error };
     } catch (error) {
       return { error };

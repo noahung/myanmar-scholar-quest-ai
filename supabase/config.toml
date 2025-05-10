@@ -28,8 +28,8 @@ enabled = true
 
 [auth]
 enabled = true
-site_url = "http://localhost:3000"
-additional_redirect_urls = ["https://localhost:3000"]
+site_url = "https://myanmar-scholar-quest-ai.lovable.app"
+additional_redirect_urls = ["https://myanmar-scholar-quest-ai.lovable.app", "https://myanmar-scholar-quest-ai.lovable.app/"]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
 refresh_token_reuse_interval = 10
@@ -55,4 +55,3 @@ verify_jwt = true
 
 [functions.seed-scholarships]
 verify_jwt = true
-

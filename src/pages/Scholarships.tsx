@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 export type Scholarship = {
   id: string;
@@ -51,6 +52,7 @@ export default function Scholarships() {
   const [countries, setCountries] = useState<string[]>([]);
   const [fields, setFields] = useState<string[]>([]);
   const [levels, setLevels] = useState<string[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchScholarships();
@@ -60,53 +62,70 @@ export default function Scholarships() {
     try {
       setIsLoading(true);
       
-      // First try to fetch from Supabase
-      const { data: supabaseScholarships, error } = await supabase
+      // Fetch data from Supabase
+      const { data, error } = await supabase
         .from('scholarships')
         .select('*');
       
       if (error) {
+        console.error("Supabase error:", error);
         throw error;
       }
       
+      console.log("Scholarships data from Supabase:", data);
+      
       // If we have data in Supabase, use it
-      if (supabaseScholarships && supabaseScholarships.length > 0) {
-        setScholarships(supabaseScholarships as Scholarship[]);
+      if (data && data.length > 0) {
+        setScholarships(data as Scholarship[]);
         
         // Extract unique values
-        const uniqueCountries = Array.from(new Set(supabaseScholarships.map(s => s.country)));
-        const uniqueFields = Array.from(new Set(supabaseScholarships.flatMap(s => s.fields)));
-        const uniqueLevels = Array.from(new Set(supabaseScholarships.map(s => s.level)));
+        const uniqueCountries = Array.from(new Set(data.map(s => s.country)));
+        const uniqueFields = Array.from(new Set(data.flatMap(s => s.fields || [])));
+        const uniqueLevels = Array.from(new Set(data.map(s => s.level)));
         
         setCountries(uniqueCountries);
         setFields(uniqueFields);
         setLevels(uniqueLevels);
       } else {
         // Fallback to local data if no data in Supabase
-        const localData = await import('@/data/scholarships');
-        const localScholarships = localData.scholarships as Scholarship[];
-        setScholarships(localScholarships);
-        
-        // Extract unique values from local data
-        const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country)));
-        const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields)));
-        const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level)));
-        
-        setCountries(uniqueCountries);
-        setFields(uniqueFields);
-        setLevels(uniqueLevels);
+        console.log("No data in Supabase, falling back to local data");
+        try {
+          const localData = await import('@/data/scholarships');
+          const localScholarships = localData.scholarships as Scholarship[];
+          
+          setScholarships(localScholarships);
+          
+          // Extract unique values from local data
+          const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country)));
+          const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields || [])));
+          const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level)));
+          
+          setCountries(uniqueCountries);
+          setFields(uniqueFields);
+          setLevels(uniqueLevels);
+        } catch (localError) {
+          console.error("Error loading local data:", localError);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to load scholarships data"
+          });
+          setScholarships([]);
+        }
       }
     } catch (error) {
       console.error("Error in fetchScholarships:", error);
+      
       // Fallback to local data on error
       try {
         const localData = await import('@/data/scholarships');
         const localScholarships = localData.scholarships as Scholarship[];
+        
         setScholarships(localScholarships);
         
         // Extract unique values from local data
         const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country)));
-        const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields)));
+        const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields || [])));
         const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level)));
         
         setCountries(uniqueCountries);
@@ -114,6 +133,11 @@ export default function Scholarships() {
         setLevels(uniqueLevels);
       } catch (fallbackError) {
         console.error("Fallback error:", fallbackError);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load scholarships data"
+        });
         setScholarships([]);
       }
     } finally {
@@ -182,7 +206,7 @@ export default function Scholarships() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Select value={selectedCountry || "_all"} onValueChange={handleCountryChange}>
+          <Select value={selectedCountry || "_all"} onValueChange={(value) => setSelectedCountry(value === "_all" ? "" : value)}>
             <SelectTrigger>
               <SelectValue placeholder="Filter by Country" />
             </SelectTrigger>
@@ -194,7 +218,7 @@ export default function Scholarships() {
             </SelectContent>
           </Select>
           
-          <Select value={selectedField || "_all"} onValueChange={handleFieldChange}>
+          <Select value={selectedField || "_all"} onValueChange={(value) => setSelectedField(value === "_all" ? "" : value)}>
             <SelectTrigger>
               <SelectValue placeholder="Filter by Field of Study" />
             </SelectTrigger>
@@ -206,7 +230,7 @@ export default function Scholarships() {
             </SelectContent>
           </Select>
           
-          <Select value={selectedLevel || "_all"} onValueChange={handleLevelChange}>
+          <Select value={selectedLevel || "_all"} onValueChange={(value) => setSelectedLevel(value === "_all" ? "" : value)}>
             <SelectTrigger>
               <SelectValue placeholder="Filter by Degree Level" />
             </SelectTrigger>
