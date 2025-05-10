@@ -86,10 +86,10 @@ export default function Scholarships() {
         
         setScholarships(formattedData as Scholarship[]);
         
-        // Extract unique values
-        const uniqueCountries = Array.from(new Set(formattedData.map((s: any) => s.country)));
-        const uniqueFields = Array.from(new Set(formattedData.flatMap((s: any) => s.fields || [])));
-        const uniqueLevels = Array.from(new Set(formattedData.map((s: any) => s.level)));
+        // Extract unique values and filter out empty strings
+        const uniqueCountries = Array.from(new Set(formattedData.map((s: any) => s.country))).filter(Boolean);
+        const uniqueFields = Array.from(new Set(formattedData.flatMap((s: any) => s.fields || []))).filter(Boolean);
+        const uniqueLevels = Array.from(new Set(formattedData.map((s: any) => s.level))).filter(Boolean);
         
         setCountries(uniqueCountries);
         setFields(uniqueFields);
@@ -103,10 +103,10 @@ export default function Scholarships() {
           
           setScholarships(localScholarships);
           
-          // Extract unique values from local data
-          const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country)));
-          const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields || [])));
-          const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level)));
+          // Extract unique values and filter out empty strings
+          const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country))).filter(Boolean);
+          const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields || []))).filter(Boolean);
+          const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level))).filter(Boolean);
           
           setCountries(uniqueCountries);
           setFields(uniqueFields);
@@ -131,10 +131,10 @@ export default function Scholarships() {
         
         setScholarships(localScholarships);
         
-        // Extract unique values from local data
-        const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country)));
-        const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields || [])));
-        const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level)));
+        // Extract unique values and filter out empty strings
+        const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country))).filter(Boolean);
+        const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields || []))).filter(Boolean);
+        const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level))).filter(Boolean);
         
         setCountries(uniqueCountries);
         setFields(uniqueFields);
@@ -214,7 +214,7 @@ export default function Scholarships() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Select value={selectedCountry || "_all"} onValueChange={(value) => setSelectedCountry(value === "_all" ? "" : value)}>
+          <Select value={selectedCountry || "_all"} onValueChange={handleCountryChange}>
             <SelectTrigger>
               <SelectValue placeholder="Filter by Country" />
             </SelectTrigger>
@@ -226,7 +226,7 @@ export default function Scholarships() {
             </SelectContent>
           </Select>
           
-          <Select value={selectedField || "_all"} onValueChange={(value) => setSelectedField(value === "_all" ? "" : value)}>
+          <Select value={selectedField || "_all"} onValueChange={handleFieldChange}>
             <SelectTrigger>
               <SelectValue placeholder="Filter by Field of Study" />
             </SelectTrigger>
@@ -238,7 +238,7 @@ export default function Scholarships() {
             </SelectContent>
           </Select>
           
-          <Select value={selectedLevel || "_all"} onValueChange={(value) => setSelectedLevel(value === "_all" ? "" : value)}>
+          <Select value={selectedLevel || "_all"} onValueChange={handleLevelChange}>
             <SelectTrigger>
               <SelectValue placeholder="Filter by Degree Level" />
             </SelectTrigger>
@@ -303,9 +303,7 @@ export default function Scholarships() {
                 </div>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {Array.isArray(scholarship.fields) && scholarship.fields.map((field, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {field}
-                    </Badge>
+                    field ? <Badge key={index} variant="outline" className="text-xs">{field}</Badge> : null
                   ))}
                 </div>
                 <p className="line-clamp-3 text-sm">

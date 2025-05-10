@@ -316,7 +316,10 @@ export function ScholarshipEditor() {
     const newList = [...list];
     newList[index] = value;
     setList(newList);
-    form.setValue(formField as any, newList as any);
+    
+    // Filter out any empty strings before setting in the form
+    const filteredList = newList.filter(Boolean);
+    form.setValue(formField as any, filteredList.length > 0 ? filteredList : ["placeholder"] as any);
   };
 
   return (
