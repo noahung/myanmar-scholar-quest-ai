@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +22,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { BulkImportDialog } from "./BulkImportDialog";
 
 // Schema for the guide form
 const guideFormSchema = z.object({
@@ -343,10 +343,16 @@ export function GuideEditor() {
           <p className="text-muted-foreground">Create and manage educational guides</p>
         </div>
         
-        <Button onClick={handleNewGuide}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create New Guide
-        </Button>
+        <div className="flex gap-2">
+          <BulkImportDialog 
+            entityType="guides"
+            onImportComplete={fetchGuides}
+          />
+          <Button onClick={handleNewGuide}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create New Guide
+          </Button>
+        </div>
       </div>
       
       <Card>

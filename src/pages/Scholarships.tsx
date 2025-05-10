@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -74,6 +73,8 @@ export default function Scholarships() {
       
       console.log("Scholarships data from Supabase:", data);
       
+      let allScholarships: Scholarship[] = [];
+      
       // If we have data in Supabase, use it
       if (data && data.length > 0) {
         // Ensure fields properties are arrays
@@ -84,42 +85,57 @@ export default function Scholarships() {
           requirements: Array.isArray(scholarship.requirements) ? scholarship.requirements : []
         }));
         
-        setScholarships(formattedData as Scholarship[]);
+        allScholarships = [...formattedData];
+      }
+      
+      // Also check local data to merge with Supabase data
+      try {
+        const localData = await import('@/data/scholarships');
+        const localScholarships = localData.scholarships as Scholarship[];
         
-        // Extract unique values and filter out empty strings
-        const uniqueCountries = Array.from(new Set(formattedData.map((s: any) => s.country))).filter(Boolean);
-        const uniqueFields = Array.from(new Set(formattedData.flatMap((s: any) => s.fields || []))).filter(Boolean);
-        const uniqueLevels = Array.from(new Set(formattedData.map((s: any) => s.level))).filter(Boolean);
+        // Create a map of existing scholarships by ID to avoid duplicates
+        const scholarshipMap = new Map();
+        allScholarships.forEach(s => scholarshipMap.set(s.id, s));
         
-        setCountries(uniqueCountries);
-        setFields(uniqueFields);
-        setLevels(uniqueLevels);
-      } else {
-        // Fallback to local data if no data in Supabase
-        console.log("No data in Supabase, falling back to local data");
-        try {
-          const localData = await import('@/data/scholarships');
-          const localScholarships = localData.scholarships as Scholarship[];
-          
-          setScholarships(localScholarships);
-          
-          // Extract unique values and filter out empty strings
-          const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country))).filter(Boolean);
-          const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields || []))).filter(Boolean);
-          const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level))).filter(Boolean);
-          
-          setCountries(uniqueCountries);
-          setFields(uniqueFields);
-          setLevels(uniqueLevels);
-        } catch (localError) {
-          console.error("Error loading local data:", localError);
+        // Only add local scholarships if they don't already exist in the DB
+        localScholarships.forEach(scholarship => {
+          if (!scholarshipMap.has(scholarship.id)) {
+            scholarshipMap.set(scholarship.id, scholarship);
+          }
+        });
+        
+        // Convert map back to array
+        allScholarships = Array.from(scholarshipMap.values());
+      } catch (localError) {
+        console.error("Error loading local data:", localError);
+        if (allScholarships.length === 0) {
           toast({
             variant: "destructive",
             title: "Error",
             description: "Failed to load scholarships data"
           });
-          setScholarships([]);
         }
+      }
+      
+      setScholarships(allScholarships);
+      
+      // Extract unique values and filter out empty strings and undefined
+      if (allScholarships.length > 0) {
+        const uniqueCountries = Array.from(
+          new Set(allScholarships.map(s => s.country))
+        ).filter(country => country && country.trim() !== "");
+        
+        const uniqueFields = Array.from(
+          new Set(allScholarships.flatMap(s => s.fields || []))
+        ).filter(field => field && field.trim() !== "");
+        
+        const uniqueLevels = Array.from(
+          new Set(allScholarships.map(s => s.level))
+        ).filter(level => level && level.trim() !== "");
+        
+        setCountries(uniqueCountries);
+        setFields(uniqueFields);
+        setLevels(uniqueLevels);
       }
     } catch (error) {
       console.error("Error in fetchScholarships:", error);
@@ -132,9 +148,17 @@ export default function Scholarships() {
         setScholarships(localScholarships);
         
         // Extract unique values and filter out empty strings
-        const uniqueCountries = Array.from(new Set(localScholarships.map(s => s.country))).filter(Boolean);
-        const uniqueFields = Array.from(new Set(localScholarships.flatMap(s => s.fields || []))).filter(Boolean);
-        const uniqueLevels = Array.from(new Set(localScholarships.map(s => s.level))).filter(Boolean);
+        const uniqueCountries = Array.from(
+          new Set(localScholarships.map(s => s.country))
+        ).filter(country => country && country.trim() !== "");
+        
+        const uniqueFields = Array.from(
+          new Set(localScholarships.flatMap(s => s.fields || []))
+        ).filter(field => field && field.trim() !== "");
+        
+        const uniqueLevels = Array.from(
+          new Set(localScholarships.map(s => s.level))
+        ).filter(level => level && level.trim() !== "");
         
         setCountries(uniqueCountries);
         setFields(uniqueFields);

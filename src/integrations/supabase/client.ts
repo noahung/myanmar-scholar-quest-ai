@@ -18,3 +18,21 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
 
 // Log initialization for debugging
 console.log("Supabase client initialized with URL:", SUPABASE_URL);
+
+// Export a function to handle bulk import of scholarships
+export async function bulkImportScholarships(scholarships) {
+  try {
+    const { data, error } = await supabase
+      .from('scholarships')
+      .upsert(scholarships, { 
+        onConflict: 'id',
+        ignoreDuplicates: false
+      });
+    
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error importing scholarships:", error);
+    return { success: false, error };
+  }
+}
