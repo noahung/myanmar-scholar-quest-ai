@@ -64,41 +64,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   async function fetchUserProfile(userId: string) {
     try {
       console.log("Fetching user profile for:", userId);
-      // First, check if the profile exists
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('is_admin, full_name, avatar_url, email')
-        .eq('id', userId)
-        .maybeSingle();
+      
+      // Check if the profiles table exists first
+      try {
+        // First, check if the profile exists
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('is_admin, full_name, avatar_url, email')
+          .eq('id', userId)
+          .maybeSingle();
 
-      if (error) {
-        console.error("Error fetching profile:", error);
-      }
-
-      if (!data) {
-        // If profile doesn't exist, create one
-        console.log("Profile doesn't exist, creating one");
-        const { data: userData } = await supabase.auth.getUser(userId);
-        if (userData?.user) {
-          const { error: insertError } = await supabase
-            .from('profiles')
-            .insert({
-              id: userId,
-              full_name: userData.user.user_metadata?.full_name || userData.user.email?.split('@')[0],
-              email: userData.user.email,
-              avatar_url: userData.user.user_metadata?.avatar_url || null,
-              is_admin: false
-            });
-          
-          if (insertError) {
-            console.error('Error creating user profile:', insertError);
+        if (error) {
+          console.error("Error fetching profile:", error);
+          // Check if it's a "relation does not exist" error
+          if (error.message?.includes("does not exist")) {
+            console.log("Profiles table doesn't exist, creating it...");
+            // Create the profiles table
+            await createProfilesTableIfNeeded();
+            // Then create the user profile
+            await createUserProfile(userId);
           }
-          
+        } else if (!data) {
+          // If profile doesn't exist, create one
+          console.log("Profile doesn't exist, creating one");
+          await createUserProfile(userId);
           setIsAdmin(false);
+        } else {
+          console.log("Found profile with is_admin:", data.is_admin);
+          setIsAdmin(!!data.is_admin);
         }
-      } else {
-        console.log("Found profile with is_admin:", data.is_admin);
-        setIsAdmin(!!data.is_admin);
+      } catch (error) {
+        console.error('Error in profile check:', error);
       }
       
       setIsLoading(false);
@@ -108,32 +104,70 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  // Helper function to create the user profile
+  async function createUserProfile(userId: string) {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData?.user) {
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            full_name: userData.user.user_metadata?.full_name || userData.user.email?.split('@')[0],
+            email: userData.user.email,
+            avatar_url: userData.user.user_metadata?.avatar_url || null,
+            is_admin: false
+          });
+        
+        if (insertError) {
+          console.error('Error creating user profile:', insertError);
+        }
+        
+        setIsAdmin(false);
+      }
+    } catch (error) {
+      console.error('Error creating user profile:', error);
+    }
+  }
+
+  // Helper function to create the profiles table if it doesn't exist
+  async function createProfilesTableIfNeeded() {
+    // This is a placeholder - we'd actually need to handle this server-side
+    // through a migration or RPC function as client doesn't have permission to create tables
+    console.log("Note: Profiles table needs to be created from server-side");
+  }
+
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       
       if (!error) {
         toast({
           title: "Signed in successfully",
           description: "Welcome back!"
         });
+      } else {
+        console.error("Sign in error:", error);
       }
       
       return { error };
     } catch (error) {
+      console.error("Sign in exception:", error);
       return { error };
     }
   };
 
   const signUp = async (email: string, password: string, name?: string) => {
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email, 
         password,
         options: {
           data: {
             full_name: name || email.split('@')[0],
           },
+          // This makes it more likely that the callback will succeed
+          emailRedirectTo: window.location.origin
         },
       });
       
@@ -142,10 +176,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           title: "Account created",
           description: "Please check your email to verify your account."
         });
+      } else {
+        console.error("Sign up error:", error);
       }
       
       return { error };
     } catch (error) {
+      console.error("Sign up exception:", error);
       return { error };
     }
   };
@@ -163,6 +200,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         provider: 'google',
         options: {
           redirectTo: redirectTo,
+          queryParams: {
+            // This tells Google to create a new user if they don't exist
+            prompt: 'select_account',
+            access_type: 'offline',
+          }
         },
       });
       
@@ -196,9 +238,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         toast({
           title: "Signed out successfully",
         });
+      } else {
+        console.error("Sign out error:", error);
       }
       return { error };
     } catch (error) {
+      console.error("Sign out exception:", error);
       return { error };
     }
   };

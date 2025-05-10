@@ -9,6 +9,12 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
   auth: {
     persistSession: true,
     autoRefreshToken: true,
+    // Explicitly set storage to use localStorage for web environments
     storage: typeof window !== 'undefined' ? localStorage : undefined,
+    // Ensure debug is enabled to help troubleshoot auth issues
+    debug: true
   }
 });
+
+// Log initialization for debugging
+console.log("Supabase client initialized with URL:", SUPABASE_URL);

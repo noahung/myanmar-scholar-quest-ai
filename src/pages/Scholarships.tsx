@@ -76,12 +76,20 @@ export default function Scholarships() {
       
       // If we have data in Supabase, use it
       if (data && data.length > 0) {
-        setScholarships(data as Scholarship[]);
+        // Ensure fields properties are arrays
+        const formattedData = data.map((scholarship: any) => ({
+          ...scholarship,
+          fields: Array.isArray(scholarship.fields) ? scholarship.fields : [],
+          benefits: Array.isArray(scholarship.benefits) ? scholarship.benefits : [],
+          requirements: Array.isArray(scholarship.requirements) ? scholarship.requirements : []
+        }));
+        
+        setScholarships(formattedData as Scholarship[]);
         
         // Extract unique values
-        const uniqueCountries = Array.from(new Set(data.map(s => s.country)));
-        const uniqueFields = Array.from(new Set(data.flatMap(s => s.fields || [])));
-        const uniqueLevels = Array.from(new Set(data.map(s => s.level)));
+        const uniqueCountries = Array.from(new Set(formattedData.map((s: any) => s.country)));
+        const uniqueFields = Array.from(new Set(formattedData.flatMap((s: any) => s.fields || [])));
+        const uniqueLevels = Array.from(new Set(formattedData.map((s: any) => s.level)));
         
         setCountries(uniqueCountries);
         setFields(uniqueFields);

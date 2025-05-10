@@ -48,6 +48,8 @@ enable_confirmations = true
 enabled = true
 client_id = "env(GOOGLE_CLIENT_ID)"
 secret = "env(GOOGLE_CLIENT_SECRET)"
+# Add auto_create to ensure new Google accounts are created
+auto_create = true
 
 [functions]
 [functions.chat-assistant]
