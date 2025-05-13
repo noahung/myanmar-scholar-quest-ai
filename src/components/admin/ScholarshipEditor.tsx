@@ -518,7 +518,9 @@ export function ScholarshipEditor() {
                   <Checkbox
                     id="featured"
                     checked={form.watch("featured")}
-                    onCheckedChange={(checked) => form.setValue("featured", checked !== undefined ? checked : false)}
+                    onCheckedChange={(checked) => {
+                      form.setValue("featured", checked === true);
+                    }}
                   />
                   <Label htmlFor="featured">Featured</Label>
                 </div>
