@@ -16,10 +16,15 @@ export function BulkImportDialog({ onImportComplete, entityType }: BulkImportDia
 
   const handleManualImport = () => {
     toast({
-      title: "Bulk import temporarily disabled",
-      description: "Please manually add entries by editing the data files directly.",
+      title: "Manual data entry required",
+      description: `Please edit the ${entityType} data files directly in the project code.`,
     });
     setIsDialogOpen(false);
+    
+    // Still call the onImportComplete callback if provided
+    if (onImportComplete) {
+      onImportComplete();
+    }
   };
 
   return (
@@ -34,13 +39,14 @@ export function BulkImportDialog({ onImportComplete, entityType }: BulkImportDia
         <DialogHeader>
           <DialogTitle>Bulk Import {entityType}</DialogTitle>
           <DialogDescription>
-            Bulk import is temporarily disabled. Please manually edit the data files.
+            The bulk import feature has been disabled. Please manually add {entityType} by editing the 
+            corresponding data files directly in the codebase.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="flex justify-center">
             <Button onClick={handleManualImport}>
-              Continue
+              I Understand
             </Button>
           </div>
         </div>
