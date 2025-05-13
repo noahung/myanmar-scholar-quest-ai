@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "@/components/ui/use-toast";
-import { Save, Plus, Image, Trash, Loader2, Pencil } from "lucide-react";
+import { Save, Plus, Image, Trash, Loader2, Pencil, Upload, Download } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
@@ -20,10 +21,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BulkImportDialog } from "./BulkImportDialog";
+import { processScholarshipImport, getScholarshipTemplate } from "@/utils/bulkImport";
 
 // Define a schema for the scholarship form
 const scholarshipFormSchema = z.object({
@@ -53,6 +54,8 @@ export function ScholarshipEditor() {
   const [editingScholarship, setEditingScholarship] = useState<Scholarship | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const form = useForm<Scholarship>({
     resolver: zodResolver(scholarshipFormSchema),
@@ -95,6 +98,9 @@ export function ScholarshipEditor() {
         source_url: editingScholarship.source_url,
         image_url: editingScholarship.image_url,
       });
+      
+      // Set image preview if there's an image URL
+      setImagePreview(editingScholarship.image_url || null);
     } else {
       form.reset({
         title: "",
@@ -111,6 +117,8 @@ export function ScholarshipEditor() {
         source_url: "",
         image_url: "",
       });
+      
+      setImagePreview(null);
     }
   }, [editingScholarship, form]);
 
@@ -138,6 +146,81 @@ export function ScholarshipEditor() {
     }
   }
 
+  async function handleImageUpload(file: File) {
+    if (!file) return;
+    
+    // Validate file type
+    const fileType = file.type;
+    if (!fileType.match(/image\/(jpeg|jpg|png|gif|webp)/i)) {
+      toast({
+        variant: "destructive",
+        title: "Invalid file type",
+        description: "Please upload an image file (JPEG, PNG, GIF, WEBP)"
+      });
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast({
+        variant: "destructive",
+        title: "File too large",
+        description: "Please upload an image smaller than 5MB"
+      });
+      return;
+    }
+    
+    try {
+      setIsUploading(true);
+      
+      // Check if storage bucket exists, create if not
+      const { data: buckets } = await supabase.storage.listBuckets();
+      const scholarshipBucket = buckets?.find(b => b.name === 'scholarship-images');
+      
+      if (!scholarshipBucket) {
+        // Create the bucket
+        await supabase.storage.createBucket('scholarship-images', {
+          public: true,
+          fileSizeLimit: 5242880, // 5MB
+        });
+      }
+      
+      // Upload file
+      const fileName = `${Date.now()}-${file.name}`;
+      const { data, error } = await supabase.storage
+        .from('scholarship-images')
+        .upload(`public/${fileName}`, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+      
+      if (error) throw error;
+      
+      // Get public URL
+      const { data: publicURL } = supabase.storage
+        .from('scholarship-images')
+        .getPublicUrl(`public/${fileName}`);
+      
+      if (publicURL) {
+        form.setValue('image_url', publicURL.publicUrl);
+        setImagePreview(publicURL.publicUrl);
+        toast({
+          title: "Image uploaded successfully",
+        });
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast({
+        variant: "destructive",
+        title: "Upload failed",
+        description: "There was an error uploading your image"
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
   async function onSubmit(values: Scholarship) {
     if (!user) {
       toast({
@@ -151,6 +234,19 @@ export function ScholarshipEditor() {
     try {
       setIsSubmitting(true);
       const isEditing = !!values.id;
+      
+      // Process arrays from comma-separated values
+      if (typeof values.fields === 'string') {
+        values.fields = (values.fields as unknown as string).split(',').map(f => f.trim()).filter(Boolean);
+      }
+      
+      if (typeof values.benefits === 'string') {
+        values.benefits = (values.benefits as unknown as string).split(',').map(b => b.trim()).filter(Boolean);
+      }
+      
+      if (typeof values.requirements === 'string') {
+        values.requirements = (values.requirements as unknown as string).split(',').map(r => r.trim()).filter(Boolean);
+      }
 
       if (isEditing) {
         // Update existing scholarship
@@ -166,10 +262,16 @@ export function ScholarshipEditor() {
           description: "Your changes have been saved."
         });
       } else {
+        // Create new scholarship with a unique ID if not provided
+        const scholarshipData = {
+          ...values,
+          id: values.id || `scholarship-${Date.now()}`
+        };
+        
         // Create new scholarship
         const { error } = await supabase
           .from('scholarships')
-          .insert([values]);
+          .insert([scholarshipData]);
 
         if (error) throw error;
 
@@ -231,6 +333,7 @@ export function ScholarshipEditor() {
 
   function handleNewScholarship() {
     setEditingScholarship(null);
+    setImagePreview(null);
     form.reset({
       title: "",
       country: "",
@@ -246,6 +349,52 @@ export function ScholarshipEditor() {
       source_url: "",
       image_url: "",
     });
+    setIsDialogOpen(true);
+  }
+
+  async function handleExportScholarships() {
+    try {
+      // Get all scholarships from the database
+      const { data, error } = await supabase
+        .from('scholarships')
+        .select('*');
+        
+      if (error) throw error;
+      
+      if (!data || data.length === 0) {
+        toast({
+          title: "No scholarships to export",
+          description: "There are no scholarships available to export."
+        });
+        return;
+      }
+      
+      // Format the data
+      const jsonString = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const href = URL.createObjectURL(blob);
+      
+      // Create download link and trigger download
+      const link = document.createElement('a');
+      link.href = href;
+      link.download = `scholarships-export-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(href);
+      
+      toast({
+        title: "Export Successful",
+        description: `${data.length} scholarships exported successfully`
+      });
+    } catch (error) {
+      console.error("Error exporting scholarships:", error);
+      toast({
+        variant: "destructive",
+        title: "Export Failed",
+        description: "Failed to export scholarships"
+      });
+    }
   }
 
   return (
@@ -257,10 +406,16 @@ export function ScholarshipEditor() {
         </div>
         
         <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExportScholarships}>
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+          
           <BulkImportDialog 
             entityType="scholarships"
             onImportComplete={fetchScholarships}
           />
+          
           <Button onClick={handleNewScholarship}>
             <Plus className="mr-2 h-4 w-4" />
             Create New Scholarship
@@ -497,21 +652,64 @@ export function ScholarshipEditor() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="image_url">Image URL</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="image_url"
-                      placeholder="http://example.com/image.jpg"
-                      type="url"
-                      {...form.register("image_url")}
-                    />
-                    <Button type="button" variant="outline" size="icon">
-                      <Image className="h-4 w-4" />
-                    </Button>
+                  <Label htmlFor="image_url">Image</Label>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex gap-2">
+                      <Input
+                        id="image_url"
+                        placeholder="http://example.com/image.jpg"
+                        type="url"
+                        {...form.register("image_url")}
+                        className="flex-1"
+                      />
+                      <div className="relative">
+                        <Input 
+                          id="file-upload" 
+                          type="file"
+                          accept="image/*" 
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              handleImageUpload(e.target.files[0]);
+                            }
+                          }}
+                        />
+                        <Button type="button" variant="outline" size="icon" className="h-10 w-10">
+                          {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Image className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    {/* Image preview */}
+                    {imagePreview && (
+                      <div className="relative w-full max-w-[300px] h-[150px] border rounded-md overflow-hidden">
+                        <img 
+                          src={imagePreview} 
+                          alt="Scholarship image preview" 
+                          className="w-full h-full object-cover"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-2 right-2 h-6 w-6"
+                          onClick={() => {
+                            form.setValue("image_url", "");
+                            setImagePreview(null);
+                          }}
+                        >
+                          <Trash className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+                    
+                    {form.formState.errors.image_url && (
+                      <p className="text-sm text-red-500">{form.formState.errors.image_url.message}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      Enter a URL or upload an image
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Enter a URL or upload an image (Supabase storage will be integrated)
-                  </p>
                 </div>
 
                 <div className="flex items-center space-x-2">

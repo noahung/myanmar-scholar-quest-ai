@@ -55,6 +55,11 @@ export function BulkImportDialog({ onImportComplete, entityType }: BulkImportDia
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(href);
+    
+    toast({
+      title: "Template Downloaded",
+      description: `The ${entityType} template has been downloaded. Fill it with your data and import it back.`
+    });
   };
 
   const handleImport = async () => {
@@ -84,6 +89,7 @@ export function BulkImportDialog({ onImportComplete, entityType }: BulkImportDia
           description: result.message
         });
         setIsDialogOpen(false);
+        setFile(null);
         if (onImportComplete) {
           onImportComplete();
         }
@@ -109,7 +115,7 @@ export function BulkImportDialog({ onImportComplete, entityType }: BulkImportDia
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button variant="outline">
           <FileUp className="mr-2 h-4 w-4" />
           Bulk Import
         </Button>

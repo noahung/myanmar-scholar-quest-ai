@@ -19,9 +19,49 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
 // Log initialization for debugging
 console.log("Supabase client initialized with URL:", SUPABASE_URL);
 
+// Create storage buckets if they don't exist
+export async function ensureStorageBuckets() {
+  try {
+    // Check if scholarship-images bucket exists
+    const { data: buckets } = await supabase.storage.listBuckets();
+    const scholarshipBucket = buckets?.find(b => b.name === 'scholarship-images');
+    
+    if (!scholarshipBucket) {
+      // Create the scholarship-images bucket
+      await supabase.storage.createBucket('scholarship-images', {
+        public: true,
+        fileSizeLimit: 5242880, // 5MB
+      });
+      console.log('Created scholarship-images bucket');
+    }
+  } catch (error) {
+    console.error('Error ensuring storage buckets:', error);
+  }
+}
+
+// Call this function on app initialization
+if (typeof window !== 'undefined') {
+  setTimeout(() => {
+    ensureStorageBuckets();
+  }, 1000);
+}
+
 // Export a function to handle bulk import of scholarships
 export async function bulkImportScholarships(scholarships) {
   try {
+    // First, validate that all required fields are present
+    const requiredFields = ['id', 'title', 'country', 'institution', 'deadline', 'level', 'description', 'application_url'];
+    const missingFields = scholarships.some(s => 
+      requiredFields.some(field => !s[field])
+    );
+    
+    if (missingFields) {
+      return { 
+        success: false, 
+        error: { message: "Some scholarships are missing required fields" } 
+      };
+    }
+    
     const { data, error } = await supabase
       .from('scholarships')
       .upsert(scholarships, { 

@@ -30,15 +30,16 @@ export async function processScholarshipImport(file: File): Promise<{success: bo
       return { success: false, message: "JSON must contain an array of scholarships" };
     }
     
-    // Validate required fields for each scholarship
-    const requiredFields = ['id', 'title', 'country', 'institution', 'deadline', 'level', 'description', 'application_url'];
-    
-    // Format scholarships to ensure arrays
+    // Ensure each scholarship has an ID
     const formattedScholarships = scholarships.map(scholarship => ({
       ...scholarship,
-      fields: Array.isArray(scholarship.fields) ? scholarship.fields : [],
-      benefits: Array.isArray(scholarship.benefits) ? scholarship.benefits : [],
-      requirements: Array.isArray(scholarship.requirements) ? scholarship.requirements : []
+      id: scholarship.id || `scholarship-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      fields: Array.isArray(scholarship.fields) ? scholarship.fields : 
+              typeof scholarship.fields === 'string' ? scholarship.fields.split(',').map(f => f.trim()).filter(Boolean) : [],
+      benefits: Array.isArray(scholarship.benefits) ? scholarship.benefits : 
+                typeof scholarship.benefits === 'string' ? scholarship.benefits.split(',').map(b => b.trim()).filter(Boolean) : [],
+      requirements: Array.isArray(scholarship.requirements) ? scholarship.requirements : 
+                    typeof scholarship.requirements === 'string' ? scholarship.requirements.split(',').map(r => r.trim()).filter(Boolean) : []
     }));
     
     // Import to Supabase
@@ -85,6 +86,20 @@ export function getScholarshipTemplate(): Scholarship[] {
       featured: false,
       source_url: "https://example.com/source",
       image_url: "https://example.com/image.jpg"
+    },
+    {
+      id: "sample-id-2",
+      title: "Another Example Scholarship",
+      country: "Different Country",
+      institution: "Another University",
+      deadline: "2025-10-15",
+      fields: ["Business", "Economics"],
+      level: "PhD", 
+      description: "This is an example of another scholarship entry in the bulk import template.",
+      benefits: ["Full tuition coverage", "Research grant"],
+      requirements: ["Master's degree", "Research proposal", "Letters of recommendation"],
+      application_url: "https://example2.com/apply",
+      featured: true
     }
   ];
 }

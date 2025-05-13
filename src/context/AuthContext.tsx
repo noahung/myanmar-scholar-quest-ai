@@ -3,6 +3,7 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate, useLocation } from "react-router-dom";
 
 type AuthContextType = {
   user: User | null;
@@ -23,34 +24,84 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check if we have a code and state in the URL (Google OAuth callback)
+  useEffect(() => {
+    const checkForOAuthCode = async () => {
+      const searchParams = new URLSearchParams(window.location.search);
+      const code = searchParams.get('code');
+      const state = searchParams.get('state');
+      
+      if (code && state) {
+        // If we have OAuth parameters, show a toast to indicate login processing
+        toast({
+          title: "Processing login...",
+          description: "Please wait while we complete your authentication."
+        });
+      }
+    };
+    
+    checkForOAuthCode();
+  }, [location]);
 
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log("Auth state changed:", event, session?.user?.email);
-        setSession(session);
-        setUser(session?.user ?? null);
+      async (event, newSession) => {
+        console.log("Auth state changed:", event, newSession?.user?.email);
+        
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          setSession(newSession);
+          setUser(newSession?.user ?? null);
+          
+          toast({
+            title: "Signed in successfully",
+            description: `Welcome${newSession?.user?.user_metadata?.full_name ? ', ' + newSession.user.user_metadata.full_name : ''}!`
+          });
+          
+          // Navigate to home or previous page after login
+          if (location.pathname === '/login') {
+            navigate("/");
+          }
 
-        // Defer fetching user profile with setTimeout to prevent deadlock
-        if (session?.user) {
-          setTimeout(() => {
-            fetchUserProfile(session.user.id);
-          }, 0);
-        } else {
+          // Defer fetching user profile with setTimeout to prevent deadlock
+          if (newSession?.user) {
+            setTimeout(() => {
+              fetchUserProfile(newSession.user.id);
+            }, 0);
+          }
+        } else if (event === 'SIGNED_OUT') {
+          setSession(null);
+          setUser(null);
           setIsAdmin(false);
           setIsLoading(false);
+          
+          toast({
+            title: "Signed out successfully",
+          });
+        } else if (event === 'USER_UPDATED') {
+          setSession(newSession);
+          setUser(newSession?.user ?? null);
+          
+          // Defer fetching user profile with setTimeout to prevent deadlock
+          if (newSession?.user) {
+            setTimeout(() => {
+              fetchUserProfile(newSession.user.id);
+            }, 0);
+          }
         }
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
+      setSession(existingSession);
+      setUser(existingSession?.user ?? null);
       
-      if (session?.user) {
-        fetchUserProfile(session.user.id);
+      if (existingSession?.user) {
+        fetchUserProfile(existingSession.user.id);
       } else {
         setIsLoading(false);
       }
@@ -146,13 +197,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           title: "Signed in successfully",
           description: "Welcome back!"
         });
+        navigate("/");
       } else {
         console.error("Sign in error:", error);
+        toast({
+          variant: "destructive",
+          title: "Sign in failed",
+          description: error.message || "Invalid credentials"
+        });
       }
       
       return { error };
     } catch (error) {
       console.error("Sign in exception:", error);
+      toast({
+        variant: "destructive",
+        title: "Sign in error",
+        description: error instanceof Error ? error.message : "An unexpected error occurred"
+      });
       return { error };
     }
   };
@@ -176,13 +238,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           title: "Account created",
           description: "Please check your email to verify your account."
         });
+        
+        // Even without requiring email verification, we can redirect to home
+        navigate("/");
       } else {
         console.error("Sign up error:", error);
+        toast({
+          variant: "destructive",
+          title: "Sign up failed",
+          description: error.message
+        });
       }
       
       return { error };
     } catch (error) {
       console.error("Sign up exception:", error);
+      toast({
+        variant: "destructive",
+        title: "Sign up error",
+        description: error instanceof Error ? error.message : "An unexpected error occurred"
+      });
       return { error };
     }
   };
@@ -194,6 +269,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Get the current origin with protocol
       const redirectTo = window.location.origin;
       console.log("Redirect URL:", redirectTo);
+      
+      // Show a toast to inform the user
+      toast({
+        title: "Connecting to Google",
+        description: "You'll be redirected to sign in with Google."
+      });
       
       // Use the origin as the redirect URL
       const { data, error } = await supabase.auth.signInWithOAuth({
@@ -238,12 +319,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         toast({
           title: "Signed out successfully",
         });
+        navigate("/");
       } else {
         console.error("Sign out error:", error);
+        toast({
+          variant: "destructive",
+          title: "Sign out failed",
+          description: error.message
+        });
       }
       return { error };
     } catch (error) {
       console.error("Sign out exception:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to sign out"
+      });
       return { error };
     }
   };
