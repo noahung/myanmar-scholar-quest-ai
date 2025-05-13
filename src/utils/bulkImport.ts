@@ -34,38 +34,44 @@ export async function processScholarshipImport(file: File): Promise<{success: bo
     const formattedScholarships = scholarships.map(scholarship => {
       // Process fields array
       let fieldsArray: string[] = [];
-      if (scholarship.fields && Array.isArray(scholarship.fields)) {
-        fieldsArray = scholarship.fields;
-      } else if (scholarship.fields && typeof scholarship.fields === 'string') {
-        fieldsArray = scholarship.fields.split(',').map(f => f.trim()).filter(Boolean);
-      } else if (scholarship.fields) {
-        // Convert any other truthy value to string safely
-        const fieldsStr = String(scholarship.fields);
-        fieldsArray = fieldsStr.split(',').map(f => f.trim()).filter(Boolean);
+      if (scholarship.fields) {
+        if (Array.isArray(scholarship.fields)) {
+          fieldsArray = scholarship.fields;
+        } else if (typeof scholarship.fields === 'string') {
+          fieldsArray = scholarship.fields.split(',').map(f => f.trim()).filter(Boolean);
+        } else {
+          // Convert any other truthy value to string safely
+          const fieldsStr = String(scholarship.fields);
+          fieldsArray = fieldsStr.split(',').map(f => f.trim()).filter(Boolean);
+        }
       }
       
       // Process benefits array
       let benefitsArray: string[] = [];
-      if (scholarship.benefits && Array.isArray(scholarship.benefits)) {
-        benefitsArray = scholarship.benefits;
-      } else if (scholarship.benefits && typeof scholarship.benefits === 'string') {
-        benefitsArray = scholarship.benefits.split(',').map(b => b.trim()).filter(Boolean);
-      } else if (scholarship.benefits) {
-        // Convert any other truthy value to string safely
-        const benefitsStr = String(scholarship.benefits);
-        benefitsArray = benefitsStr.split(',').map(b => b.trim()).filter(Boolean);
+      if (scholarship.benefits) {
+        if (Array.isArray(scholarship.benefits)) {
+          benefitsArray = scholarship.benefits;
+        } else if (typeof scholarship.benefits === 'string') {
+          benefitsArray = scholarship.benefits.split(',').map(b => b.trim()).filter(Boolean);
+        } else {
+          // Convert any other truthy value to string safely
+          const benefitsStr = String(scholarship.benefits);
+          benefitsArray = benefitsStr.split(',').map(b => b.trim()).filter(Boolean);
+        }
       }
       
       // Process requirements array
       let requirementsArray: string[] = [];
-      if (scholarship.requirements && Array.isArray(scholarship.requirements)) {
-        requirementsArray = scholarship.requirements;
-      } else if (scholarship.requirements && typeof scholarship.requirements === 'string') {
-        requirementsArray = scholarship.requirements.split(',').map(r => r.trim()).filter(Boolean);
-      } else if (scholarship.requirements) {
-        // Convert any other truthy value to string safely
-        const requirementsStr = String(scholarship.requirements);
-        requirementsArray = requirementsStr.split(',').map(r => r.trim()).filter(Boolean);
+      if (scholarship.requirements) {
+        if (Array.isArray(scholarship.requirements)) {
+          requirementsArray = scholarship.requirements;
+        } else if (typeof scholarship.requirements === 'string') {
+          requirementsArray = scholarship.requirements.split(',').map(r => r.trim()).filter(Boolean);
+        } else {
+          // Convert any other truthy value to string safely
+          const requirementsStr = String(scholarship.requirements);
+          requirementsArray = requirementsStr.split(',').map(r => r.trim()).filter(Boolean);
+        }
       }
 
       return {
