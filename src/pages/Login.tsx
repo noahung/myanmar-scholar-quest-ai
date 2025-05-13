@@ -48,13 +48,8 @@ export default function Login() {
           description: error.message,
           variant: "destructive"
         });
-      } else {
-        toast({
-          title: "Success!",
-          description: "You are now signed in."
-        });
-        navigate('/');
       }
+      // No need for success toast here - handled in AuthContext
     } catch (error: any) {
       toast({
         title: "Sign In Failed",
@@ -87,14 +82,8 @@ export default function Login() {
           description: error.message || "An error occurred during sign up.",
           variant: "destructive"
         });
-      } else {
-        toast({
-          title: "Account Created",
-          description: "Check your email for confirmation instructions."
-        });
-        // Some providers might not require email verification
-        // If that's the case, we can navigate the user home
       }
+      // No success toast here - handled in AuthContext
     } catch (error: any) {
       toast({
         title: "Sign Up Failed",
