@@ -34,35 +34,38 @@ export async function processScholarshipImport(file: File): Promise<{success: bo
     const formattedScholarships = scholarships.map(scholarship => {
       // Process fields array
       let fieldsArray: string[] = [];
-      if (Array.isArray(scholarship.fields)) {
+      if (scholarship.fields && Array.isArray(scholarship.fields)) {
         fieldsArray = scholarship.fields;
-      } else if (typeof scholarship.fields === 'string') {
+      } else if (scholarship.fields && typeof scholarship.fields === 'string') {
         fieldsArray = scholarship.fields.split(',').map(f => f.trim()).filter(Boolean);
       } else if (scholarship.fields) {
-        // If it's another type that's truthy, convert to string then split
-        fieldsArray = String(scholarship.fields).split(',').map(f => f.trim()).filter(Boolean);
+        // Convert any other truthy value to string safely
+        const fieldsStr = String(scholarship.fields);
+        fieldsArray = fieldsStr.split(',').map(f => f.trim()).filter(Boolean);
       }
       
       // Process benefits array
       let benefitsArray: string[] = [];
-      if (Array.isArray(scholarship.benefits)) {
+      if (scholarship.benefits && Array.isArray(scholarship.benefits)) {
         benefitsArray = scholarship.benefits;
-      } else if (typeof scholarship.benefits === 'string') {
+      } else if (scholarship.benefits && typeof scholarship.benefits === 'string') {
         benefitsArray = scholarship.benefits.split(',').map(b => b.trim()).filter(Boolean);
       } else if (scholarship.benefits) {
-        // If it's another type that's truthy, convert to string then split
-        benefitsArray = String(scholarship.benefits).split(',').map(b => b.trim()).filter(Boolean);
+        // Convert any other truthy value to string safely
+        const benefitsStr = String(scholarship.benefits);
+        benefitsArray = benefitsStr.split(',').map(b => b.trim()).filter(Boolean);
       }
       
       // Process requirements array
       let requirementsArray: string[] = [];
-      if (Array.isArray(scholarship.requirements)) {
+      if (scholarship.requirements && Array.isArray(scholarship.requirements)) {
         requirementsArray = scholarship.requirements;
-      } else if (typeof scholarship.requirements === 'string') {
+      } else if (scholarship.requirements && typeof scholarship.requirements === 'string') {
         requirementsArray = scholarship.requirements.split(',').map(r => r.trim()).filter(Boolean);
       } else if (scholarship.requirements) {
-        // If it's another type that's truthy, convert to string then split
-        requirementsArray = String(scholarship.requirements).split(',').map(r => r.trim()).filter(Boolean);
+        // Convert any other truthy value to string safely
+        const requirementsStr = String(scholarship.requirements);
+        requirementsArray = requirementsStr.split(',').map(r => r.trim()).filter(Boolean);
       }
 
       return {
