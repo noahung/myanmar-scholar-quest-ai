@@ -30,17 +30,40 @@ export async function processScholarshipImport(file: File): Promise<{success: bo
       return { success: false, message: "JSON must contain an array of scholarships" };
     }
     
-    // Ensure each scholarship has an ID
-    const formattedScholarships = scholarships.map(scholarship => ({
-      ...scholarship,
-      id: scholarship.id || `scholarship-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-      fields: Array.isArray(scholarship.fields) ? scholarship.fields : 
-              typeof scholarship.fields === 'string' ? scholarship.fields.split(',').map(f => f.trim()).filter(Boolean) : [],
-      benefits: Array.isArray(scholarship.benefits) ? scholarship.benefits : 
-                typeof scholarship.benefits === 'string' ? scholarship.benefits.split(',').map(b => b.trim()).filter(Boolean) : [],
-      requirements: Array.isArray(scholarship.requirements) ? scholarship.requirements : 
-                    typeof scholarship.requirements === 'string' ? scholarship.requirements.split(',').map(r => r.trim()).filter(Boolean) : []
-    }));
+    // Ensure each scholarship has an ID and convert fields, benefits, requirements to arrays if needed
+    const formattedScholarships = scholarships.map(scholarship => {
+      // Process fields array
+      let fieldsArray: string[] = [];
+      if (Array.isArray(scholarship.fields)) {
+        fieldsArray = scholarship.fields;
+      } else if (typeof scholarship.fields === 'string') {
+        fieldsArray = scholarship.fields.split(',').map(f => f.trim()).filter(Boolean);
+      }
+      
+      // Process benefits array
+      let benefitsArray: string[] = [];
+      if (Array.isArray(scholarship.benefits)) {
+        benefitsArray = scholarship.benefits;
+      } else if (typeof scholarship.benefits === 'string') {
+        benefitsArray = scholarship.benefits.split(',').map(b => b.trim()).filter(Boolean);
+      }
+      
+      // Process requirements array
+      let requirementsArray: string[] = [];
+      if (Array.isArray(scholarship.requirements)) {
+        requirementsArray = scholarship.requirements;
+      } else if (typeof scholarship.requirements === 'string') {
+        requirementsArray = scholarship.requirements.split(',').map(r => r.trim()).filter(Boolean);
+      }
+
+      return {
+        ...scholarship,
+        id: scholarship.id || `scholarship-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+        fields: fieldsArray,
+        benefits: benefitsArray,
+        requirements: requirementsArray
+      };
+    });
     
     // Import to Supabase
     const result = await bulkImportScholarships(formattedScholarships);
