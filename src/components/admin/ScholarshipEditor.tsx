@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +23,6 @@ import {
 } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BulkImportDialog } from "./BulkImportDialog";
-import { processScholarshipImport, getScholarshipTemplate } from "@/utils/bulkImport";
 
 // Define a schema for the scholarship form
 const scholarshipFormSchema = z.object({
