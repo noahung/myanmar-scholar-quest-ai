@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -62,6 +62,10 @@ export function PreparationHelper() {
     values: "",
     strengths: ""
   });
+  
+  useEffect(() => {
+    loadUserChecklist();
+  }, [user]);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -236,8 +240,6 @@ export function PreparationHelper() {
       setIsLoading(false);
     }
   };
-  
-  // Call this in a useEffect in the parent component
   
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
