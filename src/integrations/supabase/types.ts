@@ -359,6 +359,30 @@ export type Database = {
         }
         Relationships: []
       }
+      translations: {
+        Row: {
+          created_at: string
+          en: string
+          key: string
+          my: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          en: string
+          key: string
+          my: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          en?: string
+          key?: string
+          my?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_notes: {
         Row: {
           content: string

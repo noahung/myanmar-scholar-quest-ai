@@ -12,7 +12,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
 import { UserAdminTable } from "@/components/admin/UserAdminTable";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabase-client";
 import {
   Table,
   TableBody,
@@ -72,12 +72,16 @@ export default function AdminPage() {
       const { data, error } = await supabase
         .from('post_comments')
         .select(`
-          *,
-          post:post_id (
-            title
-          ),
-          profile:user_id (
+          id,
+          content,
+          created_at,
+          user_id,
+          post_id,
+          profiles:user_id (
             full_name
+          ),
+          posts:post_id (
+            title
           )
         `)
         .order('created_at', { ascending: false });
@@ -86,14 +90,16 @@ export default function AdminPage() {
         throw error;
       }
       
+      console.log("Fetched comments data:", data);
+      
       const formattedComments = data?.map(comment => ({
         id: comment.id,
         post_id: comment.post_id,
         content: comment.content,
         created_at: comment.created_at,
         user_id: comment.user_id,
-        user_name: comment.profile?.full_name || 'Unknown User',
-        post_title: comment.post?.title || 'Unknown Post'
+        user_name: comment.profiles?.full_name || 'Unknown User',
+        post_title: comment.posts?.title || 'Unknown Post'
       }));
       
       setComments(formattedComments || []);
@@ -113,8 +119,7 @@ export default function AdminPage() {
     try {
       setIsTranslationsLoading(true);
       
-      // For now, let's access the translations from the LanguageContext
-      // In a real app, these would be fetched from the database
+      // Get translations from the database
       const { data: storedTranslations, error } = await supabase
         .from('translations')
         .select('*')

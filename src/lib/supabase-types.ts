@@ -287,12 +287,57 @@ export interface Database {
           created_at?: string
         }
       }
+      saved_scholarships: {
+        Row: {
+          id: string
+          user_id: string
+          scholarship_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          scholarship_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          scholarship_id?: string
+          created_at?: string
+        }
+      }
+      translations: {
+        Row: {
+          key: string
+          en: string
+          my: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          key: string
+          en: string
+          my: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          key?: string
+          en?: string
+          my?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_scholarship_saved: (p_user_id: string, p_scholarship_id: string) => boolean
+      save_scholarship: (p_user_id: string, p_scholarship_id: string) => void
+      remove_saved_scholarship: (p_user_id: string, p_scholarship_id: string) => void
     }
     Enums: {
       [_ in never]: never
