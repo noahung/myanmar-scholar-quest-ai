@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,11 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Save, UserCircle, BookOpen, MessageCircle, History, BookmarkIcon } from "lucide-react";
+import { Loader2, Save, UserCircle, BookOpen, MessageCircle, History, BookmarkIcon, CheckSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { UserNotes } from "@/components/user-notes";
 import { SavedScholarships } from "@/components/saved-scholarships";
+import { PreparationHelper } from "@/components/preparation-helper";
 
 export default function Profile() {
   const { user, isLoading } = useAuth();
@@ -234,7 +234,7 @@ export default function Profile() {
         <h1 className="text-3xl font-bold tracking-tighter mb-8">My Profile</h1>
         
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <UserCircle className="h-4 w-4" />
               <span>Profile</span>
@@ -250,6 +250,10 @@ export default function Profile() {
             <TabsTrigger value="notes" className="flex items-center gap-2">
               <BookmarkIcon className="h-4 w-4" />
               <span>My Notes</span>
+            </TabsTrigger>
+            <TabsTrigger value="preparation" className="flex items-center gap-2">
+              <CheckSquare className="h-4 w-4" />
+              <span>Preparation Helper</span>
             </TabsTrigger>
             <TabsTrigger value="chat-history" className="flex items-center gap-2">
               <History className="h-4 w-4" />
@@ -370,6 +374,10 @@ export default function Profile() {
 
           <TabsContent value="notes" className="mt-6 space-y-4">
             <UserNotes scholarshipId={undefined} />
+          </TabsContent>
+          
+          <TabsContent value="preparation" className="mt-6">
+            <PreparationHelper />
           </TabsContent>
           
           <TabsContent value="chat-history" className="mt-6 space-y-4">
