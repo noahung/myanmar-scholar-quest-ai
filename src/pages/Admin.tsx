@@ -41,6 +41,21 @@ type TranslationItem = {
   my: string;
 };
 
+// Type for nested Supabase response
+interface CommentWithRelations {
+  id: string;
+  post_id: string;
+  content: string;
+  created_at: string;
+  user_id: string;
+  profiles: {
+    full_name: string | null;
+  } | null;
+  posts: {
+    title: string | null;
+  } | null;
+}
+
 export default function AdminPage() {
   const { isAdmin, isLoading } = useIsAdmin();
   const { toast } = useToast();
@@ -92,7 +107,10 @@ export default function AdminPage() {
       
       console.log("Fetched comments data:", data);
       
-      const formattedComments = data?.map(comment => ({
+      // Properly type the data with the interface
+      const commentsWithRelations = data as CommentWithRelations[];
+      
+      const formattedComments = commentsWithRelations.map(comment => ({
         id: comment.id,
         post_id: comment.post_id,
         content: comment.content,
