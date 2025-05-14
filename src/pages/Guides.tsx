@@ -55,12 +55,12 @@ export default function Guides() {
             
           if (stepsError) {
             console.error("Error fetching steps:", stepsError);
-            return { ...guide, steps: [] };
+            return { ...guide, steps_content: [] };
           }
           
           return {
             ...guide,
-            steps: stepsData.map(step => ({
+            steps_content: stepsData.map(step => ({
               title: step.title,
               content: step.content
             }))
