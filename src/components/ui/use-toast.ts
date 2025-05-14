@@ -1,4 +1,5 @@
 
+import * as React from "react";
 import { useToast as useToastHook } from "@/hooks/use-toast";
 
 // Create a properly scoped toast function that will be safe to use
