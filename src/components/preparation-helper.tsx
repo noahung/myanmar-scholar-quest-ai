@@ -75,18 +75,15 @@ export function PreparationHelper() {
     }));
   };
   
-  const toggleItemCompletion = (id: string) => {
-    setChecklistItems(items => 
-      items.map(item => 
-        item.id === id ? { ...item, completed: !item.completed } : item
-      )
-    );
-    saveChecklistItems(checklistItems.map(item => 
+  const toggleItemCompletion = async (id: string) => {
+    const updatedItems = checklistItems.map(item => 
       item.id === id ? { ...item, completed: !item.completed } : item
-    ));
+    );
+    setChecklistItems(updatedItems);
+    await saveChecklistItems(updatedItems);
   };
   
-  const addNewItem = () => {
+  const addNewItem = async () => {
     if (!newItemText.trim()) return;
     
     const newItem = {
@@ -97,14 +94,14 @@ export function PreparationHelper() {
     
     const updatedItems = [...checklistItems, newItem];
     setChecklistItems(updatedItems);
-    saveChecklistItems(updatedItems);
+    await saveChecklistItems(updatedItems);
     setNewItemText("");
   };
   
-  const removeItem = (id: string) => {
+  const removeItem = async (id: string) => {
     const updatedItems = checklistItems.filter(item => item.id !== id);
     setChecklistItems(updatedItems);
-    saveChecklistItems(updatedItems);
+    await saveChecklistItems(updatedItems);
   };
   
   const saveChecklistItems = async (items: ChecklistItem[]) => {
@@ -113,16 +110,48 @@ export function PreparationHelper() {
     try {
       setIsLoading(true);
       
-      const { error } = await supabase
+      // First check if a record exists
+      const { data: existingData, error: fetchError } = await supabase
         .from('user_preparation')
-        .upsert({
-          user_id: user.id,
-          checklist_items: items
-        }, {
-          onConflict: 'user_id'
-        });
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
       
-      if (error) throw error;
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        throw fetchError;
+      }
+      
+      let saveError;
+      
+      if (existingData?.id) {
+        // Update existing record
+        const { error } = await supabase
+          .from('user_preparation')
+          .update({
+            checklist_items: items,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id);
+        
+        saveError = error;
+      } else {
+        // Insert new record
+        const { error } = await supabase
+          .from('user_preparation')
+          .insert({
+            user_id: user.id,
+            checklist_items: items
+          });
+        
+        saveError = error;
+      }
+      
+      if (saveError) throw saveError;
+      
+      toast({
+        title: "Checklist saved",
+        description: "Your checklist has been updated successfully."
+      });
       
     } catch (error) {
       console.error("Error saving checklist:", error);
@@ -165,6 +194,11 @@ export function PreparationHelper() {
       
       setPersonalStatement(data.personalStatement);
       setEditedStatement(data.personalStatement);
+      
+      toast({
+        title: "Personal Statement Generated",
+        description: "Your personal statement has been generated successfully."
+      });
       
     } catch (error) {
       console.error("Error generating personal statement:", error);
@@ -223,7 +257,7 @@ export function PreparationHelper() {
         .from('user_preparation')
         .select('checklist_items')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
       
       if (error && error.code !== 'PGRST116') {
         // PGRST116 means no rows returned
@@ -293,8 +327,12 @@ export function PreparationHelper() {
                 className="flex-1"
                 onKeyDown={(e) => e.key === 'Enter' && addNewItem()}
               />
-              <Button onClick={addNewItem} size="sm">
-                <Plus className="h-4 w-4 mr-2" />
+              <Button 
+                onClick={addNewItem} 
+                size="sm"
+                disabled={isLoading}
+              >
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
                 Add
               </Button>
             </div>

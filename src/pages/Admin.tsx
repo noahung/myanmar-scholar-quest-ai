@@ -7,7 +7,7 @@ import { ScholarshipEditor } from "@/components/admin/ScholarshipEditor";
 import { useIsAdmin } from "@/components/admin/AdminCheck";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, UserCheck, Shield, Settings, MessageSquare } from "lucide-react";
+import { AlertCircle, UserCheck, Shield, Settings, MessageSquare, Languages } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
 import { UserAdminTable } from "@/components/admin/UserAdminTable";
@@ -21,7 +21,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2, Trash2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Loader2, Trash2, Save, Plus } from "lucide-react";
 
 type Comment = {
   id: string;
@@ -33,17 +35,32 @@ type Comment = {
   post_title?: string;
 }
 
+type TranslationItem = {
+  key: string;
+  en: string;
+  my: string;
+};
+
 export default function AdminPage() {
   const { isAdmin, isLoading } = useIsAdmin();
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const [comments, setComments] = useState<Comment[]>([]);
   const [isCommentsLoading, setIsCommentsLoading] = useState(true);
   const [isDeletingComment, setIsDeletingComment] = useState<string | null>(null);
+  
+  // Translation management
+  const [translations, setTranslations] = useState<TranslationItem[]>([]);
+  const [isTranslationsLoading, setIsTranslationsLoading] = useState(false);
+  const [isSavingTranslation, setIsSavingTranslation] = useState(false);
+  const [newTranslationKey, setNewTranslationKey] = useState('');
+  const [newTranslationEn, setNewTranslationEn] = useState('');
+  const [newTranslationMy, setNewTranslationMy] = useState('');
 
   useEffect(() => {
     if (isAdmin) {
       fetchComments();
+      fetchTranslations();
     }
   }, [isAdmin]);
 
@@ -92,6 +109,44 @@ export default function AdminPage() {
     }
   }
 
+  async function fetchTranslations() {
+    try {
+      setIsTranslationsLoading(true);
+      
+      // For now, let's access the translations from the LanguageContext
+      // In a real app, these would be fetched from the database
+      const { data: storedTranslations, error } = await supabase
+        .from('translations')
+        .select('*')
+        .order('key', { ascending: true });
+      
+      if (error) {
+        // If table doesn't exist yet, we'll initialize with default translations
+        console.error("Error fetching translations:", error);
+        
+        // Convert the built-in translations to our format
+        const initialTranslations: TranslationItem[] = Object.entries(useLanguage().translations).map(([key, values]) => ({
+          key,
+          en: values.en,
+          my: values.my,
+        }));
+        
+        setTranslations(initialTranslations);
+      } else {
+        setTranslations(storedTranslations || []);
+      }
+    } catch (error) {
+      console.error("Error in fetchTranslations:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load translations."
+      });
+    } finally {
+      setIsTranslationsLoading(false);
+    }
+  }
+
   async function handleDeleteComment(commentId: string) {
     try {
       setIsDeletingComment(commentId);
@@ -122,6 +177,148 @@ export default function AdminPage() {
       setIsDeletingComment(null);
     }
   }
+
+  const handleTranslationChange = (index: number, field: 'en' | 'my', value: string) => {
+    const updatedTranslations = [...translations];
+    updatedTranslations[index][field] = value;
+    setTranslations(updatedTranslations);
+  };
+
+  const saveTranslation = async (translation: TranslationItem) => {
+    try {
+      setIsSavingTranslation(true);
+      
+      // Save to the database
+      const { error } = await supabase
+        .from('translations')
+        .upsert({ 
+          key: translation.key,
+          en: translation.en,
+          my: translation.my
+        }, { onConflict: 'key' });
+      
+      if (error) throw error;
+      
+      // Update the language context to reflect changes immediately
+      useLanguage().updateTranslation(translation.key, {
+        en: translation.en,
+        my: translation.my
+      });
+      
+      toast({
+        title: "Translation Saved",
+        description: "Your changes have been applied successfully."
+      });
+      
+    } catch (error) {
+      console.error("Error saving translation:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to save translation."
+      });
+    } finally {
+      setIsSavingTranslation(false);
+    }
+  };
+
+  const addNewTranslation = async () => {
+    if (!newTranslationKey || !newTranslationEn || !newTranslationMy) {
+      toast({
+        variant: "destructive",
+        title: "Missing Information",
+        description: "Please fill in all translation fields."
+      });
+      return;
+    }
+    
+    // Check if key already exists
+    if (translations.some(t => t.key === newTranslationKey)) {
+      toast({
+        variant: "destructive",
+        title: "Duplicate Key",
+        description: "This translation key already exists."
+      });
+      return;
+    }
+    
+    try {
+      setIsSavingTranslation(true);
+      
+      const newTranslation = {
+        key: newTranslationKey,
+        en: newTranslationEn,
+        my: newTranslationMy
+      };
+      
+      // Save to database
+      const { error } = await supabase
+        .from('translations')
+        .insert(newTranslation);
+      
+      if (error) throw error;
+      
+      // Add to state
+      setTranslations([...translations, newTranslation]);
+      
+      // Update context
+      useLanguage().updateTranslation(newTranslationKey, {
+        en: newTranslationEn,
+        my: newTranslationMy
+      });
+      
+      // Clear form
+      setNewTranslationKey('');
+      setNewTranslationEn('');
+      setNewTranslationMy('');
+      
+      toast({
+        title: "Translation Added",
+        description: "New translation has been added successfully."
+      });
+      
+    } catch (error) {
+      console.error("Error adding translation:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to add new translation."
+      });
+    } finally {
+      setIsSavingTranslation(false);
+    }
+  };
+
+  const deleteTranslation = async (key: string) => {
+    try {
+      setIsSavingTranslation(true);
+      
+      const { error } = await supabase
+        .from('translations')
+        .delete()
+        .eq('key', key);
+      
+      if (error) throw error;
+      
+      // Remove from state
+      setTranslations(translations.filter(t => t.key !== key));
+      
+      toast({
+        title: "Translation Deleted",
+        description: "The translation has been removed."
+      });
+      
+    } catch (error) {
+      console.error("Error deleting translation:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete translation."
+      });
+    } finally {
+      setIsSavingTranslation(false);
+    }
+  };
 
   if (isLoading) {
     return <div className="container py-8">Loading...</div>;
@@ -158,11 +355,12 @@ export default function AdminPage() {
       <UserAdminTable />
 
       <Tabs defaultValue="scholarships" className="w-full mt-8">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="scholarships">{t('Scholarships')}</TabsTrigger>
           <TabsTrigger value="guides">{t('Educational Guides')}</TabsTrigger>
           <TabsTrigger value="community">{t('Community Posts')}</TabsTrigger>
           <TabsTrigger value="comments">{t('Comments')}</TabsTrigger>
+          <TabsTrigger value="translations">{t('Translations')}</TabsTrigger>
         </TabsList>
         
         <TabsContent value="scholarships" className="mt-6">
@@ -240,6 +438,122 @@ export default function AdminPage() {
                   </Table>
                 </div>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="translations" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Manage Translations</CardTitle>
+              <CardDescription>
+                Edit translations for all text across the platform
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div className="flex items-end gap-4 border-b pb-4">
+                  <div className="flex-1 space-y-2">
+                    <Label htmlFor="newTranslationKey">Translation Key</Label>
+                    <Input 
+                      id="newTranslationKey" 
+                      placeholder="e.g., 'Welcome_Message'"
+                      value={newTranslationKey}
+                      onChange={(e) => setNewTranslationKey(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <Label htmlFor="newTranslationEn">English Text</Label>
+                    <Input 
+                      id="newTranslationEn" 
+                      placeholder="e.g., 'Welcome to the platform'"
+                      value={newTranslationEn}
+                      onChange={(e) => setNewTranslationEn(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <Label htmlFor="newTranslationMy">Myanmar Text</Label>
+                    <Input 
+                      id="newTranslationMy" 
+                      placeholder="e.g., 'ပလက်ဖောင်းသို့ ကြိုဆိုပါသည်'"
+                      value={newTranslationMy}
+                      onChange={(e) => setNewTranslationMy(e.target.value)}
+                    />
+                  </div>
+                  <Button 
+                    onClick={addNewTranslation} 
+                    disabled={isSavingTranslation}
+                  >
+                    {isSavingTranslation ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Plus className="h-4 w-4 mr-2" />}
+                    Add
+                  </Button>
+                </div>
+                
+                {isTranslationsLoading ? (
+                  <div className="flex justify-center py-6">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : translations.length === 0 ? (
+                  <div className="text-center py-6 text-muted-foreground">
+                    No translations found.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Key</TableHead>
+                          <TableHead>English</TableHead>
+                          <TableHead>Myanmar</TableHead>
+                          <TableHead className="w-[180px]">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {translations.map((translation, index) => (
+                          <TableRow key={translation.key}>
+                            <TableCell className="font-medium">
+                              {translation.key}
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                value={translation.en}
+                                onChange={(e) => handleTranslationChange(index, 'en', e.target.value)}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                value={translation.my}
+                                onChange={(e) => handleTranslationChange(index, 'my', e.target.value)}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => saveTranslation(translation)}
+                                  disabled={isSavingTranslation}
+                                >
+                                  {isSavingTranslation ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                  <span className="ml-2">Save</span>
+                                </Button>
+                                <Button 
+                                  variant="destructive" 
+                                  size="sm"
+                                  onClick={() => deleteTranslation(translation.key)}
+                                  disabled={isSavingTranslation}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

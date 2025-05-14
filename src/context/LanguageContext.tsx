@@ -1,18 +1,21 @@
 
 import React, { createContext, useState, useContext, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 // Define the available languages
 export type Language = "en" | "my"; // en = English, my = Burmese
 
 // Define the type for translations
-type TranslationDictionary = {
-  [key: string]: {
-    [key in Language]: string;
-  };
+type TranslationValues = {
+  [key in Language]: string;
 };
 
-// Create our translations dictionary
-const translations: TranslationDictionary = {
+type TranslationDictionary = {
+  [key: string]: TranslationValues;
+};
+
+// Create the initial translations dictionary
+const initialTranslations: TranslationDictionary = {
   // Navigation
   "Scholarships": {
     en: "Scholarships",
@@ -81,7 +84,42 @@ const translations: TranslationDictionary = {
     en: "Users",
     my: "သုံးစွဲသူများ"
   },
-  // Add more translations as needed
+  "Translations": {
+    en: "Translations",
+    my: "ဘာသာပြန်ဆိုမှုများ"
+  },
+  "Educational Guides": {
+    en: "Educational Guides",
+    my: "ပညာရေးဆိုင်ရာလမ်းညွှန်များ"
+  },
+  "Community Posts": {
+    en: "Community Posts",
+    my: "အသိုင်းအဝိုင်းပို့စ်များ"
+  },
+  "Comments": {
+    en: "Comments",
+    my: "မှတ်ချက်များ"
+  },
+  "Saved Scholarships": {
+    en: "Saved Scholarships",
+    my: "သိမ်းဆည်းထားသော ပညာသင်ဆုများ"
+  },
+  "My Posts": {
+    en: "My Posts",
+    my: "ကျွန်ုပ်၏ပို့စ်များ"
+  },
+  "My Notes": {
+    en: "My Notes",
+    my: "ကျွန်ုပ်၏မှတ်စုများ"
+  },
+  "Chat History": {
+    en: "Chat History",
+    my: "စကားပြောမှတ်တမ်း"
+  },
+  "Preparation Helper": {
+    en: "Preparation Helper",
+    my: "ပြင်ဆင်မှုအကူအညီ"
+  }
 };
 
 // Create the language context
@@ -89,6 +127,8 @@ type LanguageContextType = {
   language: Language;
   setLanguage: (language: Language) => void;
   t: (key: string) => string;
+  translations: TranslationDictionary;
+  updateTranslation: (key: string, values: { en: string, my: string }) => void;
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -109,11 +149,54 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const storedLanguage = localStorage.getItem("language") as Language;
     return storedLanguage === "my" ? "my" : "en";
   });
+  
+  // Store translations in state so they can be updated dynamically
+  const [translations, setTranslations] = useState<TranslationDictionary>(initialTranslations);
 
   // Update localStorage when language changes
   useEffect(() => {
     localStorage.setItem("language", language);
   }, [language]);
+  
+  // Load translations from database on init
+  useEffect(() => {
+    fetchTranslations();
+  }, []);
+  
+  // Fetch translations from the database
+  const fetchTranslations = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('translations')
+        .select('*');
+        
+      if (error) {
+        console.error("Error fetching translations:", error);
+        // If there's an error, we'll just use the initial translations
+        return;
+      }
+      
+      if (data && data.length > 0) {
+        // Convert the database format to our dictionary format
+        const dbTranslations: TranslationDictionary = {};
+        
+        data.forEach(item => {
+          dbTranslations[item.key] = {
+            en: item.en,
+            my: item.my
+          };
+        });
+        
+        // Merge with our initial translations to ensure we have all needed keys
+        setTranslations({
+          ...initialTranslations,
+          ...dbTranslations
+        });
+      }
+    } catch (error) {
+      console.error("Error in fetchTranslations:", error);
+    }
+  };
 
   // Translation function
   const t = (key: string): string => {
@@ -123,9 +206,26 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // If translation is not found, return the key
     return key;
   };
+  
+  // Function to update a translation
+  const updateTranslation = (key: string, values: { en: string, my: string }) => {
+    setTranslations(prev => ({
+      ...prev,
+      [key]: {
+        en: values.en,
+        my: values.my
+      }
+    }));
+  };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ 
+      language, 
+      setLanguage, 
+      t, 
+      translations, 
+      updateTranslation 
+    }}>
       {children}
     </LanguageContext.Provider>
   );

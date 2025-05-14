@@ -277,9 +277,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log("Starting Google sign-in process");
       
-      // Get the current origin with protocol
-      const redirectTo = window.location.origin;
-      console.log("Redirect URL:", redirectTo);
+      // Get the current URL (with protocol and host)
+      const redirectTo = `${window.location.protocol}//${window.location.host}`;
+      console.log("Setting redirect URL:", redirectTo);
       
       // Show a toast to inform the user
       toast({
@@ -287,7 +287,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         description: "You'll be redirected to sign in with Google."
       });
       
-      // Use the origin as the redirect URL
+      // Use the full URL as the redirect URL
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {

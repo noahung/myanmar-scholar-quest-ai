@@ -13,7 +13,7 @@ import {
   LogOut,
   Settings
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -28,11 +28,43 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
 import { LanguageSelector } from "@/components/language-selector";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, session, signOut, isLoading, isAdmin } = useAuth();
   const { t } = useLanguage();
+  const [profileData, setProfileData] = useState({
+    full_name: "",
+    avatar_url: ""
+  });
+
+  useEffect(() => {
+    if (user) {
+      fetchProfileData();
+    }
+  }, [user]);
+
+  const fetchProfileData = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name, avatar_url')
+        .eq('id', user.id)
+        .single();
+      
+      if (!error && data) {
+        setProfileData({
+          full_name: data.full_name || "",
+          avatar_url: data.avatar_url || ""
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching profile data:", error);
+    }
+  };
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -113,10 +145,10 @@ export function Navbar() {
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="flex items-center gap-2">
                   <Avatar className="h-6 w-6">
-                    <AvatarImage src={user.user_metadata?.avatar_url || ""} />
-                    <AvatarFallback>{getInitials(user.user_metadata?.full_name || user.email)}</AvatarFallback>
+                    <AvatarImage src={profileData.avatar_url} />
+                    <AvatarFallback>{getInitials(profileData.full_name || user.email)}</AvatarFallback>
                   </Avatar>
-                  <span className="hidden md:inline">{user.user_metadata?.full_name || user.email?.split('@')[0]}</span>
+                  <span className="hidden md:inline">{profileData.full_name || user.email?.split('@')[0]}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
