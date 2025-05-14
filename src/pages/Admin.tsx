@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GuideEditor } from "@/components/admin/GuideEditor";
@@ -8,7 +7,7 @@ import { useIsAdmin } from "@/components/admin/AdminCheck";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, UserCheck, Shield, Settings, MessageSquare, Languages } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/context/LanguageContext";
 import { UserAdminTable } from "@/components/admin/UserAdminTable";
 import { useState, useEffect } from "react";
@@ -107,8 +106,8 @@ export default function AdminPage() {
       
       console.log("Fetched comments data:", data);
       
-      // Properly type the data with the interface
-      const commentsWithRelations = data as CommentWithRelations[];
+      // Cast the data with proper type assertion
+      const commentsWithRelations = data as unknown as CommentWithRelations[];
       
       const formattedComments = commentsWithRelations.map(comment => ({
         id: comment.id,

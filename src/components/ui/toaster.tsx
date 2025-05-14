@@ -1,3 +1,4 @@
+
 import { useToast } from "@/hooks/use-toast"
 import {
   Toast,
@@ -7,12 +8,14 @@ import {
   ToastTitle,
   ToastViewport,
 } from "@/components/ui/toast"
+import { ToastInitializer } from "@/components/ui/use-toast"
 
 export function Toaster() {
   const { toasts } = useToast()
 
   return (
     <ToastProvider>
+      <ToastInitializer />
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
           <Toast key={id} {...props}>

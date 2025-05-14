@@ -157,7 +157,7 @@ function toast({ ...props }: Toast) {
   }
 }
 
-function useToast() {
+export function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
 
   React.useEffect(() => {
@@ -177,4 +177,5 @@ function useToast() {
   }
 }
 
-export { useToast, toast }
+// Don't export the toast function directly from this file
+// We'll create a safe instance in the component version
