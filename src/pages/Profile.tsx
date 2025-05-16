@@ -14,6 +14,7 @@ import { toast } from "@/components/ui/use-toast";
 import { UserNotes } from "@/components/user-notes";
 import { SavedScholarships } from "@/components/saved-scholarships";
 import { PreparationHelper } from "@/components/preparation-helper";
+import React from "react";
 
 export default function Profile() {
   const { user, isLoading } = useAuth();
@@ -29,6 +30,7 @@ export default function Profile() {
   const [userPosts, setUserPosts] = useState([]);
   const [chatHistory, setChatHistory] = useState([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
+  const hasShownWelcomeToast = React.useRef(false);
   
   useEffect(() => {
     if (!isLoading && !user) {

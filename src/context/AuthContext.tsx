@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { supabase } from "@/lib/supabase-client";
 import { User, Session } from "@supabase/supabase-js";
@@ -23,10 +22,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const { toast } = useToast();
+  const { toast, dismiss } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const [hasShownWelcomeToast, setHasShownWelcomeToast] = useState(false);
+  const hasShownWelcomeToast = React.useRef(false);
 
   // Check if we have a code and state in the URL (Google OAuth callback)
   useEffect(() => {
@@ -53,24 +52,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async (event, newSession) => {
         console.log("Auth state changed:", event, newSession?.user?.email);
         
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && !hasShownWelcomeToast.current) {
           setSession(newSession);
           setUser(newSession?.user ?? null);
-          
-          // Show welcome toast only if we haven't shown it yet during this session
-          if (!hasShownWelcomeToast) {
-            toast({
-              title: "Signed in successfully",
-              description: `Welcome${newSession?.user?.user_metadata?.full_name ? ', ' + newSession.user.user_metadata.full_name : ''}!`
-            });
-            setHasShownWelcomeToast(true);
-          }
-          
+          dismiss();
+          toast({
+            title: "Signed in successfully",
+            description: `Welcome${newSession?.user?.user_metadata?.full_name ? ', ' + newSession.user.user_metadata.full_name : ''}!`,
+            duration: 1500
+          });
+          hasShownWelcomeToast.current = true;
           // Navigate to home or previous page after login
           if (location.pathname === '/login') {
             navigate("/");
           }
-
           // Defer fetching user profile with setTimeout to prevent deadlock
           if (newSession?.user) {
             setTimeout(() => {
@@ -82,10 +77,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(null);
           setIsAdmin(false);
           setIsLoading(false);
-          setHasShownWelcomeToast(false);
-          
+          hasShownWelcomeToast.current = false;
+          dismiss();
           toast({
             title: "Signed out successfully",
+            duration: 1500
           });
         } else if (event === 'USER_UPDATED') {
           setSession(newSession);
@@ -108,8 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (existingSession?.user) {
         fetchUserProfile(existingSession.user.id);
-        // Don't show welcome toast on initial load for existing sessions
-        setHasShownWelcomeToast(true);
+        hasShownWelcomeToast.current = true; // Prevent welcome toast on initial load
       } else {
         setIsLoading(false);
       }
@@ -202,13 +197,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       
       if (!error) {
-        setHasShownWelcomeToast(true); // Prevent duplicate toast
+        hasShownWelcomeToast.current = true; // Prevent duplicate toast
       } else {
         console.error("Sign in error:", error);
+        dismiss();
         toast({
           variant: "destructive",
           title: "Sign in failed",
-          description: error.message || "Invalid credentials"
+          description: error.message || "Invalid credentials",
+          duration: 1500
         });
       }
       
@@ -216,10 +213,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { error };
     } catch (error) {
       console.error("Sign in exception:", error);
+      dismiss();
       toast({
         variant: "destructive",
         title: "Sign in error",
-        description: error instanceof Error ? error.message : "An unexpected error occurred"
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        duration: 1500
       });
       setIsLoading(false);
       return { error };
@@ -236,26 +235,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: {
             full_name: name || email.split('@')[0],
           },
-          // This makes it more likely that the callback will succeed
           emailRedirectTo: window.location.origin
         },
       });
       
       if (!error) {
+        dismiss();
         toast({
           title: "Account created",
-          description: "Please check your email to verify your account."
+          description: "Please check your email to verify your account.",
+          duration: 1500
         });
-        
-        // Even without requiring email verification, we can redirect to home
-        setHasShownWelcomeToast(true);
+        hasShownWelcomeToast.current = true;
         navigate("/");
       } else {
         console.error("Sign up error:", error);
+        dismiss();
         toast({
           variant: "destructive",
           title: "Sign up failed",
-          description: error.message
+          description: error.message,
+          duration: 1500
         });
       }
       
@@ -263,10 +263,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { error };
     } catch (error) {
       console.error("Sign up exception:", error);
+      dismiss();
       toast({
         variant: "destructive",
         title: "Sign up error",
-        description: error instanceof Error ? error.message : "An unexpected error occurred"
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        duration: 1500
       });
       setIsLoading(false);
       return { error };
@@ -276,48 +278,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     try {
       console.log("Starting Google sign-in process");
-      
-      // Get the current URL (with protocol and host)
       const redirectTo = `${window.location.protocol}//${window.location.host}`;
       console.log("Setting redirect URL:", redirectTo);
-      
-      // Show a toast to inform the user
+      dismiss();
       toast({
         title: "Connecting to Google",
-        description: "You'll be redirected to sign in with Google."
+        description: "You'll be redirected to sign in with Google.",
+        duration: 1500
       });
-      
-      // Use the full URL as the redirect URL
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: redirectTo,
           queryParams: {
-            // This tells Google to create a new user if they don't exist
             prompt: 'select_account',
             access_type: 'offline',
           }
         },
       });
-      
       console.log("SignInWithOAuth response:", { data, error });
-      
       if (error) {
         console.error("Google sign-in error:", error);
+        dismiss();
         toast({
           variant: "destructive",
           title: "Login Failed",
-          description: error.message
+          description: error.message,
+          duration: 1500
         });
       }
-      
       return { error };
     } catch (error) {
       console.error("Google sign-in exception:", error);
+      dismiss();
       toast({
         variant: "destructive",
         title: "Login Error",
-        description: "An unexpected error occurred"
+        description: "An unexpected error occurred",
+        duration: 1500
       });
       return { error };
     }
@@ -327,25 +325,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { error } = await supabase.auth.signOut();
       if (!error) {
+        dismiss();
         toast({
           title: "Signed out successfully",
+          duration: 1500
         });
         navigate("/");
       } else {
         console.error("Sign out error:", error);
+        dismiss();
         toast({
           variant: "destructive",
           title: "Sign out failed",
-          description: error.message
+          description: error.message,
+          duration: 1500
         });
       }
       return { error };
     } catch (error) {
       console.error("Sign out exception:", error);
+      dismiss();
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to sign out"
+        description: "Failed to sign out",
+        duration: 1500
       });
       return { error };
     }
