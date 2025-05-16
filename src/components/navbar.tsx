@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -209,57 +208,60 @@ export function Navbar() {
       </div>
       
       {/* Mobile Navigation Menu */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={toggleMobileMenu}
+          aria-label="Close menu overlay"
+        />
+      )}
       <div className={cn(
-        "md:hidden fixed inset-0 top-16 z-50 bg-background pt-4 px-4 transition-transform duration-300 ease-in-out",
+        "md:hidden fixed inset-y-0 right-0 top-16 z-50 bg-background pt-4 px-4 w-4/5 max-w-xs shadow-lg rounded-l-2xl transition-transform duration-300 ease-in-out flex flex-col h-[calc(100vh-4rem)]",
         mobileMenuOpen ? "translate-x-0" : "translate-x-full"
-      )}>
+      )} style={{ pointerEvents: mobileMenuOpen ? 'auto' : 'none' }}>
         <nav className="flex flex-col space-y-4">
           {navItems.map((item) => (
             <Link 
               key={item.name} 
               to={item.href}
-              className="flex items-center gap-2 p-2 text-lg border-b border-border"
+              className="flex items-center gap-2 p-2 text-lg border-b border-border rounded-md hover:bg-accent transition-colors"
               onClick={toggleMobileMenu}
             >
               <item.icon className="h-5 w-5" />
               <span>{t(item.name)}</span>
             </Link>
           ))}
-          
           {user && (
             <>
               <Link 
                 to="/profile" 
-                className="flex items-center gap-2 p-2 text-lg border-b border-border"
+                className="flex items-center gap-2 p-2 text-lg border-b border-border rounded-md hover:bg-accent transition-colors"
                 onClick={toggleMobileMenu}
               >
                 <UserCircle className="h-5 w-5" />
                 <span>{t('Profile')}</span>
               </Link>
-              
               <Link 
                 to="/saved-scholarships" 
-                className="flex items-center gap-2 p-2 text-lg border-b border-border"
+                className="flex items-center gap-2 p-2 text-lg border-b border-border rounded-md hover:bg-accent transition-colors"
                 onClick={toggleMobileMenu}
               >
                 <BookOpen className="h-5 w-5" />
                 <span>{t('Saved Scholarships')}</span>
               </Link>
-              
               {isAdmin && (
                 <Link 
                   to="/admin" 
-                  className="flex items-center gap-2 p-2 text-lg border-b border-border"
+                  className="flex items-center gap-2 p-2 text-lg border-b border-border rounded-md hover:bg-accent transition-colors"
                   onClick={toggleMobileMenu}
                 >
                   <Settings className="h-5 w-5" />
                   <span>{t('Admin Dashboard')}</span>
                 </Link>
               )}
-              
               <Button 
                 variant="ghost" 
-                className="flex items-center justify-start gap-2 p-2 text-lg w-full border-b border-border"
+                className="flex items-center justify-start gap-2 p-2 text-lg w-full border-b border-border rounded-md hover:bg-accent transition-colors"
                 onClick={() => {
                   handleSignOut();
                   toggleMobileMenu();

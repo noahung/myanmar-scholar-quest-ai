@@ -234,32 +234,37 @@ export default function Profile() {
         <h1 className="text-3xl font-bold tracking-tighter mb-8">My Profile</h1>
         
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <UserCircle className="h-4 w-4" />
-              <span>Profile</span>
-            </TabsTrigger>
-            <TabsTrigger value="scholarships" className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              <span>Saved Scholarships</span>
-            </TabsTrigger>
-            <TabsTrigger value="posts" className="flex items-center gap-2">
-              <MessageCircle className="h-4 w-4" />
-              <span>My Posts</span>
-            </TabsTrigger>
-            <TabsTrigger value="notes" className="flex items-center gap-2">
-              <BookmarkIcon className="h-4 w-4" />
-              <span>My Notes</span>
-            </TabsTrigger>
-            <TabsTrigger value="preparation" className="flex items-center gap-2">
-              <CheckSquare className="h-4 w-4" />
-              <span>Preparation Helper</span>
-            </TabsTrigger>
-            <TabsTrigger value="chat-history" className="flex items-center gap-2">
-              <History className="h-4 w-4" />
-              <span>Chat History</span>
-            </TabsTrigger>
-          </TabsList>
+          {/* Fixed TabsList - Using overflow-x-auto to make it horizontally scrollable on mobile */}
+          <div className="bg-muted rounded-md p-1 mb-4">
+            <div className="overflow-x-auto"> {/* Add this wrapper for horizontal scrolling */}
+              <TabsList className="w-full flex min-w-max"> {/* min-w-max ensures tabs don't shrink */}
+                <TabsTrigger value="profile" className="flex items-center gap-2 justify-center">
+                  <UserCircle className="h-4 w-4" />
+                  <span>Profile</span>
+                </TabsTrigger>
+                <TabsTrigger value="scholarships" className="flex items-center gap-2 justify-center">
+                  <BookOpen className="h-4 w-4" />
+                  <span>Saved Scholarships</span>
+                </TabsTrigger>
+                <TabsTrigger value="posts" className="flex items-center gap-2 justify-center">
+                  <MessageCircle className="h-4 w-4" />
+                  <span>My Posts</span>
+                </TabsTrigger>
+                <TabsTrigger value="notes" className="flex items-center gap-2 justify-center">
+                  <BookmarkIcon className="h-4 w-4" />
+                  <span>My Notes</span>
+                </TabsTrigger>
+                <TabsTrigger value="preparation" className="flex items-center gap-2 justify-center">
+                  <CheckSquare className="h-4 w-4" />
+                  <span>Preparation Helper</span>
+                </TabsTrigger>
+                <TabsTrigger value="chat-history" className="flex items-center gap-2 justify-center">
+                  <History className="h-4 w-4" />
+                  <span>Chat History</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+          </div>
           
           <TabsContent value="profile" className="mt-6 space-y-6">
             <Card>
