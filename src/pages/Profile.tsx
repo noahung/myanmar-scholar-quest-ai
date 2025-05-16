@@ -372,7 +372,15 @@ export default function Profile() {
                   </div>
                 ) : (
                   <ul className="space-y-4">
-                    {/* Display user posts here */}
+                    {userPosts.map(post => (
+                      <li key={post.id} className="border rounded p-3">
+                        <div className="font-semibold">{post.title}</div>
+                        <div className="text-sm text-muted-foreground">{post.content}</div>
+                        <div className="text-xs text-muted-foreground mt-2">
+                          {post.date ? new Date(post.date).toLocaleString() : ""}
+                        </div>
+                      </li>
+                    ))}
                   </ul>
                 )}
               </CardContent>
