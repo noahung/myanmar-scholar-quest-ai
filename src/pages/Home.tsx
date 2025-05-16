@@ -1,9 +1,7 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { scholarships } from "@/data/scholarships";
 import { 
   BookOpen, 
   MessageCircle, 
@@ -12,10 +10,74 @@ import {
   Calendar, 
   ArrowRight 
 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import { slugify } from "@/utils/slugify";
+
+export type Scholarship = {
+  id: string;
+  title: string;
+  country: string;
+  institution: string;
+  deadline: string;
+  fields: string[];
+  level: "Masters" | "Undergraduate" | "PhD" | "Research" | "Training";
+  description: string;
+  benefits: string[];
+  requirements: string[];
+  application_url: string;
+  featured: boolean;
+  created_at?: string;
+  updated_at?: string;
+  source_url?: string;
+  image_url?: string;
+};
 
 export default function Home() {
-  // Get featured scholarships
-  const featuredScholarships = scholarships.filter(scholarship => scholarship.featured);
+  const [featuredScholarships, setFeaturedScholarships] = useState<Scholarship[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchFeaturedScholarships();
+  }, []);
+
+  async function fetchFeaturedScholarships() {
+    try {
+      setIsLoading(true);
+      
+      const { data, error } = await supabase
+        .from('scholarships')
+        .select('*')
+        .eq('featured', true);
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (data) {
+        // Ensure fields properties are arrays
+        const formattedData = data.map((scholarship: any) => ({
+          ...scholarship,
+          fields: Array.isArray(scholarship.fields) ? scholarship.fields : [],
+          benefits: Array.isArray(scholarship.benefits) ? scholarship.benefits : [],
+          requirements: Array.isArray(scholarship.requirements) ? scholarship.requirements : []
+        }));
+        
+        setFeaturedScholarships(formattedData);
+      }
+    } catch (error) {
+      console.error("Error fetching featured scholarships:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load featured scholarships"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
   
   return (
     <div className="flex flex-col min-h-screen">
@@ -60,37 +122,47 @@ export default function Home() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredScholarships.map((scholarship) => (
-              <Card key={scholarship.id} className="scholarship-card animate-slide-in">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <Badge className="bg-myanmar-jade hover:bg-myanmar-jade/90">{scholarship.level}</Badge>
-                    <Badge variant="outline">{scholarship.country}</Badge>
-                  </div>
-                  <CardTitle className="mt-2">{scholarship.title}</CardTitle>
-                  <CardDescription>{scholarship.institution}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center text-sm text-muted-foreground mb-4">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    <span>Deadline: {new Date(scholarship.deadline).toLocaleDateString()}</span>
-                  </div>
-                  <p className="line-clamp-3 text-sm">
-                    {scholarship.description}
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button asChild variant="outline" className="w-full">
-                    <Link to={`/scholarships/${scholarship.id}`}>
-                      View Details
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-myanmar-maroon"></div>
+            </div>
+          ) : featuredScholarships.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredScholarships.map((scholarship) => (
+                <Card key={scholarship.id} className="scholarship-card animate-slide-in">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <Badge className="bg-myanmar-jade hover:bg-myanmar-jade/90">{scholarship.level}</Badge>
+                      <Badge variant="outline">{scholarship.country}</Badge>
+                    </div>
+                    <CardTitle className="mt-2">{scholarship.title}</CardTitle>
+                    <CardDescription>{scholarship.institution}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center text-sm text-muted-foreground mb-4">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      <span>Deadline: {new Date(scholarship.deadline).toLocaleDateString()}</span>
+                    </div>
+                    <p className="line-clamp-3 text-sm">
+                      {scholarship.description}
+                    </p>
+                  </CardContent>
+                  <CardFooter>
+                    <Button asChild variant="outline" className="w-full">
+                      <Link to={`/scholarships/${scholarship.id}`}>
+                        View Details
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground">
+              No featured scholarships available at the moment.
+            </div>
+          )}
           
           <div className="mt-10 text-center">
             <Button asChild variant="default">

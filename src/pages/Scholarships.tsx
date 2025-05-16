@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { slugify } from "@/utils/slugify";
 
 export type Scholarship = {
   id: string;
@@ -71,12 +72,7 @@ export default function Scholarships() {
         throw error;
       }
       
-      console.log("Scholarships data from Supabase:", data);
-      
-      let allScholarships: Scholarship[] = [];
-      
-      // If we have data in Supabase, use it
-      if (data && data.length > 0) {
+      if (data) {
         // Ensure fields properties are arrays
         const formattedData = data.map((scholarship: any) => ({
           ...scholarship,
@@ -85,52 +81,19 @@ export default function Scholarships() {
           requirements: Array.isArray(scholarship.requirements) ? scholarship.requirements : []
         }));
         
-        allScholarships = [...formattedData];
-      }
-      
-      // Also check local data to merge with Supabase data
-      try {
-        const localData = await import('@/data/scholarships');
-        const localScholarships = localData.scholarships as Scholarship[];
+        setScholarships(formattedData);
         
-        // Create a map of existing scholarships by ID to avoid duplicates
-        const scholarshipMap = new Map();
-        allScholarships.forEach(s => scholarshipMap.set(s.id, s));
-        
-        // Only add local scholarships if they don't already exist in the DB
-        localScholarships.forEach(scholarship => {
-          if (!scholarshipMap.has(scholarship.id)) {
-            scholarshipMap.set(scholarship.id, scholarship);
-          }
-        });
-        
-        // Convert map back to array
-        allScholarships = Array.from(scholarshipMap.values());
-      } catch (localError) {
-        console.error("Error loading local data:", localError);
-        if (allScholarships.length === 0) {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Failed to load scholarships data"
-          });
-        }
-      }
-      
-      setScholarships(allScholarships);
-      
-      // Extract unique values and filter out empty strings and undefined
-      if (allScholarships.length > 0) {
+        // Extract unique values and filter out empty strings and undefined
         const uniqueCountries = Array.from(
-          new Set(allScholarships.map(s => s.country))
+          new Set(formattedData.map(s => s.country))
         ).filter(country => country && country.trim() !== "");
         
         const uniqueFields = Array.from(
-          new Set(allScholarships.flatMap(s => s.fields || []))
+          new Set(formattedData.flatMap(s => s.fields || []))
         ).filter(field => field && field.trim() !== "");
         
         const uniqueLevels = Array.from(
-          new Set(allScholarships.map(s => s.level))
+          new Set(formattedData.map(s => s.level))
         ).filter(level => level && level.trim() !== "");
         
         setCountries(uniqueCountries);
@@ -139,39 +102,12 @@ export default function Scholarships() {
       }
     } catch (error) {
       console.error("Error in fetchScholarships:", error);
-      
-      // Fallback to local data on error
-      try {
-        const localData = await import('@/data/scholarships');
-        const localScholarships = localData.scholarships as Scholarship[];
-        
-        setScholarships(localScholarships);
-        
-        // Extract unique values and filter out empty strings
-        const uniqueCountries = Array.from(
-          new Set(localScholarships.map(s => s.country))
-        ).filter(country => country && country.trim() !== "");
-        
-        const uniqueFields = Array.from(
-          new Set(localScholarships.flatMap(s => s.fields || []))
-        ).filter(field => field && field.trim() !== "");
-        
-        const uniqueLevels = Array.from(
-          new Set(localScholarships.map(s => s.level))
-        ).filter(level => level && level.trim() !== "");
-        
-        setCountries(uniqueCountries);
-        setFields(uniqueFields);
-        setLevels(uniqueLevels);
-      } catch (fallbackError) {
-        console.error("Fallback error:", fallbackError);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to load scholarships data"
-        });
-        setScholarships([]);
-      }
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load scholarships data"
+      });
+      setScholarships([]);
     } finally {
       setIsLoading(false);
     }

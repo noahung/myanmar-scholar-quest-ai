@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,6 @@ import { AiAssistant } from "@/components/ai-assistant";
 import { UserNotes } from "@/components/user-notes";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { scholarships } from "@/data/scholarships";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/components/ui/use-toast";
 import { SavedScholarshipButton } from "@/components/saved-scholarship-button";
@@ -51,43 +49,30 @@ export default function ScholarshipDetail() {
   useEffect(() => {
     async function fetchScholarship() {
       if (!id) return;
-      
       try {
         setLoading(true);
-        
-        // Try to fetch from Supabase first
-        // Access the scholarships table if it exists
-        try {
-          const { data: supabaseScholarship, error: supabaseError } = await supabase
-            .from('scholarships')
-            .select('*')
-            .eq('id', id)
-            .maybeSingle();
-            
-          if (supabaseScholarship) {
-            setScholarship(supabaseScholarship as Scholarship);
-            return;
-          }
-        } catch (err) {
-          console.error("Error fetching from Supabase, using local data instead:", err);
-        }
-        
-        // Fall back to local data
-        const localScholarship = scholarships.find(s => s.id === id);
-            
-        if (localScholarship) {
-          setScholarship(localScholarship);
+        const { data: supabaseScholarship, error: supabaseError } = await supabase
+          .from('scholarships')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+        if (supabaseError) throw supabaseError;
+        if (supabaseScholarship) {
+          setScholarship({
+            ...supabaseScholarship,
+            fields: Array.isArray(supabaseScholarship.fields) ? supabaseScholarship.fields : [],
+            benefits: Array.isArray(supabaseScholarship.benefits) ? supabaseScholarship.benefits : [],
+            requirements: Array.isArray(supabaseScholarship.requirements) ? supabaseScholarship.requirements : [],
+          });
         } else {
           setError("Scholarship not found");
         }
       } catch (err: any) {
-        console.error("Failed to load scholarship:", err);
         setError(err.message || "Failed to load scholarship data");
       } finally {
         setLoading(false);
       }
     }
-    
     fetchScholarship();
   }, [id]);
 

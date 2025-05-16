@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Bookmark, BookmarkCheck } from "lucide-react";
@@ -45,8 +44,7 @@ export function SavedScholarshipButton({
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${session.data.session.access_token}`,
-              'apikey': SUPABASE_ANON_KEY,
-              'Accept': 'application/vnd.pgrst.object+json'
+              'apikey': SUPABASE_ANON_KEY
             }
           }
         );
@@ -122,7 +120,18 @@ export function SavedScholarshipButton({
           });
           
           if (!response.ok) {
-            throw new Error("Failed to save scholarship");
+            if (response.status === 409) {
+              await checkIfSaved();
+              toast({
+                title: "Already saved",
+                description: "You have already saved this scholarship.",
+                variant: "default"
+              });
+              setIsLoading(false);
+              return;
+            } else {
+              throw new Error("Failed to save scholarship");
+            }
           }
         }
 

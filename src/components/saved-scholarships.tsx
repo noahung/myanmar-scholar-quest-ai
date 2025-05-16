@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { Loader2, ArrowRight, BookmarkMinus } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { scholarships as localScholarships } from "@/data/scholarships";
 
 export interface SavedScholarshipProps {
   className?: string;
@@ -43,31 +41,21 @@ export function SavedScholarships({ className }: SavedScholarshipProps) {
       // For each saved scholarship, get the scholarship details
       if (data && data.length > 0) {
         const scholarshipDetails = await Promise.all(data.map(async (saved) => {
-          // Try to get from Supabase first
+          // Only fetch from Supabase
           try {
             const { data: schData, error: schError } = await supabase
               .from('scholarships')
               .select('*')
               .eq('id', saved.scholarship_id)
               .maybeSingle();
-              
             if (schData) {
               return { ...schData, savedId: saved.id };
             }
           } catch (err) {
             console.error("Error fetching scholarship:", err);
           }
-          
-          // Fall back to local data
-          const localScholarship = localScholarships.find(s => s.id === saved.scholarship_id);
-          if (localScholarship) {
-            return { ...localScholarship, savedId: saved.id };
-          }
-          
           return null;
         }));
-        
-        // Filter out null values (scholarships not found)
         setSavedScholarships(scholarshipDetails.filter(Boolean));
       } else {
         setSavedScholarships([]);
