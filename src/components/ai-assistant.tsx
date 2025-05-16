@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -203,6 +202,39 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
     handleSendMessage();
   };
 
+  // Archive chat history to Supabase when user clicks the button
+  const handleArchiveHistory = async () => {
+    if (!user || messages.length < 2) return;
+    const pairs = [];
+    for (let i = 0; i < messages.length - 1; i++) {
+      if (messages[i].sender === 'user' && messages[i + 1].sender === 'assistant') {
+        pairs.push({
+          user_id: user.id,
+          message: messages[i].content,
+          response: messages[i + 1].content,
+          created_at: messages[i].timestamp.toISOString(),
+        });
+      }
+    }
+    if (pairs.length > 0) {
+      const { error } = await supabase.from('ai_chat_history').insert(pairs);
+      if (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to archive chat history.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Chat archived',
+          description: 'This chat session has been saved to your history.',
+        });
+        // Optionally clear chat after archiving
+        // setMessages([]);
+      }
+    }
+  };
+
   return (
     <div className={cn(
       "fixed bottom-4 right-4 z-50",
@@ -223,6 +255,19 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
               </Button>
             </div>
           )}
+          
+          {/* Archive to History Button */}
+          <div className="flex justify-end p-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleArchiveHistory}
+              disabled={!user || messages.length < 2}
+              className="text-xs"
+            >
+              Archive to History
+            </Button>
+          </div>
           
           <div className={cn(
             "flex-1 overflow-y-auto p-4 space-y-4",

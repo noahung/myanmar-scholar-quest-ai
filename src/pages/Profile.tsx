@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { Loader2, Save, UserCircle, BookOpen, MessageCircle, History, BookmarkIcon, CheckSquare } from "lucide-react";
+import { Loader2, Save, UserCircle, BookOpen, MessageCircle, History, BookmarkIcon, CheckSquare, Trash } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { UserNotes } from "@/components/user-notes";
@@ -412,7 +412,19 @@ export default function Profile() {
                 ) : (
                   <ul className="space-y-4">
                     {chatHistory.map((chat: any) => (
-                      <li key={chat.id} className="border rounded p-3">
+                      <li key={chat.id} className="border rounded p-3 relative">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-2 right-2 text-red-500 hover:bg-red-100"
+                          onClick={async () => {
+                            await supabase.from('ai_chat_history').delete().eq('id', chat.id);
+                            setChatHistory((prev: any[]) => prev.filter((c) => c.id !== chat.id));
+                          }}
+                          title="Delete this chat entry"
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
                         <p className="font-medium">You:</p>
                         <p className="text-sm text-muted-foreground mb-2">{chat.message}</p>
                         <p className="font-medium">AI:</p>
