@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 
 export function Footer() {
@@ -12,7 +11,6 @@ export function Footer() {
               Helping Myanmar students find international scholarships and opportunities.
             </p>
           </div>
-          
           <div>
             <h3 className="font-semibold text-foreground mb-4">Navigation</h3>
             <ul className="space-y-2 text-sm">
@@ -38,7 +36,6 @@ export function Footer() {
               </li>
             </ul>
           </div>
-          
           <div>
             <h3 className="font-semibold text-foreground mb-4">Resources</h3>
             <ul className="space-y-2 text-sm">
@@ -64,7 +61,6 @@ export function Footer() {
               </li>
             </ul>
           </div>
-          
           <div>
             <h3 className="font-semibold text-foreground mb-4">Contact</h3>
             <ul className="space-y-2 text-sm">
@@ -77,7 +73,6 @@ export function Footer() {
             </ul>
           </div>
         </div>
-        
         <div className="mt-8 pt-6 border-t flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} Scholar-M. All rights reserved.

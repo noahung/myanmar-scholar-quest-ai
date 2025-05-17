@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 
 export type Scholarship = {
   id: string;
@@ -270,76 +271,43 @@ export default function Home() {
       <section className="w-full py-12 bg-white flex flex-col items-center">
         <h3 className="text-2xl font-bold text-myanmar-maroon mb-8">Frequently asked Questions</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
-          {/* FAQ cards */}
+          {/* FAQ Accordion */}
           <div className="flex flex-col gap-4">
-            <Card className="rounded-xl border-myanmar-jade/30">
-              <CardHeader className="flex flex-row items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-myanmar-gold/40 flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-myanmar-maroon" />
-                </div>
-                <CardTitle className="text-base font-bold text-myanmar-maroon">How do I create an account?</CardTitle>
-              </CardHeader>
-              <CardContent className="text-myanmar-maroon/80 text-sm">
-                Click the sign up button and fill in your details. You'll get access to all features for free.
-              </CardContent>
-            </Card>
-            <Card className="rounded-xl border-myanmar-jade/30">
-              <CardHeader className="flex flex-row items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-myanmar-gold/40 flex items-center justify-center">
-                  <Users className="w-5 h-5 text-myanmar-maroon" />
-                </div>
-                <CardTitle className="text-base font-bold text-myanmar-maroon">How do I join the community?</CardTitle>
-              </CardHeader>
-              <CardContent className="text-myanmar-maroon/80 text-sm">
-                Go to the Community page and join discussions, ask questions, and connect with others.
-              </CardContent>
-            </Card>
-            <Card className="rounded-xl border-myanmar-jade/30">
-              <CardHeader className="flex flex-row items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-myanmar-gold/40 flex items-center justify-center">
-                  <Globe className="w-5 h-5 text-myanmar-maroon" />
-                </div>
-                <CardTitle className="text-base font-bold text-myanmar-maroon">Is it free to use?</CardTitle>
-              </CardHeader>
-              <CardContent className="text-myanmar-maroon/80 text-sm">
-                Yes, all features are free for Myanmar students.
-              </CardContent>
-            </Card>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="faq-1" className="rounded-lg border border-myanmar-jade/30 bg-[#FFF8F2] mb-4 shadow">
+                <AccordionTrigger className="text-lg font-semibold text-myanmar-maroon px-6 py-4">
+                  <span className="flex items-center gap-2"><span className="inline-block bg-myanmar-gold/40 rounded-full w-8 h-8 flex items-center justify-center font-bold text-myanmar-maroon">01</span> How do I create an account?</span>
+                </AccordionTrigger>
+                <AccordionContent className="text-myanmar-maroon/80 px-6 pb-4">
+                  Click the sign up button and fill in your details. You'll get access to all features for free.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="faq-2" className="rounded-lg border border-myanmar-jade/30 bg-[#FFF8F2] mb-4 shadow">
+                <AccordionTrigger className="text-lg font-semibold text-myanmar-maroon px-6 py-4">
+                  <span className="flex items-center gap-2"><span className="inline-block bg-myanmar-gold/40 rounded-full w-8 h-8 flex items-center justify-center font-bold text-myanmar-maroon">02</span> How do I join the community?</span>
+                </AccordionTrigger>
+                <AccordionContent className="text-myanmar-maroon/80 px-6 pb-4">
+                  Go to the Community page and join discussions, ask questions, and connect with others.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="faq-3" className="rounded-lg border border-myanmar-jade/30 bg-[#FFF8F2] mb-4 shadow">
+                <AccordionTrigger className="text-lg font-semibold text-myanmar-maroon px-6 py-4">
+                  <span className="flex items-center gap-2"><span className="inline-block bg-myanmar-gold/40 rounded-full w-8 h-8 flex items-center justify-center font-bold text-myanmar-maroon">03</span> Is it free to use?</span>
+                </AccordionTrigger>
+                <AccordionContent className="text-myanmar-maroon/80 px-6 pb-4">
+                  Yes, all features are free for Myanmar students.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
           {/* Illustration */}
           <div className="flex items-center justify-center">
-            {/* Placeholder illustration, replace with your own */}
-            <img src="https://undraw.co/api/illustrations/undraw_questions_re_1fy7.svg" alt="FAQ Illustration" className="w-80 h-80 object-contain" />
+            <img src="https://aysvkiyuzqktcumdzxqh.supabase.co/storage/v1/object/public/images//faq%20section.jpg" alt="FAQ Illustration" className="w-80 h-80 object-contain" />
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="w-full bg-myanmar-maroon text-white py-8 mt-8">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex flex-col items-center md:items-start">
-            <span className="font-bold text-lg mb-2">SAF</span>
-            <span className="text-sm">Scholarship Assistance Foundation</span>
-            <span className="text-xs mt-2">Copyright © 2024 SAF. All rights reserved.</span>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <span className="font-bold mb-1">Explore More</span>
-            <Link to="/programs" className="hover:underline">Programs</Link>
-            <Link to="/about" className="hover:underline">About Us</Link>
-            <Link to="/contact" className="hover:underline">Contact</Link>
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <span className="font-bold mb-1">Contact us</span>
-            <span className="text-sm">info@scholarship.org</span>
-            <span className="text-sm">Yangon, Myanmar</span>
-            <div className="flex gap-2 mt-2">
-              <a href="#"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/facebook.svg" alt="Facebook" className="h-6" /></a>
-              <a href="#"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/instagram.svg" alt="Instagram" className="h-6" /></a>
-              <a href="#"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/linkedin.svg" alt="LinkedIn" className="h-6" /></a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
