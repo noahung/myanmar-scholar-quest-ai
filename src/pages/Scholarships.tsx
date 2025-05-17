@@ -10,7 +10,8 @@ import {
   Search,
   Filter,
   BookOpen,
-  Loader2
+  Loader2,
+  GraduationCap
 } from "lucide-react";
 import {
   Select,
@@ -52,6 +53,8 @@ export default function Scholarships() {
   const [countries, setCountries] = useState<string[]>([]);
   const [fields, setFields] = useState<string[]>([]);
   const [levels, setLevels] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const scholarshipsPerPage = 16;
   const { toast } = useToast();
 
   useEffect(() => {
@@ -131,6 +134,18 @@ export default function Scholarships() {
     return matchesSearch && matchesCountry && matchesField && matchesLevel;
   });
 
+  // Reset to first page when filters/search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCountry, selectedField, selectedLevel]);
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredScholarships.length / scholarshipsPerPage);
+  const paginatedScholarships = filteredScholarships.slice(
+    (currentPage - 1) * scholarshipsPerPage,
+    currentPage * scholarshipsPerPage
+  );
+
   const handleCountryChange = (value: string) => {
     setSelectedCountry(value === "_all" ? "" : value);
   };
@@ -156,27 +171,20 @@ export default function Scholarships() {
 
       {/* Search and Filters */}
       <div className="mb-8 space-y-4">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search scholarships..."
-              className="pl-9"
+        <div className="flex flex-col md:flex-row gap-4 w-full max-w-4xl mx-auto bg-white/80 rounded-xl shadow-lg p-4 md:p-2 items-center">
+          <div className="flex-1 flex items-center relative w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-myanmar-maroon/60 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search scholarships, program, or keyword..."
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-myanmar-jade/30 focus:ring-2 focus:ring-myanmar-gold outline-none text-myanmar-maroon bg-white"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button variant="outline" className="md:w-auto flex items-center gap-2">
-            <Filter className="h-4 w-4" />
-            <span className="hidden md:inline">Advanced Filters</span>
-            <span className="md:hidden">Filters</span>
-          </Button>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Select value={selectedCountry || "_all"} onValueChange={handleCountryChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Filter by Country" />
+            <SelectTrigger className="min-w-[150px] bg-white border-myanmar-jade/30 rounded-lg">
+              <SelectValue placeholder="Country" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="_all">All Countries</SelectItem>
@@ -185,10 +193,9 @@ export default function Scholarships() {
               ))}
             </SelectContent>
           </Select>
-          
           <Select value={selectedField || "_all"} onValueChange={handleFieldChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Filter by Field of Study" />
+            <SelectTrigger className="min-w-[150px] bg-white border-myanmar-jade/30 rounded-lg">
+              <SelectValue placeholder="Field of Study" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="_all">All Fields</SelectItem>
@@ -197,10 +204,9 @@ export default function Scholarships() {
               ))}
             </SelectContent>
           </Select>
-          
           <Select value={selectedLevel || "_all"} onValueChange={handleLevelChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Filter by Degree Level" />
+            <SelectTrigger className="min-w-[150px] bg-white border-myanmar-jade/30 rounded-lg">
+              <SelectValue placeholder="Degree Level" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="_all">All Levels</SelectItem>
@@ -209,6 +215,24 @@ export default function Scholarships() {
               ))}
             </SelectContent>
           </Select>
+        </div>
+        {/* Functional badge tabs for level filter */}
+        <div className="flex flex-wrap justify-center gap-4 mb-4">
+          {[
+            { label: 'All', value: '_all', color: 'border-myanmar-jade text-myanmar-jade' },
+            { label: 'Undergraduate', value: 'Undergraduate', color: 'border-myanmar-gold text-myanmar-gold' },
+            { label: 'Masters', value: 'Masters', color: 'border-myanmar-jade text-myanmar-jade' },
+            { label: 'PhD', value: 'PhD', color: 'border-myanmar-maroon text-myanmar-maroon' },
+          ].map(tab => (
+            <button
+              key={tab.value}
+              className={`px-5 py-2 rounded-full border font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-myanmar-gold/50 ${tab.color} ${selectedLevel === tab.value || (tab.value === '_all' && (!selectedLevel || selectedLevel === '_all')) ? 'bg-myanmar-gold/20 shadow' : 'bg-white hover:bg-myanmar-gold/10'}`}
+              onClick={() => handleLevelChange(tab.value)}
+              type="button"
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -245,42 +269,76 @@ export default function Scholarships() {
 
       {/* Scholarships grid */}
       {!isLoading && filteredScholarships.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredScholarships.map((scholarship) => (
-            <Card key={scholarship.id} className="scholarship-card">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <Badge className="bg-myanmar-jade hover:bg-myanmar-jade/90">{scholarship.level}</Badge>
-                  <Badge variant="outline">{scholarship.country}</Badge>
-                </div>
-                <CardTitle className="mt-2 text-lg">{scholarship.title}</CardTitle>
-                <CardDescription>{scholarship.institution}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center text-sm text-muted-foreground mb-4">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  <span>Deadline: {new Date(scholarship.deadline).toLocaleDateString()}</span>
-                </div>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {Array.isArray(scholarship.fields) && scholarship.fields.map((field, index) => (
-                    field ? <Badge key={index} variant="outline" className="text-xs">{field}</Badge> : null
-                  ))}
-                </div>
-                <p className="line-clamp-3 text-sm">
-                  {scholarship.description}
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Button asChild variant="outline" className="w-full">
-                  <Link to={`/scholarships/${scholarship.id}`}>
-                    View Details
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {paginatedScholarships.map((scholarship) => (
+              <Card key={scholarship.id} className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10 hover:scale-105 transition-transform">
+                <CardHeader className="flex flex-col items-center">
+                  <div className="w-14 h-14 rounded-full bg-myanmar-gold/40 flex items-center justify-center mb-2">
+                    <GraduationCap className="w-8 h-8 text-myanmar-maroon" />
+                  </div>
+                  <CardTitle className="text-lg font-bold text-myanmar-maroon text-center">{scholarship.title}</CardTitle>
+                  <CardDescription className="text-myanmar-maroon/70 text-center">{scholarship.institution}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center">
+                  <div className="flex gap-2 mb-2 flex-wrap justify-center">
+                    <Badge variant="default" className="bg-myanmar-jade/80 text-white border-none">{scholarship.country}</Badge>
+                    <Badge variant="outline" className="border-myanmar-gold text-myanmar-gold">{scholarship.level}</Badge>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mb-2 justify-center">
+                    {Array.isArray(scholarship.fields) && scholarship.fields.map((field, index) => (
+                      field ? <Badge key={index} variant="outline" className="text-xs">{field}</Badge> : null
+                    ))}
+                  </div>
+                  <p className="text-xs text-myanmar-maroon/70 text-center line-clamp-2">{scholarship.description}</p>
+                  <p className="text-xs text-myanmar-maroon/70 text-center mt-2">
+                    <Calendar className="inline-block w-4 h-4 mr-1 align-text-bottom" />
+                    Deadline: {new Date(scholarship.deadline).toLocaleDateString()}
+                  </p>
+                </CardContent>
+                <CardFooter className="flex justify-center">
+                  <Button asChild variant="outline" className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold w-full">
+                    <Link to={`/scholarships/${scholarship.id}`}>
+                      View Details
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+
+          {/* Pagination controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-8">
+              <Button
+                variant="outline"
+                className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold px-4 py-2"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              {[...Array(totalPages)].map((_, idx) => (
+                <button
+                  key={idx + 1}
+                  className={`w-9 h-9 rounded-full font-bold border-2 mx-1 transition-colors ${currentPage === idx + 1 ? 'bg-myanmar-maroon text-white border-myanmar-maroon' : 'bg-white text-myanmar-maroon border-myanmar-maroon hover:bg-myanmar-gold/20'}`}
+                  onClick={() => setCurrentPage(idx + 1)}
+                >
+                  {idx + 1}
+                </button>
+              ))}
+              <Button
+                variant="outline"
+                className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold px-4 py-2"
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

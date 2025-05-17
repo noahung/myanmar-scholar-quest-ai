@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -341,24 +340,24 @@ export default function Community() {
     <div className="container py-8 md:py-12">
       <div className="flex flex-col items-center justify-center mb-8 text-center">
         <div className="pattern-border pb-2">
-          <h1 className="text-3xl font-bold tracking-tighter mb-2">Community</h1>
+          <h1 className="text-3xl font-bold tracking-tighter mb-2 text-myanmar-maroon">Community</h1>
         </div>
         <p className="max-w-[600px] text-muted-foreground">
           Connect with fellow Myanmar students, share experiences, and learn from others in the scholarship journey.
         </p>
       </div>
 
-      <div className="mb-8 flex justify-between items-center">
+      <div className="mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white/80 rounded-xl shadow-lg p-4">
         <div className="flex items-center gap-2">
-          <BookOpen className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">{posts.length} posts in the community</span>
+          <BookOpen className="h-4 w-4 text-myanmar-maroon" />
+          <span className="text-sm text-myanmar-maroon font-semibold">{posts.length} posts in the community</span>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="rounded-full border-myanmar-jade text-myanmar-jade font-bold">
             <Filter className="h-4 w-4 mr-2" />
             Filter
           </Button>
-          <Button size="sm" onClick={handleNewPost}>
+          <Button size="sm" className="rounded-full bg-myanmar-gold text-myanmar-maroon font-bold px-6" onClick={handleNewPost}>
             <Plus className="h-4 w-4 mr-2" />
             New Post
           </Button>
@@ -375,10 +374,10 @@ export default function Community() {
       {/* Rest of the component */}
       {!isLoading && (
         <Tabs defaultValue="popular" className="mb-8">
-          <TabsList>
-            <TabsTrigger value="popular">Popular</TabsTrigger>
-            <TabsTrigger value="recent">Recent</TabsTrigger>
-            <TabsTrigger value="unanswered">Unanswered</TabsTrigger>
+          <TabsList className="w-full bg-myanmar-jade/10 rounded-xl p-1 flex gap-2">
+            <TabsTrigger value="popular" className="rounded-full px-6 py-2 font-semibold">Popular</TabsTrigger>
+            <TabsTrigger value="recent" className="rounded-full px-6 py-2 font-semibold">Recent</TabsTrigger>
+            <TabsTrigger value="unanswered" className="rounded-full px-6 py-2 font-semibold">Unanswered</TabsTrigger>
           </TabsList>
           <TabsContent value="popular" className="mt-4">
             <div className="space-y-6">
@@ -437,7 +436,7 @@ interface PostCardProps {
 
 function PostCard({ post, onLike, onShare }: PostCardProps) {
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10 hover:shadow-xl transition-shadow">
       <CardHeader>
         <div className="flex justify-between">
           <div className="flex items-center gap-2">
@@ -446,33 +445,33 @@ function PostCard({ post, onLike, onShare }: PostCardProps) {
               <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-medium">{post.author.name}</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="font-medium text-myanmar-maroon">{post.author.name}</p>
+              <p className="text-xs text-myanmar-maroon/70">
                 {new Date(post.date).toLocaleDateString()}
               </p>
             </div>
           </div>
         </div>
         <Link to={`/community/${post.id}`}>
-          <CardTitle className="text-lg mt-2 hover:text-myanmar-jade transition-colors">
+          <CardTitle className="text-lg mt-2 hover:text-myanmar-jade transition-colors text-myanmar-maroon">
             {post.title}
           </CardTitle>
         </Link>
       </CardHeader>
       <CardContent>
-        <p className="line-clamp-3 text-sm mb-4">{post.content}</p>
+        <p className="line-clamp-3 text-sm mb-4 text-myanmar-maroon/80">{post.content}</p>
         {post.image_url && (
           <div className="mt-4 mb-4">
             <img
               src={post.image_url}
               alt={post.title}
-              className="rounded-md max-h-48 object-cover w-full"
+              className="rounded-xl max-h-48 object-cover w-full border border-myanmar-gold/30"
             />
           </div>
         )}
         <div className="flex flex-wrap gap-2">
           {post.tags.map((tag, index) => (
-            <Badge key={index} variant="outline" className="text-xs">
+            <Badge key={index} variant="outline" className="text-xs border-myanmar-gold text-myanmar-gold">
               {tag}
             </Badge>
           ))}
@@ -484,7 +483,7 @@ function PostCard({ post, onLike, onShare }: PostCardProps) {
             <Button 
               variant="ghost" 
               size="sm" 
-              className={`flex items-center gap-1 ${post.isLiked ? 'text-red-500' : ''}`}
+              className={`flex items-center gap-1 rounded-full ${post.isLiked ? 'text-red-500' : 'text-myanmar-maroon'}`}
               onClick={() => onLike(post.id, !!post.isLiked)}
             >
               <Heart className={`h-4 w-4 ${post.isLiked ? 'fill-current' : ''}`} />
@@ -493,7 +492,7 @@ function PostCard({ post, onLike, onShare }: PostCardProps) {
             <Button 
               variant="ghost" 
               size="sm" 
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 rounded-full text-myanmar-maroon"
               onClick={() => {
                 window.location.href = `/community/${post.id}`;
               }}
@@ -505,7 +504,7 @@ function PostCard({ post, onLike, onShare }: PostCardProps) {
           <Button 
             variant="ghost" 
             size="sm" 
-            className="flex items-center gap-1"
+            className="flex items-center gap-1 rounded-full text-myanmar-maroon"
             onClick={() => onShare(post)}
           >
             <Share className="h-4 w-4" />

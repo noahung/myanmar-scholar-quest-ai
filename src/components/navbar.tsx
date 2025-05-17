@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { 
   BookOpen,
   MessageCircle,
@@ -105,49 +104,47 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="bg-myanmar-maroon text-white p-1 rounded-md">
-              <span className="font-bold text-xl">S-M</span>
+    <header className="sticky top-0 z-50 w-full border-b bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10 backdrop-blur">
+      <div className="container flex h-20 items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3">
+            <div className="bg-white/80 shadow px-2 py-1 rounded-xl border-2 border-myanmar-maroon flex items-center">
+              <span className="font-extrabold text-3xl text-myanmar-maroon tracking-tight">S-M</span>
             </div>
-            <span className="font-bold text-xl hidden md:block">Scholar-M</span>
+            <span className="font-extrabold text-2xl text-myanmar-maroon hidden md:block tracking-tight">Scholar-M</span>
           </Link>
         </div>
         
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-8 ml-8">
           {navItems.map((item) => (
             <Link 
               key={item.name} 
               to={item.href}
-              className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1 text-lg font-bold text-myanmar-maroon/80 hover:text-myanmar-maroon transition-colors px-3 py-1 rounded-full hover:bg-myanmar-gold/20 focus:bg-myanmar-gold/30 focus:outline-none"
             >
-              <item.icon className="h-4 w-4" />
+              <item.icon className="h-5 w-5" />
               <span>{t(item.name)}</span>
             </Link>
           ))}
         </nav>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <LanguageSelector />
-          <ThemeToggle />
-          
           {isLoading ? (
-            <Button variant="outline" size="sm" disabled>
+            <Button variant="outline" size="sm" disabled className="rounded-full px-5 py-2 font-bold">
               <User className="h-4 w-4 mr-2" />
               Loading...
             </Button>
           ) : user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
-                  <Avatar className="h-6 w-6">
+                <Button variant="outline" size="sm" className="flex items-center gap-2 rounded-full px-5 py-2 font-bold">
+                  <Avatar className="h-7 w-7">
                     <AvatarImage src={profileData.avatar_url} />
                     <AvatarFallback>{getInitials(profileData.full_name || user.email)}</AvatarFallback>
                   </Avatar>
-                  <span className="hidden md:inline">{profileData.full_name || user.email?.split('@')[0]}</span>
+                  <span className="hidden md:inline text-myanmar-maroon font-bold">{profileData.full_name || user.email?.split('@')[0]}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -183,25 +180,31 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/login">
-                <User className="h-4 w-4 mr-2" />
-                {t('Login')}
-              </Link>
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" asChild className="rounded-full px-6 py-2 font-bold border-myanmar-maroon text-myanmar-maroon bg-white hover:bg-myanmar-gold/10">
+                <Link to="/login">
+                  Log In
+                </Link>
+              </Button>
+              <Button size="sm" asChild className="rounded-full px-6 py-2 font-bold bg-myanmar-maroon text-white hover:bg-myanmar-gold hover:text-myanmar-maroon">
+                <Link to="/register">
+                  Sign Up
+                </Link>
+              </Button>
+            </div>
           )}
           
           {/* Mobile menu toggle */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="md:hidden" 
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden rounded-full border border-myanmar-maroon text-myanmar-maroon"
             onClick={toggleMobileMenu}
           >
             {mobileMenuOpen ? (
-              <X className="h-5 w-5" />
+              <X className="h-6 w-6" />
             ) : (
-              <Menu className="h-5 w-5" />
+              <Menu className="h-6 w-6" />
             )}
           </Button>
         </div>
@@ -216,15 +219,15 @@ export function Navbar() {
         />
       )}
       <div className={cn(
-        "md:hidden fixed inset-y-0 right-0 top-16 z-50 bg-background pt-4 px-4 w-4/5 max-w-xs shadow-lg rounded-l-2xl transition-transform duration-300 ease-in-out flex flex-col h-[calc(100vh-4rem)]",
+        "md:hidden fixed inset-y-0 right-0 top-20 z-50 bg-white/95 pt-6 px-6 w-4/5 max-w-xs shadow-2xl rounded-l-3xl transition-transform duration-300 ease-in-out flex flex-col h-[calc(100vh-5rem)]",
         mobileMenuOpen ? "translate-x-0" : "translate-x-full"
       )} style={{ pointerEvents: mobileMenuOpen ? 'auto' : 'none' }}>
-        <nav className="flex flex-col space-y-4">
+        <nav className="flex flex-col gap-4">
           {navItems.map((item) => (
             <Link 
               key={item.name} 
               to={item.href}
-              className="flex items-center gap-2 p-2 text-lg border-b border-border rounded-md hover:bg-accent transition-colors"
+              className="flex items-center gap-3 p-3 text-lg font-bold text-myanmar-maroon rounded-full hover:bg-myanmar-gold/20 transition-colors"
               onClick={toggleMobileMenu}
             >
               <item.icon className="h-5 w-5" />
@@ -235,7 +238,7 @@ export function Navbar() {
             <>
               <Link 
                 to="/profile" 
-                className="flex items-center gap-2 p-2 text-lg border-b border-border rounded-md hover:bg-accent transition-colors"
+                className="flex items-center gap-3 p-3 text-lg font-bold text-myanmar-maroon rounded-full hover:bg-myanmar-gold/20 transition-colors"
                 onClick={toggleMobileMenu}
               >
                 <UserCircle className="h-5 w-5" />
@@ -243,7 +246,7 @@ export function Navbar() {
               </Link>
               <Link 
                 to="/saved-scholarships" 
-                className="flex items-center gap-2 p-2 text-lg border-b border-border rounded-md hover:bg-accent transition-colors"
+                className="flex items-center gap-3 p-3 text-lg font-bold text-myanmar-maroon rounded-full hover:bg-myanmar-gold/20 transition-colors"
                 onClick={toggleMobileMenu}
               >
                 <BookOpen className="h-5 w-5" />
@@ -252,16 +255,16 @@ export function Navbar() {
               {isAdmin && (
                 <Link 
                   to="/admin" 
-                  className="flex items-center gap-2 p-2 text-lg border-b border-border rounded-md hover:bg-accent transition-colors"
+                  className="flex items-center gap-3 p-3 text-lg font-bold text-myanmar-maroon rounded-full hover:bg-myanmar-gold/20 transition-colors"
                   onClick={toggleMobileMenu}
                 >
                   <Settings className="h-5 w-5" />
                   <span>{t('Admin Dashboard')}</span>
                 </Link>
               )}
-              <Button 
-                variant="ghost" 
-                className="flex items-center justify-start gap-2 p-2 text-lg w-full border-b border-border rounded-md hover:bg-accent transition-colors"
+              <Button
+                variant="ghost"
+                className="flex items-center justify-start gap-3 p-3 text-lg font-bold text-myanmar-maroon rounded-full hover:bg-myanmar-gold/20 transition-colors"
                 onClick={() => {
                   handleSignOut();
                   toggleMobileMenu();

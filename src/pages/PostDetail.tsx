@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -424,7 +423,7 @@ export default function PostDetail() {
       <div className="max-w-3xl mx-auto">
         {/* Back button */}
         <div className="mb-6">
-          <Button variant="outline" asChild>
+          <Button variant="outline" asChild className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold bg-white hover:bg-myanmar-gold/10">
             <Link to="/community">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Community
@@ -433,89 +432,77 @@ export default function PostDetail() {
         </div>
 
         {/* Post card */}
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between">
-              <div className="flex items-center gap-2">
-                <Avatar>
-                  <AvatarImage src={post.author.avatar} alt={post.author.name} />
-                  <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium">{post.author.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(post.date).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
+        <div className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10 p-6 mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <Avatar>
+              <AvatarImage src={post.author.avatar} alt={post.author.name} />
+              <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-medium text-myanmar-maroon">{post.author.name}</p>
+              <p className="text-xs text-myanmar-maroon/70">{new Date(post.date).toLocaleDateString()}</p>
             </div>
-            <h1 className="text-2xl font-bold mt-4">{post.title}</h1>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {post.tags.map((tag, index) => (
-                <Badge key={index} variant="outline" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {post.content.split('\n\n').map((paragraph, index) => (
-              <p key={index} className="text-muted-foreground">
-                {paragraph}
-              </p>
+          </div>
+          <h1 className="text-2xl font-bold text-myanmar-maroon mb-2">{post.title}</h1>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {post.tags.map((tag, index) => (
+              <Badge key={index} variant="outline" className="text-xs border-myanmar-gold text-myanmar-gold bg-myanmar-gold/10 rounded-full px-3 py-1 font-semibold">
+                {tag}
+              </Badge>
             ))}
-            
-            {post.image_url && (
-              <div className="mt-6">
-                <img
-                  src={post.image_url}
-                  alt={post.title}
-                  className="rounded-md max-h-96 object-contain mx-auto"
-                />
-              </div>
-            )}
-          </CardContent>
-          <CardFooter>
-            <div className="w-full flex justify-between">
-              <div className="flex gap-4">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className={`flex items-center gap-1 ${post.isLiked ? 'text-red-500' : ''}`}
-                  onClick={handleLikePost}
-                >
-                  <Heart className={`h-4 w-4 ${post.isLiked ? 'fill-current' : ''}`} />
-                  <span>{post.likes}</span>
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="flex items-center gap-1"
-                  onClick={() => document.getElementById('comment-input')?.focus()}
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  <span>{post.comments}</span>
-                </Button>
-              </div>
+          </div>
+          {post.image_url && (
+            <div className="my-6">
+              <img
+                src={post.image_url}
+                alt={post.title}
+                className="rounded-xl max-h-96 object-contain mx-auto border border-myanmar-gold/30 shadow-md"
+              />
+            </div>
+          )}
+          <div className="space-y-4 mb-6">
+            {post.content.split('\n\n').map((paragraph, index) => (
+              <p key={index} className="text-myanmar-maroon/90 text-base leading-relaxed">{paragraph}</p>
+            ))}
+          </div>
+          <div className="w-full flex justify-between items-center mt-4">
+            <div className="flex gap-4">
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="flex items-center gap-1"
-                onClick={handleSharePost}
+                className={`flex items-center gap-1 rounded-full px-4 py-2 font-semibold ${post.isLiked ? 'text-red-500 bg-red-100' : 'text-myanmar-maroon hover:bg-myanmar-gold/20'}`}
+                onClick={handleLikePost}
               >
-                <Share className="h-4 w-4" />
-                <span>Share</span>
+                <Heart className={`h-4 w-4 ${post.isLiked ? 'fill-current' : ''}`} />
+                <span>{post.likes}</span>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="flex items-center gap-1 rounded-full px-4 py-2 text-myanmar-maroon font-semibold hover:bg-myanmar-gold/20"
+                onClick={() => document.getElementById('comment-input')?.focus()}
+              >
+                <MessageCircle className="h-4 w-4" />
+                <span>{post.comments}</span>
               </Button>
             </div>
-          </CardFooter>
-        </Card>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="flex items-center gap-1 rounded-full px-4 py-2 text-myanmar-maroon font-semibold hover:bg-myanmar-gold/20"
+              onClick={handleSharePost}
+            >
+              <Share className="h-4 w-4" />
+              <span>Share</span>
+            </Button>
+          </div>
+        </div>
 
         {/* Comments section */}
         <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Comments ({post.comments})</h2>
-          
+          <h2 className="text-xl font-semibold mb-4 text-myanmar-maroon">Comments ({post.comments})</h2>
           {/* New comment form */}
-          <div className="mb-6 flex gap-4">
+          <div className="mb-6 flex gap-4 items-start">
             <Avatar>
               <AvatarImage src={user?.user_metadata?.avatar_url || "/placeholder.svg"} alt="Your avatar" />
               <AvatarFallback>{user?.user_metadata?.full_name?.charAt(0) || "U"}</AvatarFallback>
@@ -524,13 +511,13 @@ export default function PostDetail() {
               <Textarea 
                 id="comment-input"
                 placeholder="Write a comment..." 
-                className="mb-2"
+                className="mb-2 rounded-xl border-myanmar-jade/30 focus-visible:ring-myanmar-gold"
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
               />
               <Button 
                 onClick={handleCommentSubmit} 
-                className="ml-auto flex gap-2"
+                className="ml-auto flex gap-2 rounded-full bg-myanmar-maroon text-white hover:bg-myanmar-gold hover:text-myanmar-maroon px-6 py-2 font-bold"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -542,45 +529,42 @@ export default function PostDetail() {
               </Button>
             </div>
           </div>
-
           <Separator className="my-6" />
-          
           {/* Comments list */}
           <div className="space-y-6">
             {post.commentsList?.map((comment) => (
-              <div key={comment.id} className="flex gap-4">
+              <div key={comment.id} className="flex gap-4 items-start bg-myanmar-jade/10 rounded-2xl p-4 shadow-sm">
                 <Avatar>
                   <AvatarImage src={comment.author.avatar} alt={comment.author.name} />
                   <AvatarFallback>{comment.author.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <div className="flex justify-between items-center mb-1">
-                    <p className="font-medium">{comment.author.name}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="font-medium text-myanmar-maroon">{comment.author.name}</p>
+                    <p className="text-xs text-myanmar-maroon/70">
                       {new Date(comment.date).toLocaleDateString()}
                     </p>
                   </div>
-                  <p className="text-muted-foreground">{comment.content}</p>
+                  <p className="text-myanmar-maroon/90">{comment.content}</p>
                   <div className="flex gap-2 mt-2">
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className={`h-8 px-2 ${comment.isLiked ? 'text-red-500' : ''}`}
+                      className={`h-8 px-2 rounded-full font-semibold ${comment.isLiked ? 'text-red-500 bg-red-100' : 'text-myanmar-maroon hover:bg-myanmar-gold/20'}`}
                       onClick={() => handleLikeComment(comment.id, !!comment.isLiked)}
                     >
                       <Heart className={`h-3.5 w-3.5 mr-1 ${comment.isLiked ? 'fill-current' : ''}`} />
                       {comment.likes}
                     </Button>
-                    <Button variant="ghost" size="sm" className="h-8 px-2">
+                    <Button variant="ghost" size="sm" className="h-8 px-2 rounded-full text-myanmar-maroon font-semibold hover:bg-myanmar-gold/20">
                       Reply
                     </Button>
                   </div>
                 </div>
               </div>
             ))}
-            
             {(!post.commentsList || post.commentsList.length === 0) && (
-              <p className="text-center text-muted-foreground py-4">
+              <p className="text-center text-myanmar-maroon/60 py-4">
                 No comments yet. Be the first to comment!
               </p>
             )}

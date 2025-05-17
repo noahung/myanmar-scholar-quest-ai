@@ -32,12 +32,17 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
+  };
+
+  const toggleExpand = () => {
+    setIsExpanded((prev) => !prev);
   };
 
   useEffect(() => {
@@ -237,50 +242,72 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
 
   return (
     <div className={cn(
-      "fixed bottom-4 right-4 z-50",
-      isScholarshipAssistant ? "relative bottom-0 right-0 w-full h-full" : ""
+      isExpanded
+        ? "fixed inset-0 z-[100] flex items-center justify-center bg-black/30"
+        : "fixed bottom-4 right-4 z-50 w-auto",
+      isScholarshipAssistant && !isExpanded ? "relative bottom-0 right-0 w-full h-full" : ""
     )}>
       {isOpen || isScholarshipAssistant ? (
         <div className={cn(
-          "bg-card border rounded-lg shadow-lg flex flex-col transition-all duration-300 animate-fade-in",
-          isScholarshipAssistant ? "w-full h-[500px]" : "w-80 sm:w-96 h-96"
+          "bg-white border-0 rounded-2xl shadow-2xl flex flex-col transition-all duration-300 animate-fade-in",
+          isExpanded
+            ? "w-[90vw] max-w-2xl h-[90vh] max-h-[90vh]"
+            : isScholarshipAssistant
+              ? "w-full h-[500px]"
+              : "w-80 sm:w-96 h-96",
+          // Responsive: on mobile, make chat window nearly full width
+          !isExpanded && !isScholarshipAssistant ? "max-w-xs w-[95vw] sm:w-96" : ""
         )}>
-          {!isScholarshipAssistant && (
-            <div className="flex items-center justify-between bg-primary text-primary-foreground p-3 rounded-t-lg">
-              <h3 className="font-medium">
-                {scholarshipId ? "Scholarship Assistant" : "Scholar-M AI Assistant"}
-              </h3>
-              <Button variant="ghost" size="icon" onClick={toggleChat} className="h-8 w-8 text-primary-foreground">
-                <X className="h-4 w-4" />
+          <div className="flex items-center justify-between bg-myanmar-maroon text-white p-3 rounded-t-2xl">
+            <h3 className="font-medium">
+              {scholarshipId ? "Scholarship Assistant" : "Scholar-M AI Assistant"}
+            </h3>
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleExpand}
+                className="h-8 w-8 text-white hover:bg-myanmar-gold/20 hidden sm:inline-flex"
+                title={isExpanded ? "Minimize" : "Expand"}
+              >
+                {isExpanded ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4h4M20 16v4h-4M4 16v4h4M20 8V4h-4" /></svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h7M4 4v7M20 20h-7M20 20v-7" /></svg>
+                )}
               </Button>
+              {!isScholarshipAssistant && (
+                <Button variant="ghost" size="icon" onClick={toggleChat} className="h-8 w-8 text-white hover:bg-myanmar-gold/20">
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
-          )}
+          </div>
           
-          {/* Archive to History Button */}
           <div className="flex justify-end p-2">
             <Button
               size="sm"
               variant="outline"
               onClick={handleArchiveHistory}
               disabled={!user || messages.length < 2}
-              className="text-xs"
+              className="text-xs rounded-full border-myanmar-maroon text-myanmar-maroon font-bold hover:bg-myanmar-gold/10"
             >
               Archive to History
             </Button>
           </div>
           
           <div className={cn(
-            "flex-1 overflow-y-auto p-4 space-y-4",
+            "flex-1 overflow-y-auto p-4 space-y-4 bg-white rounded-b-2xl",
             isScholarshipAssistant ? "" : ""
           )}>
             {messages.map((message) => (
               <div 
                 key={message.id}
                 className={cn(
-                  "max-w-[80%] rounded-lg p-3",
+                  "max-w-[80%] rounded-2xl p-3 shadow-sm",
                   message.sender === 'user' 
-                    ? "bg-primary text-primary-foreground ml-auto" 
-                    : "bg-muted mr-auto"
+                    ? "bg-myanmar-gold/80 text-myanmar-maroon ml-auto" 
+                    : "bg-myanmar-jade/10 text-myanmar-maroon mr-auto"
                 )}
               >
                 <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -299,7 +326,7 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
               </div>
             ))}
             {isLoading && (
-              <div className="bg-muted rounded-lg p-3 max-w-[80%] mr-auto">
+              <div className="bg-myanmar-jade/10 rounded-2xl p-3 max-w-[80%] mr-auto">
                 <div className="flex items-center space-x-2">
                   <Loader className="h-4 w-4 animate-spin" />
                   <span className="text-sm">AI is thinking...</span>
@@ -309,16 +336,16 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
             <div ref={messagesEndRef} />
           </div>
           
-          <form onSubmit={handleSubmit} className="border-t p-3 flex gap-2">
+          <form onSubmit={handleSubmit} className="border-t border-myanmar-jade/20 p-3 flex gap-2 bg-white rounded-b-2xl">
             <input
               type="text"
               placeholder="Type your message..."
-              className="flex-1 rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="flex-1 rounded-full border border-myanmar-jade/30 bg-white px-4 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-myanmar-gold"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               disabled={isLoading}
             />
-            <Button type="submit" size="icon" disabled={isLoading}>
+            <Button type="submit" size="icon" disabled={isLoading} className="rounded-full bg-myanmar-gold text-myanmar-maroon hover:bg-myanmar-gold/90">
               <Send className="h-4 w-4" />
             </Button>
           </form>
@@ -327,7 +354,7 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
         <Button 
           onClick={toggleChat} 
           size="lg" 
-          className="rounded-full h-12 w-12 bg-primary hover:bg-primary/90 shadow-lg"
+          className="rounded-full h-12 w-12 bg-myanmar-maroon hover:bg-myanmar-gold/90 text-white shadow-lg fixed bottom-4 right-4 z-50 sm:static"
         >
           <MessageCircle className="h-6 w-6" />
           <span className="sr-only">Open AI Assistant</span>

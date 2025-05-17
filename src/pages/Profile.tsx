@@ -233,34 +233,34 @@ export default function Profile() {
   return (
     <div className="container py-8 md:py-12">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold tracking-tighter mb-8">My Profile</h1>
+        <h1 className="text-3xl font-bold tracking-tighter mb-8 text-myanmar-maroon">My Profile</h1>
         
         <Tabs defaultValue="profile" className="w-full">
-          {/* Fixed TabsList - Using overflow-x-auto to make it horizontally scrollable on mobile */}
-          <div className="bg-muted rounded-md p-1 mb-4">
-            <div className="overflow-x-auto"> {/* Add this wrapper for horizontal scrolling */}
-              <TabsList className="w-full flex min-w-max"> {/* min-w-max ensures tabs don't shrink */}
-                <TabsTrigger value="profile" className="flex items-center gap-2 justify-center">
+          {/* Themed TabsList - horizontally scrollable on mobile */}
+          <div className="bg-myanmar-jade/10 rounded-xl p-1 mb-4">
+            <div className="overflow-x-auto">
+              <TabsList className="w-full flex min-w-max gap-2">
+                <TabsTrigger value="profile" className="flex items-center gap-2 justify-center rounded-full px-6 py-2 font-semibold">
                   <UserCircle className="h-4 w-4" />
                   <span>Profile</span>
                 </TabsTrigger>
-                <TabsTrigger value="scholarships" className="flex items-center gap-2 justify-center">
+                <TabsTrigger value="scholarships" className="flex items-center gap-2 justify-center rounded-full px-6 py-2 font-semibold">
                   <BookOpen className="h-4 w-4" />
                   <span>Saved Scholarships</span>
                 </TabsTrigger>
-                <TabsTrigger value="posts" className="flex items-center gap-2 justify-center">
+                <TabsTrigger value="posts" className="flex items-center gap-2 justify-center rounded-full px-6 py-2 font-semibold">
                   <MessageCircle className="h-4 w-4" />
                   <span>My Posts</span>
                 </TabsTrigger>
-                <TabsTrigger value="notes" className="flex items-center gap-2 justify-center">
+                <TabsTrigger value="notes" className="flex items-center gap-2 justify-center rounded-full px-6 py-2 font-semibold">
                   <BookmarkIcon className="h-4 w-4" />
                   <span>My Notes</span>
                 </TabsTrigger>
-                <TabsTrigger value="preparation" className="flex items-center gap-2 justify-center">
+                <TabsTrigger value="preparation" className="flex items-center gap-2 justify-center rounded-full px-6 py-2 font-semibold">
                   <CheckSquare className="h-4 w-4" />
                   <span>Preparation Helper</span>
                 </TabsTrigger>
-                <TabsTrigger value="chat-history" className="flex items-center gap-2 justify-center">
+                <TabsTrigger value="chat-history" className="flex items-center gap-2 justify-center rounded-full px-6 py-2 font-semibold">
                   <History className="h-4 w-4" />
                   <span>Chat History</span>
                 </TabsTrigger>
@@ -269,10 +269,10 @@ export default function Profile() {
           </div>
           
           <TabsContent value="profile" className="mt-6 space-y-6">
-            <Card>
+            <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10">
               <CardHeader>
-                <CardTitle>Personal Information</CardTitle>
-                <CardDescription>Update your personal information and profile settings.</CardDescription>
+                <CardTitle className="text-myanmar-maroon">Personal Information</CardTitle>
+                <CardDescription className="text-myanmar-maroon/70">Update your personal information and profile settings.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
@@ -343,7 +343,7 @@ export default function Profile() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button onClick={handleProfileUpdate} disabled={isUpdating}>
+                <Button onClick={handleProfileUpdate} disabled={isUpdating} className="rounded-full bg-myanmar-gold text-myanmar-maroon font-bold px-8 py-2 shadow hover:bg-myanmar-gold/90 transition-all">
                   {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   <Save className="mr-2 h-4 w-4" />
                   Save Changes
@@ -357,10 +357,10 @@ export default function Profile() {
           </TabsContent>
           
           <TabsContent value="posts" className="mt-6 space-y-4">
-            <Card>
+            <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10">
               <CardHeader>
-                <CardTitle>My Posts</CardTitle>
-                <CardDescription>Posts you've created in the community.</CardDescription>
+                <CardTitle className="text-myanmar-maroon">My Posts</CardTitle>
+                <CardDescription className="text-myanmar-maroon/70">Posts you've created in the community.</CardDescription>
               </CardHeader>
               <CardContent>
                 {userPosts.length === 0 ? (
@@ -373,10 +373,10 @@ export default function Profile() {
                 ) : (
                   <ul className="space-y-4">
                     {userPosts.map(post => (
-                      <li key={post.id} className="border rounded p-3">
-                        <div className="font-semibold">{post.title}</div>
-                        <div className="text-sm text-muted-foreground">{post.content}</div>
-                        <div className="text-xs text-muted-foreground mt-2">
+                      <li key={post.id} className="border border-myanmar-gold/30 rounded-xl p-3 bg-white/80">
+                        <div className="font-semibold text-myanmar-maroon">{post.title}</div>
+                        <div className="text-sm text-myanmar-maroon/70">{post.content}</div>
+                        <div className="text-xs text-myanmar-maroon/50 mt-2">
                           {post.date ? new Date(post.date).toLocaleString() : ""}
                         </div>
                       </li>
@@ -396,10 +396,10 @@ export default function Profile() {
           </TabsContent>
           
           <TabsContent value="chat-history" className="mt-6 space-y-4">
-            <Card>
+            <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10">
               <CardHeader>
-                <CardTitle>AI Chat History</CardTitle>
-                <CardDescription>Your conversations with the AI assistant.</CardDescription>
+                <CardTitle className="text-myanmar-maroon">AI Chat History</CardTitle>
+                <CardDescription className="text-myanmar-maroon/70">Your conversations with the AI assistant.</CardDescription>
               </CardHeader>
               <CardContent>
                 {chatHistory.length === 0 ? (
@@ -412,7 +412,7 @@ export default function Profile() {
                 ) : (
                   <ul className="space-y-4">
                     {chatHistory.map((chat: any) => (
-                      <li key={chat.id} className="border rounded p-3 relative">
+                      <li key={chat.id} className="border border-myanmar-gold/30 rounded-xl p-3 relative bg-white/80">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -425,11 +425,11 @@ export default function Profile() {
                         >
                           <Trash className="h-4 w-4" />
                         </Button>
-                        <p className="font-medium">You:</p>
-                        <p className="text-sm text-muted-foreground mb-2">{chat.message}</p>
-                        <p className="font-medium">AI:</p>
-                        <p className="text-sm text-muted-foreground">{chat.response}</p>
-                        <div className="text-xs text-muted-foreground mt-2">
+                        <p className="font-medium text-myanmar-maroon">You:</p>
+                        <p className="text-sm text-myanmar-maroon/70 mb-2">{chat.message}</p>
+                        <p className="font-medium text-myanmar-maroon">AI:</p>
+                        <p className="text-sm text-myanmar-maroon/70">{chat.response}</p>
+                        <div className="text-xs text-myanmar-maroon/50 mt-2">
                           {new Date(chat.created_at).toLocaleString()}
                         </div>
                       </li>

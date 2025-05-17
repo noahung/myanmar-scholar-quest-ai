@@ -119,7 +119,7 @@ export default function ScholarshipDetail() {
       <div className="flex flex-col max-w-4xl mx-auto">
         {/* Back button */}
         <div className="mb-6">
-          <Button variant="outline" asChild>
+          <Button variant="outline" asChild className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold">
             <Link to="/scholarships">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Scholarships
@@ -128,18 +128,16 @@ export default function ScholarshipDetail() {
         </div>
 
         {/* Scholarship header */}
-        <h1 className="text-3xl font-bold tracking-tighter mb-4">{scholarship.title}</h1>
+        <h1 className="text-3xl font-bold tracking-tighter mb-4 text-myanmar-maroon">{scholarship.title}</h1>
         
         <div className="flex flex-wrap gap-2 mb-6">
-          <Badge className="bg-myanmar-jade hover:bg-myanmar-jade/90">{scholarship.level}</Badge>
-          <Badge variant="outline">{scholarship.country}</Badge>
+          <Badge variant="outline" className="border-myanmar-gold text-myanmar-gold font-semibold">{scholarship.level}</Badge>
+          <Badge variant="default" className="bg-myanmar-jade/80 text-white border-none">{scholarship.country}</Badge>
           {scholarship.featured && <Badge variant="secondary">Featured</Badge>}
           {deadlinePassed && <Badge variant="destructive">Deadline Passed</Badge>}
           {isAdmin && (
             <Link to="/admin">
-              <Badge variant="outline" className="cursor-pointer hover:bg-muted">
-                Edit in Admin
-              </Badge>
+              <Badge variant="outline" className="cursor-pointer hover:bg-muted">Edit in Admin</Badge>
             </Link>
           )}
         </div>
@@ -149,17 +147,17 @@ export default function ScholarshipDetail() {
           onValueChange={setActiveTab}
           className="w-full mb-8"
         >
-          <TabsList className="w-full">
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="ai-assistant" id="ai-tab">AI Assistant</TabsTrigger>
-            <TabsTrigger value="my-notes">My Notes</TabsTrigger>
+          <TabsList className="w-full bg-myanmar-jade/10 rounded-xl p-1 flex gap-2">
+            <TabsTrigger value="details" className="rounded-full px-6 py-2 font-semibold">Details</TabsTrigger>
+            <TabsTrigger value="ai-assistant" id="ai-tab" className="rounded-full px-6 py-2 font-semibold">AI Assistant</TabsTrigger>
+            <TabsTrigger value="my-notes" className="rounded-full px-6 py-2 font-semibold">My Notes</TabsTrigger>
           </TabsList>
 
           <TabsContent value="details" className="mt-6">
             {/* Key information card */}
-            <Card className="mb-8">
+            <Card className="mb-8 rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10">
               <CardHeader>
-                <h2 className="text-xl font-semibold">Key Information</h2>
+                <h2 className="text-xl font-semibold text-myanmar-maroon">Key Information</h2>
               </CardHeader>
               <CardContent className="grid gap-4 md:grid-cols-2">
                 <div className="flex items-start gap-2">
@@ -189,7 +187,7 @@ export default function ScholarshipDetail() {
                     <p className="font-medium">Fields of Study</p>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {scholarship.fields.map((field, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
+                        <Badge key={index} variant="outline" className="text-xs border-myanmar-gold text-myanmar-gold">
                           {field}
                         </Badge>
                       ))}
@@ -201,7 +199,7 @@ export default function ScholarshipDetail() {
 
             {/* Description */}
             <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-4">Description</h2>
+              <h2 className="text-xl font-semibold mb-4 text-myanmar-maroon">Description</h2>
               <p className="text-muted-foreground whitespace-pre-line">{scholarship.description}</p>
             </div>
 
@@ -209,7 +207,7 @@ export default function ScholarshipDetail() {
 
             {/* Benefits */}
             <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-4">Benefits</h2>
+              <h2 className="text-xl font-semibold mb-4 text-myanmar-maroon">Benefits</h2>
               <ul className="space-y-2 list-disc pl-5">
                 {scholarship.benefits.map((benefit, index) => (
                   <li key={index} className="text-muted-foreground">{benefit}</li>
@@ -219,7 +217,7 @@ export default function ScholarshipDetail() {
 
             {/* Requirements */}
             <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-4">Eligibility Requirements</h2>
+              <h2 className="text-xl font-semibold mb-4 text-myanmar-maroon">Eligibility Requirements</h2>
               <ul className="space-y-2 list-disc pl-5">
                 {scholarship.requirements.map((requirement, index) => (
                   <li key={index} className="text-muted-foreground">{requirement}</li>
@@ -229,7 +227,7 @@ export default function ScholarshipDetail() {
 
             {/* Application button and AI chat */}
             <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-              <Button size="lg" asChild>
+              <Button size="lg" asChild className="rounded-full bg-myanmar-gold text-myanmar-maroon font-bold px-8 py-2 shadow hover:bg-myanmar-gold/90 transition-all">
                 <a href={scholarship.application_url} target="_blank" rel="noopener noreferrer">
                   <LinkIcon className="mr-2 h-4 w-4" />
                   Apply Now
@@ -239,6 +237,7 @@ export default function ScholarshipDetail() {
               <Button 
                 variant="outline" 
                 size="lg" 
+                className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold px-8 py-2"
                 onClick={handleAiButtonClick}
               >
                 <MessageSquare className="mr-2 h-4 w-4" />
@@ -248,6 +247,7 @@ export default function ScholarshipDetail() {
               <SavedScholarshipButton 
                 scholarshipId={scholarship.id}
                 size="lg"
+                className="rounded-full"
               />
             </div>
 
@@ -258,7 +258,7 @@ export default function ScholarshipDetail() {
                   href={scholarship.source_url} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-sm text-muted-foreground hover:text-foreground"
+                  className="text-sm text-myanmar-maroon hover:underline"
                 >
                   View original source
                 </a>
@@ -267,9 +267,9 @@ export default function ScholarshipDetail() {
           </TabsContent>
 
           <TabsContent value="ai-assistant" className="mt-6">
-            <Card>
+            <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10">
               <CardHeader>
-                <h2 className="text-xl font-semibold">Scholarship Assistant</h2>
+                <h2 className="text-xl font-semibold text-myanmar-maroon">Scholarship Assistant</h2>
                 <p className="text-sm text-muted-foreground">Ask any questions about this scholarship</p>
               </CardHeader>
               <CardContent className="h-[500px]">

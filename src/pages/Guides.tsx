@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -83,8 +82,8 @@ export default function Guides() {
 
   return (
     <div className="container py-8">
-      <h1 className="text-3xl font-bold tracking-tighter mb-2">Educational Guides</h1>
-      <p className="text-muted-foreground mb-8">Step-by-step guides to help you navigate the scholarship process</p>
+      <h1 className="text-3xl font-bold tracking-tighter mb-2 text-myanmar-maroon">Educational Guides</h1>
+      <p className="text-myanmar-maroon/80 mb-8">Step-by-step guides to help you navigate the scholarship process</p>
       
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -113,26 +112,26 @@ export default function Guides() {
 
 function GuideCard({ guide }: { guide: Guide }) {
   return (
-    <Card className="overflow-hidden h-full flex flex-col">
+    <Card className="overflow-hidden h-full flex flex-col rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10">
       <div className="aspect-video relative bg-muted">
         <img 
           src={guide.image || "/placeholder.svg"}
           alt={guide.title}
-          className="object-cover w-full h-full"
+          className="object-cover w-full h-full rounded-t-2xl"
         />
       </div>
       <CardContent className="flex-grow pt-6">
         <div className="flex flex-wrap gap-2 mb-2">
-          <Badge variant="outline">{guide.category}</Badge>
-          <Badge variant="secondary" className="flex items-center gap-1">
+          <Badge variant="outline" className="border-myanmar-gold text-myanmar-gold">{guide.category}</Badge>
+          <Badge variant="secondary" className="flex items-center gap-1 bg-myanmar-jade/80 text-white">
             <Globe className="h-3 w-3" /> {guide.country}
           </Badge>
         </div>
-        <h3 className="text-xl font-semibold mb-2 line-clamp-2">{guide.title}</h3>
-        <p className="text-muted-foreground line-clamp-3">{guide.description}</p>
+        <h3 className="text-xl font-semibold mb-2 line-clamp-2 text-myanmar-maroon">{guide.title}</h3>
+        <p className="text-myanmar-maroon/70 line-clamp-3">{guide.description}</p>
       </CardContent>
       <CardFooter className="border-t bg-muted/50 py-3">
-        <Button variant="outline" asChild className="w-full">
+        <Button variant="outline" asChild className="w-full rounded-full border-myanmar-maroon text-myanmar-maroon font-bold">
           <Link to={`/guides/${guide.id}`}>
             View Guide ({guide.steps} steps)
           </Link>
