@@ -1,4 +1,3 @@
-
 # A string used to distinguish different Supabase projects on the same host. Defaults to the project ID.
 project_id = "aysvkiyuzqktcumdzxqh"
 
@@ -47,9 +46,13 @@ file_size_limit = "50MiB"
 [auth]
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://localhost:54321"
+site_url = "https://noahung.github.io/myanmar-scholar-quest-ai"
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://localhost:3000"]
+additional_redirect_urls = [
+  "https://localhost:3000",
+  "https://noahung.github.io/myanmar-scholar-quest-ai",
+  "https://noahung.github.io/myanmar-scholar-quest-ai/"
+]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # If disabled, the refresh token will never expire.
