@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, ChevronRight, Globe } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/lib/supabase-client";
 
 interface GuideStep {
   title: string;
@@ -31,65 +31,44 @@ export default function GuideDetail() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // This will be replaced with a Supabase query
-    // For now, we're simulating an API call
-    setLoading(true);
-    
-    // Simulate API fetch delay
-    setTimeout(() => {
-      // Mock data for development - will be replaced with actual data from Supabase
-      const mockGuide = {
-        id: "1",
-        title: "Complete Guide to Applying for Japanese Scholarships",
-        description: "A step-by-step approach to finding and applying for scholarships in Japan, with specific tips for MEXT, JICA, and university-specific programs.",
-        category: "Application Process",
-        country: "Japan",
-        image: "/placeholder.svg",
-        steps: 8,
-        steps_content: [
-          {
-            title: "Research Available Scholarships",
-            content: "Start by researching the various scholarship options available for Myanmar students in Japan. The main government scholarships are MEXT (Ministry of Education), JICA, and university-specific scholarships. Each has different eligibility requirements, application periods, and coverage. MEXT scholarships are generally announced in April with applications due in May/June. JICA scholarships often have rolling deadlines depending on the specific program."
-          },
-          {
-            title: "Check Eligibility Requirements",
-            content: "Carefully review the eligibility criteria for each scholarship you're interested in. Common requirements for Japanese scholarships include age limits (typically under 35), academic performance (GPA of at least 2.3 on the MEXT scale, which is roughly 70-80% or higher in most grading systems), language proficiency (Japanese and/or English), and relevant work experience. Some scholarships may have specific requirements related to your field of study or career goals."
-          },
-          {
-            title: "Prepare Required Documents",
-            content: "Japanese scholarship applications typically require several documents: academic transcripts, certificates of graduation, research proposal or study plan, recommendation letters from professors or employers, certificate of language proficiency, and a medical certificate. For MEXT scholarships, you'll also need to fill out specific application forms provided by the Japanese embassy. Start collecting these documents early, as some may take time to obtain, particularly official transcripts and recommendation letters."
-          },
-          {
-            title: "Write a Strong Research Proposal",
-            content: "For graduate scholarships, a research proposal is crucial. It should clearly outline your research objectives, methodology, timeline, and expected outcomes. Connect your research interests to Japan specifically - explain why you need to study in Japan and how your research will benefit both countries. Be specific about potential supervisors at Japanese universities who work in your field. Your proposal should be well-structured, concise (typically 2-3 pages), and demonstrate the significance of your research."
-          },
-          {
-            title: "Apply Through the Correct Channels",
-            content: "MEXT scholarships are usually applied through the Japanese Embassy in Myanmar. University scholarships are applied directly to the university. JICA scholarships may have specific application procedures. Follow the instructions exactly as provided by the scholarship provider. Embassy applications typically involve submitting physical documents and attending in-person interviews if shortlisted."
-          },
-          {
-            title: "Prepare for Screening Exams and Interviews",
-            content: "Many Japanese scholarships require written examinations (testing subjects related to your field and/or Japanese language) and interviews. For MEXT, you'll typically take exams in English, mathematics, and possibly Japanese language. The interview will assess your motivation, communication skills, and knowledge of Japan and your field. Practice with sample questions and prepare to discuss your research proposal in detail."
-          },
-          {
-            title: "Connect with Potential Supervisors",
-            content: "For research and graduate scholarships, it's important to establish contact with potential academic supervisors in Japan. Search for professors working in your field of interest and email them with a brief introduction, your CV, and a summary of your research proposal. Explain why you're interested in working with them specifically. Having a professor agree to supervise you can significantly strengthen your application."
-          },
-          {
-            title: "Prepare for Life in Japan",
-            content: "Once accepted, prepare for your move to Japan. This includes applying for a student visa, arranging accommodation (university dormitories or private housing), and familiarizing yourself with Japanese culture and customs. Many scholarships provide pre-departure orientations. Basic Japanese language skills will be very helpful, even if your program is taught in English. Connect with Myanmar student associations in Japan for practical advice and support networks."
-          }
-        ]
-      };
-
-      if (id === "1") {
-        setGuide(mockGuide);
-      } else {
+    async function fetchGuide() {
+      setLoading(true);
+      setError(null);
+      setGuide(null);
+      if (!id) {
         setError("Guide not found");
+        setLoading(false);
+        return;
       }
-      
+      // Fetch the guide
+      const { data: guideData, error: guideError } = await supabase
+        .from("guides")
+        .select("*")
+        .eq("id", id)
+        .single();
+      if (guideError || !guideData) {
+        setError("Guide not found");
+        setLoading(false);
+        return;
+      }
+      // Fetch the steps for the guide
+      const { data: stepsData, error: stepsError } = await supabase
+        .from("guide_steps")
+        .select("title, content, step_order")
+        .eq("guide_id", id)
+        .order("step_order", { ascending: true });
+      if (stepsError) {
+        setError("Could not load guide steps");
+        setLoading(false);
+        return;
+      }
+      setGuide({
+        ...guideData,
+        steps_content: stepsData || [],
+      });
       setLoading(false);
-    }, 1000);
+    }
+    fetchGuide();
   }, [id]);
 
   if (loading) {
