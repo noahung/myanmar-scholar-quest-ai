@@ -278,7 +278,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     try {
       console.log("Starting Google sign-in process");
-      const redirectTo = `${window.location.protocol}//${window.location.host}`;
+      // Use the correct redirect URL for GitHub Pages deployment
+      const redirectTo = `${window.location.protocol}//${window.location.host}/myanmar-scholar-quest-ai/`;
       console.log("Setting redirect URL:", redirectTo);
       dismiss();
       toast({
