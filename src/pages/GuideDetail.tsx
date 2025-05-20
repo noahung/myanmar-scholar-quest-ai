@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, ChevronRight, Globe, ArrowRight } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabase-client";
 import { FancyButton } from "@/components/ui/fancy-button";
+import { useToast } from "@/components/ui/use-toast";
 
 interface GuideStep {
   title: string;
@@ -157,13 +158,32 @@ export default function GuideDetail() {
         </div>
 
         {/* Navigation */}
-        <div className="mt-12 flex justify-between">
-          <FancyButton asChild icon={<ArrowLeft />} disabled={!prevGuide}>
-            <Link to={prevGuide ? `/guides/${prevGuide.id}` : "#"}>Previous Guide</Link>
-          </FancyButton>
-          <FancyButton asChild icon={<ArrowRight />} disabled={!nextGuide}>
-            <Link to={nextGuide ? `/guides/${nextGuide.id}` : "#"}>Next Guide</Link>
-          </FancyButton>
+        <div className="mt-12 flex flex-wrap justify-center gap-4">
+          {prevGuide && (
+            <Button 
+              variant="outline" 
+              asChild 
+              className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold"
+            >
+              <Link to={`/guides/${prevGuide.id}`} className="hidden sm:flex items-center">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Previous Guide
+              </Link>
+            </Button>
+          )}
+
+          {nextGuide && (
+            <Button 
+              variant="outline" 
+              asChild 
+              className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold"
+            >
+              <Link to={`/guides/${nextGuide.id}`} className="hidden sm:flex items-center">
+                Next Guide
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
     </div>

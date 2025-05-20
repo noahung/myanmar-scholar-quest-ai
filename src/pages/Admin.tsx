@@ -23,6 +23,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Loader2, Trash2, Save, Plus } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 
 type Comment = {
   id: string;

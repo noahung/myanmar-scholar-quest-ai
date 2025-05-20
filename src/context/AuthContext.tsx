@@ -56,11 +56,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setSession(newSession);
           setUser(newSession?.user ?? null);
           dismiss();
-          toast({
-            title: "Signed in successfully",
-            description: `Welcome${newSession?.user?.user_metadata?.full_name ? ', ' + newSession.user.user_metadata.full_name : ''}!`,
-            duration: 1500
-          });
+
+          // Get user's name from profile
+          if (newSession?.user) {
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('id', newSession.user.id)
+              .single();
+
+            const userName = profileData?.full_name || newSession.user.user_metadata?.full_name || newSession.user.user_metadata?.name || newSession.user.email?.split('@')[0];
+            
+            toast({
+              title: "Signed in successfully",
+              description: `Welcome${userName ? ', ' + userName : ''}!`,
+              duration: 1500
+            });
+          }
+
           hasShownWelcomeToast.current = true;
           // Navigate to home or previous page after login
           if (location.pathname === '/login') {
@@ -163,11 +176,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data: userData } = await supabase.auth.getUser();
       if (userData?.user) {
+        // Get name from various possible sources
+        const fullName = 
+          userData.user.user_metadata?.full_name || 
+          userData.user.user_metadata?.name ||
+          userData.user.user_metadata?.given_name && userData.user.user_metadata?.family_name 
+            ? `${userData.user.user_metadata.given_name} ${userData.user.user_metadata.family_name}`.trim()
+            : userData.user.email?.split('@')[0];
+
         const { error: insertError } = await supabase
           .from('profiles')
           .insert({
             id: userId,
-            full_name: userData.user.user_metadata?.full_name || userData.user.email?.split('@')[0],
+            full_name: fullName,
             email: userData.user.email,
             avatar_url: userData.user.user_metadata?.avatar_url || null,
             is_admin: false

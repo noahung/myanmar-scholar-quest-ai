@@ -282,12 +282,12 @@ export default function Scholarships() {
                 </CardHeader>
                 <CardContent className="flex flex-col items-center">
                   <div className="flex gap-2 mb-2 flex-wrap justify-center">
-                    <Badge variant="default" className="bg-myanmar-jade/80 text-white border-none">{scholarship.country}</Badge>
-                    <Badge variant="outline" className="border-myanmar-gold text-myanmar-gold">{scholarship.level}</Badge>
+                    <Badge variant="default" className="bg-myanmar-jade text-white border-none font-semibold">{scholarship.country}</Badge>
+                    <Badge variant="outline" className="border-myanmar-gold text-myanmar-gold bg-myanmar-gold/20 font-semibold">{scholarship.level}</Badge>
                   </div>
                   <div className="flex flex-wrap gap-2 mb-2 justify-center">
                     {Array.isArray(scholarship.fields) && scholarship.fields.map((field, index) => (
-                      field ? <Badge key={index} variant="outline" className="text-xs">{field}</Badge> : null
+                      field ? <Badge key={index} variant="outline" className="text-xs bg-myanmar-maroon/10 border-myanmar-maroon text-myanmar-maroon font-medium">{field}</Badge> : null
                     ))}
                   </div>
                   <p className="text-xs text-myanmar-maroon/70 text-center line-clamp-2">{scholarship.description}</p>

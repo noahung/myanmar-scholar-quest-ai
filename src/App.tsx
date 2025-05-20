@@ -9,6 +9,7 @@ import { Footer } from "@/components/footer";
 import { AiAssistant } from "@/components/ai-assistant";
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { CustomCSS } from "@/components/CustomCSS";
 
 import Home from "./pages/Home";
 import Scholarships from "./pages/Scholarships";
@@ -33,6 +34,7 @@ const App = () => (
       <TooltipProvider>
         <AuthProvider>
           <LanguageProvider>
+            <CustomCSS />
             <Toaster />
             <Sonner />
             <Navbar />

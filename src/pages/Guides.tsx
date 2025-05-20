@@ -160,8 +160,8 @@ function GuideCard({ guide }: { guide: Guide }) {
       </div>
       <CardContent className="flex-grow pt-6">
         <div className="flex flex-wrap gap-2 mb-2">
-          <Badge variant="outline" className="border-myanmar-gold text-myanmar-gold">{guide.category}</Badge>
-          <Badge variant="secondary" className="flex items-center gap-1 bg-myanmar-jade/80 text-white">
+          <Badge variant="outline" className="border-myanmar-gold text-myanmar-gold bg-myanmar-gold/20 font-semibold">{guide.category}</Badge>
+          <Badge variant="secondary" className="flex items-center gap-1 bg-myanmar-jade text-white border-none font-semibold">
             <Globe className="h-3 w-3" /> {guide.country}
           </Badge>
         </div>
