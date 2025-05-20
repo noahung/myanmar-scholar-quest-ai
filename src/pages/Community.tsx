@@ -289,7 +289,7 @@ export default function Community() {
 
   const handleSharePost = async (post: Post) => {
     try {
-      const shareUrl = `${window.location.origin}/community/${post.id}`;
+      const shareUrl = `${window.location.origin}/myanmar-scholar-quest-ai/community/${post.id}`;
       
       // Try to use the Web Share API if available
       if (navigator.share) {
@@ -435,6 +435,8 @@ interface PostCardProps {
 }
 
 function PostCard({ post, onLike, onShare }: PostCardProps) {
+  const navigate = useNavigate();
+  
   return (
     <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10 hover:shadow-xl transition-shadow">
       <CardHeader>
@@ -493,9 +495,7 @@ function PostCard({ post, onLike, onShare }: PostCardProps) {
               variant="ghost" 
               size="sm" 
               className="flex items-center gap-1 rounded-full text-myanmar-maroon"
-              onClick={() => {
-                window.location.href = `/community/${post.id}`;
-              }}
+              onClick={() => navigate(`/community/${post.id}`)}
             >
               <MessageCircle className="h-4 w-4" />
               <span>{post.comments}</span>

@@ -29,5 +29,9 @@ export default defineConfig(({ mode }) => ({
         },
       },
     },
+    assetsDir: 'assets',
+    sourcemap: false,
+    chunkSizeWarningLimit: 1000,
+    cssCodeSplit: true,
   },
 }));
