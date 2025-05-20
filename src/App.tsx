@@ -25,6 +25,7 @@ import Admin from "./pages/Admin";
 import StaticPage from "./pages/StaticPage";
 import NotFound from "./pages/NotFound";
 import SavedScholarshipsPage from "./pages/SavedScholarshipsPage";
+import AboutUs from "./pages/AboutUs";
 
 const queryClient = new QueryClient();
 
@@ -51,7 +52,7 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/admin" element={<Admin />} />
-                <Route path="/about" element={<StaticPage />} />
+                <Route path="/about" element={<AboutUs />} />
                 <Route path="/faq" element={<StaticPage />} />
                 <Route path="/privacy" element={<StaticPage />} />
                 <Route path="/terms" element={<StaticPage />} />

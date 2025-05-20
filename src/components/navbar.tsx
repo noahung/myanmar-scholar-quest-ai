@@ -108,9 +108,7 @@ export function Navbar() {
       <div className="container flex h-20 items-center justify-between">
         <div className="flex items-center gap-3">
           <Link to="/" className="flex items-center gap-3">
-            <div className="bg-white/80 shadow px-2 py-1 rounded-xl border-2 border-myanmar-maroon flex items-center">
-              <span className="font-extrabold text-3xl text-myanmar-maroon tracking-tight">S-M</span>
-            </div>
+            <img src="https://aysvkiyuzqktcumdzxqh.supabase.co/storage/v1/object/public/images//myanmar%20scholar%20logo.png" alt="Scholar-M Logo" className="h-12 w-12 object-contain bg-white rounded-xl border-2 border-myanmar-maroon shadow" />
             <span className="font-extrabold text-2xl text-myanmar-maroon hidden md:block tracking-tight">Scholar-M</span>
           </Link>
         </div>
@@ -130,7 +128,6 @@ export function Navbar() {
         </nav>
         
         <div className="flex items-center gap-3">
-          <LanguageSelector />
           {isLoading ? (
             <Button variant="outline" size="sm" disabled className="rounded-full px-5 py-2 font-bold">
               <User className="h-4 w-4 mr-2" />
@@ -181,7 +178,7 @@ export function Navbar() {
             </DropdownMenu>
           ) : (
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" asChild className="rounded-full px-6 py-2 font-bold border-myanmar-maroon text-myanmar-maroon bg-white hover:bg-myanmar-gold/10">
+              <Button variant="outline" size="sm" asChild className="rounded-full px-6 py-2 font-bold border-myanmar-maroon text-myanmar-maroon bg-white hover:bg-myanmar-gold/10 hover:text-myanmar-maroon">
                 <Link to="/login">
                   Log In
                 </Link>

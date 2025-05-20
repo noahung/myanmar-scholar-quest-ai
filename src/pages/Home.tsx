@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +59,8 @@ export default function Home() {
   const [countries, setCountries] = useState<string[]>([]);
   const [fields, setFields] = useState<string[]>([]);
   const [levels, setLevels] = useState<string[]>([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchFeaturedScholarships();
@@ -188,7 +190,17 @@ export default function Home() {
                 ))}
               </SelectContent>
             </Select>
-            <Button className="bg-myanmar-gold text-myanmar-maroon font-bold px-8 py-2 rounded-lg shadow hover:bg-myanmar-gold/90 transition-all" onClick={() => {}}>
+            <Button
+              className="bg-myanmar-gold text-myanmar-maroon font-bold px-8 py-2 rounded-lg shadow hover:bg-myanmar-gold/90 transition-all"
+              onClick={() => {
+                const params = new URLSearchParams();
+                if (searchTerm) params.set("q", searchTerm);
+                if (selectedCountry) params.set("country", selectedCountry);
+                if (selectedField) params.set("field", selectedField);
+                if (selectedLevel) params.set("level", selectedLevel);
+                navigate(`/scholarships?${params.toString()}`);
+              }}
+            >
               Search
             </Button>
           </div>
@@ -251,11 +263,6 @@ export default function Home() {
             <h3 className="text-xl font-semibold text-myanmar-maroon mb-2 text-center">User Notes System</h3>
             <p className="text-myanmar-maroon/70 text-center">Create, organize, and save your own notes—including AI responses—linked to scholarships for easy reference.</p>
           </div>
-        </div>
-        <div className="flex justify-center mt-12">
-          <Button asChild className="bg-myanmar-gold text-myanmar-maroon font-bold px-8 py-3 rounded-full shadow hover:bg-myanmar-gold/90 text-lg transition-all">
-            <Link to="/about">Explore All Features</Link>
-          </Button>
         </div>
       </section>
 
