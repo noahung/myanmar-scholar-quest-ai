@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -120,5 +119,28 @@
     right: 0;
     height: 4px;
     background: linear-gradient(90deg, #8B0000, #FFD700, #00A86B, #FFD700, #8B0000);
+  }
+
+  .guide-content-html {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    line-break: strict;
+  }
+  .guide-content-html iframe {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 200px;
+    aspect-ratio: 16/9;
+    height: auto !important;
+    min-height: 200px;
+    display: block;
+    margin: 1.5rem 0;
+    border: none;
+  }
+  .guide-content-html img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5rem 0;
   }
 }

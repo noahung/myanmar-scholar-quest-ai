@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BulkImportDialog } from "./BulkImportDialog";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 // Schema for the guide form
 const guideFormSchema = z.object({
@@ -555,13 +557,30 @@ export function GuideEditor() {
                         </div>
                         <div className="grid gap-2">
                           <Label htmlFor={`step-content-${index}`}>Content</Label>
-                          <Textarea
-                            id={`step-content-${index}`}
-                            value={step.content}
-                            onChange={(e) => updateStepContent(index, e.target.value)}
-                            placeholder="Step content"
-                            rows={4}
-                          />
+                          <div style={{ background: '#fff', borderRadius: 8, minHeight: 140, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
+                            <ReactQuill
+                              id={`step-content-${index}`}
+                              value={step.content}
+                              onChange={(value) => updateStepContent(index, value)}
+                              placeholder="Step content"
+                              modules={{
+                                toolbar: [
+                                  [{ header: [1, 2, false] }],
+                                  ["bold", "italic", "underline", "strike"],
+                                  [{ list: "ordered" }, { list: "bullet" }],
+                                  ["link", "image", "video"],
+                                  ["clean"]
+                                ]
+                              }}
+                              formats={[
+                                "header",
+                                "bold", "italic", "underline", "strike",
+                                "list", "bullet",
+                                "link", "image", "video"
+                              ]}
+                              style={{ minHeight: 120, border: 'none', background: '#fff' }}
+                            />
+                          </div>
                         </div>
                       </CardContent>
                     </Card>

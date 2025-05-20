@@ -24,9 +24,20 @@ interface Guide {
   steps_content?: GuideStep[];
 }
 
+const CATEGORIES = [
+  "All",
+  "Application Process",
+  "Visa Requirements",
+  "Application Documents",
+  "Study Tips",
+  "Language Preparation",
+  "Cultural Adjustment"
+];
+
 export default function Guides() {
   const [guides, setGuides] = useState<Guide[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
   useEffect(() => {
     fetchGuides();
@@ -80,20 +91,47 @@ export default function Guides() {
     }
   }
 
+  // Filter guides by category
+  const filteredGuides = selectedCategory === "All"
+    ? guides
+    : guides.filter(g => g.category === selectedCategory);
+
   return (
     <div className="container py-8">
       <h1 className="text-3xl font-bold tracking-tighter mb-2 text-myanmar-maroon">Educational Guides</h1>
       <p className="text-myanmar-maroon/80 mb-8">Step-by-step guides to help you navigate the scholarship process</p>
-      
+      {/* Category filter badges */}
+      <div className="flex flex-wrap gap-4 mb-8">
+        {CATEGORIES.map(category => (
+          <button
+            key={category}
+            className={`px-5 py-2 rounded-full border font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-myanmar-gold/50 ${
+              category === "All"
+                ? "border-myanmar-jade text-myanmar-jade"
+                : category === "Undergraduate"
+                ? "border-myanmar-gold text-myanmar-gold"
+                : category === "Masters"
+                ? "border-myanmar-jade text-myanmar-jade"
+                : category === "PhD"
+                ? "border-myanmar-maroon text-myanmar-maroon"
+                : "border-myanmar-maroon text-myanmar-maroon"
+            } ${selectedCategory === category ? "bg-myanmar-gold/20 shadow" : "bg-white hover:bg-myanmar-gold/10"}`}
+            onClick={() => setSelectedCategory(category)}
+            type="button"
+          >
+            {category}
+          </button>
+        ))}
+      </div>
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array(6).fill(0).map((_, index) => (
             <GuideSkeleton key={index} />
           ))}
         </div>
-      ) : guides.length > 0 ? (
+      ) : filteredGuides.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {guides.map((guide) => (
+          {filteredGuides.map((guide) => (
             <GuideCard key={guide.id} guide={guide} />
           ))}
         </div>

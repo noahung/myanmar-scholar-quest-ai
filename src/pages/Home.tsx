@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import { FancyButton } from "@/components/ui/fancy-button";
 
 export type Scholarship = {
   id: string;
@@ -243,9 +244,9 @@ export default function Home() {
             )}
           </div>
           <div className="flex justify-center mt-8">
-            <Button asChild variant="ghost" className="text-myanmar-maroon font-bold">
+            <FancyButton asChild icon={<ArrowRight />}>
               <Link to="/scholarships">View All</Link>
-            </Button>
+            </FancyButton>
           </div>
         </div>
       </section>

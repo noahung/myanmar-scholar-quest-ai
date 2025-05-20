@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, ChevronRight, Globe } from "lucide-react";
+import { ArrowLeft, ChevronRight, Globe, ArrowRight } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabase-client";
+import { FancyButton } from "@/components/ui/fancy-button";
 
 interface GuideStep {
   title: string;
@@ -26,9 +27,11 @@ interface Guide {
 
 export default function GuideDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [guide, setGuide] = useState<Guide | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [allGuides, setAllGuides] = useState<{id: string, title: string}[]>([]);
 
   useEffect(() => {
     async function fetchGuide() {
@@ -70,6 +73,23 @@ export default function GuideDetail() {
     }
     fetchGuide();
   }, [id]);
+
+  useEffect(() => {
+    // Fetch all guide IDs and titles for navigation
+    async function fetchAllGuides() {
+      const { data, error } = await supabase
+        .from("guides")
+        .select("id, title")
+        .order("created_at", { ascending: true });
+      if (!error && data) setAllGuides(data);
+    }
+    fetchAllGuides();
+  }, []);
+
+  // Find previous and next guide IDs
+  const currentIndex = allGuides.findIndex(g => g.id === id);
+  const prevGuide = currentIndex > 0 ? allGuides[currentIndex - 1] : null;
+  const nextGuide = currentIndex >= 0 && currentIndex < allGuides.length - 1 ? allGuides[currentIndex + 1] : null;
 
   if (loading) {
     return <GuideDetailSkeleton />;
@@ -130,7 +150,7 @@ export default function GuideDetail() {
                 <h2 className="text-xl font-semibold">{step.title}</h2>
               </div>
               <div className="ml-11">
-                <p className="text-muted-foreground">{step.content}</p>
+                <div className="text-muted-foreground" dangerouslySetInnerHTML={{ __html: step.content }} />
               </div>
             </div>
           ))}
@@ -138,18 +158,12 @@ export default function GuideDetail() {
 
         {/* Navigation */}
         <div className="mt-12 flex justify-between">
-          <Button variant="outline" asChild disabled>
-            <Link to="#">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Previous Guide
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="#">
-              Next Guide
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+          <FancyButton asChild icon={<ArrowLeft />} disabled={!prevGuide}>
+            <Link to={prevGuide ? `/guides/${prevGuide.id}` : "#"}>Previous Guide</Link>
+          </FancyButton>
+          <FancyButton asChild icon={<ArrowRight />} disabled={!nextGuide}>
+            <Link to={nextGuide ? `/guides/${nextGuide.id}` : "#"}>Next Guide</Link>
+          </FancyButton>
         </div>
       </div>
     </div>
