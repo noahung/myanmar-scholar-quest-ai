@@ -1,0 +1,1 @@
+export { AICompanionChatOnly } from '../pages/AICompanion'; 

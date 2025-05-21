@@ -136,26 +136,7 @@ export default function Login() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3, duration: 0.5 }}
                   >
-                    Your Gateway to Effortless Scholarship Management.
-                  </motion.p>
-                </div>
-                
-                <div>
-                  <motion.h3 
-                    className="text-2xl font-semibold"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4, duration: 0.5 }}
-                  >
-                    Seamless Collaboration
-                  </motion.h3>
-                  <motion.p 
-                    className="mt-2 text-blue-100"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 0.5 }}
-                  >
-                    Effortlessly work together with your team in real-time.
+                    Your Gateway to Effortless Scholarship Journey.
                   </motion.p>
                 </div>
               </div>

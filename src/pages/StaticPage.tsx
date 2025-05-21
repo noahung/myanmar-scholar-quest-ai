@@ -1,18 +1,53 @@
-
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2 } from 'lucide-react';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
+import { AiAssistant } from '@/components/ai-assistant';
+import { motion } from 'framer-motion';
+import { AICompanionChatOnly } from '@/components/ai-companion-chat-only';
 
-interface PageContent {
-  id: string;
-  page_id: string;
-  content: string;
-  created_at: string;
-  updated_at: string;
-}
+const fadeInUp = {
+  initial: { opacity: 0, y: 30 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.7 }
+};
+const staggerContainer = {
+  animate: { transition: { staggerChildren: 0.1 } }
+};
+
+const faqs = [
+  {
+    question: 'What is Scholar-M?',
+    answer: 'Scholar-M is a platform dedicated to connecting Myanmar students with international scholarship opportunities, AI-powered guidance, and a supportive community.'
+  },
+  {
+    question: 'Is Scholar-M free to use?',
+    answer: 'Yes, Scholar-M is completely free for Myanmar students. There are no fees or charges for using our core services.'
+  },
+  {
+    question: 'How do I find scholarships on Scholar-M?',
+    answer: 'Browse the Scholarships page and use filters to narrow down by country, field, or degree. Each listing includes details and deadlines.'
+  },
+  {
+    question: 'How does the AI Assistant help me?',
+    answer: 'The AI Assistant answers your questions, helps you find scholarships, and provides tips for applications—all in English or Myanmar.'
+  },
+  {
+    question: 'How do I join the community?',
+    answer: 'Visit the Community page to join discussions, ask questions, and connect with other Myanmar students and alumni.'
+  },
+  {
+    question: 'How is my data protected?',
+    answer: 'We use secure authentication and industry best practices to protect your data. Your information is never sold to third parties.'
+  },
+  {
+    question: 'Can I save notes or AI answers?',
+    answer: 'Yes, you can save your own notes and AI responses for future reference—perfect for tracking your application journey.'
+  },
+];
 
 export default function StaticPage() {
   const [content, setContent] = useState<string | null>(null);
@@ -220,6 +255,52 @@ export default function StaticPage() {
     }
   }
 
+  // Custom FAQ layout for /faq
+  if (location.pathname === '/faq') {
+    return (
+      <div className="bg-white flex flex-col">
+        <motion.div
+          className="max-w-7xl mx-auto w-full flex flex-col md:flex-row gap-12 py-16 px-4"
+          initial="initial"
+          animate="animate"
+          variants={fadeInUp}
+        >
+          {/* Left: FAQ */}
+          <div className="flex-1 max-w-2xl mx-auto">
+            <h1 className="text-3xl md:text-4xl font-bold mb-8 text-myanmar-maroon">How can we help you?</h1>
+            <Accordion type="single" collapsible className="w-full divide-y divide-gray-100 border rounded-xl shadow-sm">
+              {faqs.map((faq, idx) => (
+                <AccordionItem key={faq.question} value={`faq-${idx}`} className="border-0">
+                  <AccordionTrigger className="text-lg font-semibold text-myanmar-maroon px-6 py-5 hover:bg-gray-50 focus:bg-gray-50">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-myanmar-maroon/80 px-6 pb-5 text-base">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+          {/* Right: AI Chat */}
+          <motion.div
+            className="w-full md:w-[400px] flex-shrink-0"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+          >
+            <div className="sticky top-24">
+              <div className="bg-white rounded-2xl shadow-xl p-0 border border-gray-100 overflow-hidden">
+                {/* Render only the chat container from AICompanion, not the welcome header */}
+                <AICompanionChatOnly />
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Default: render as before
   return (
     <div className="container py-8 md:py-12">
       <div className="max-w-4xl mx-auto">

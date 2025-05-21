@@ -333,7 +333,7 @@ export default function Home() {
               icon: <Pencil className="w-8 h-8 text-myanmar-maroon" />, 
             },
           ].map((feature, idx) => (
-            <motion.div
+          <motion.div 
               key={feature.label}
               className={`relative rounded-2xl ${feature.bg} p-8 flex flex-col justify-between min-h-[260px] shadow-lg transition-transform duration-200 hover:scale-[1.03] group cursor-pointer`}
               initial={{ opacity: 0, y: 40 }}
@@ -349,10 +349,10 @@ export default function Home() {
               <div className="flex items-center gap-4 mt-8 mb-4">
                 <div className="flex-shrink-0">{feature.icon}</div>
                 <h3 className="text-2xl font-bold text-myanmar-maroon leading-tight">{feature.title}</h3>
-              </div>
+            </div>
               {/* Description */}
               <p className="text-myanmar-maroon/70 text-base mb-2 min-h-[72px]">{feature.desc}</p>
-            </motion.div>
+          </motion.div>
           ))}
         </motion.div>
       </section>
@@ -421,7 +421,7 @@ export default function Home() {
                   </CardHeader>
                     <CardContent className="flex flex-col items-center flex-grow">
                       <div className="flex gap-2 mb-3 flex-wrap justify-center">
-                        <Badge variant="default" className="bg-myanmar-jade/80 text-white border-none">{scholarship.country}</Badge>
+                      <Badge variant="default" className="bg-myanmar-jade/80 text-white border-none">{scholarship.country}</Badge>
                         <Badge
                           className={
                             `font-semibold px-3 py-1 rounded-full text-white ` +
@@ -433,7 +433,7 @@ export default function Home() {
                         >
                           {scholarship.level}
                         </Badge>
-                      </div>
+                    </div>
                       <p className="text-sm text-myanmar-maroon/70 text-center line-clamp-3 mb-auto">{scholarship.description}</p>
                       <p className="text-xs text-myanmar-maroon/70 text-center mt-3 flex items-center justify-center">
                         <Calendar className="inline-block w-4 h-4 mr-1" />
@@ -590,103 +590,101 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Clients/Partners Section */}
-      <section className="w-full py-12 bg-myanmar-jade/10 flex flex-col items-center">
-        <motion.div
-          className="flex flex-col items-center"
-          variants={fadeInUp}
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true }}
-        >
-        <h3 className="text-2xl font-bold text-myanmar-maroon mb-4">We are happy to Follow Us with incredible clients</h3>
-        <p className="text-myanmar-maroon/70 mb-4">Plus hundreds of Myanmar students and organizations have trusted us to find the perfect match.</p>
-          <motion.div 
-            className="mb-4"
-            variants={fadeInUp}
-            transition={{ delay: 0.2 }}
-          >
-          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="Client Logo" className="h-16" />
-          </motion.div>
-          <motion.div 
-            className="flex gap-4 justify-center"
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-          >
-            {/* Social icons with individual animations */}
-            <motion.a variants={fadeInUp} href="#" className="text-myanmar-maroon hover:text-myanmar-gold">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/facebook.svg" alt="Facebook" className="h-8" />
-            </motion.a>
-            <motion.a variants={fadeInUp} href="#" className="text-myanmar-maroon hover:text-myanmar-gold">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/instagram.svg" alt="Instagram" className="h-8" />
-            </motion.a>
-            <motion.a variants={fadeInUp} href="#" className="text-myanmar-maroon hover:text-myanmar-gold">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/linkedin.svg" alt="LinkedIn" className="h-8" />
-            </motion.a>
-            <motion.a variants={fadeInUp} href="#" className="text-myanmar-maroon hover:text-myanmar-gold">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/whatsapp.svg" alt="WhatsApp" className="h-8" />
-            </motion.a>
-          </motion.div>
-        </motion.div>
-      </section>
-
       {/* FAQ Section */}
-      <section className="w-full py-12 bg-white flex flex-col items-center">
-        <motion.h3 
-          className="text-2xl font-bold text-myanmar-maroon mb-8"
+      <section className="w-full py-16 bg-white flex flex-col items-center">
+        <motion.h2
+          className="text-3xl md:text-4xl font-bold text-myanmar-maroon text-center mb-3"
           variants={fadeInUp}
           initial="initial"
           whileInView="animate"
           viewport={{ once: true }}
         >
-          Frequently asked Questions
-        </motion.h3>
+          Frequently Asked Questions
+        </motion.h2>
+        <motion.p
+          className="text-myanmar-maroon/70 text-center mb-12 max-w-2xl"
+          variants={fadeInUp}
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true }}
+          transition={{ delay: 0.15 }}
+        >
+          Here are the most common questions from Myanmar students about Scholar-M.
+        </motion.p>
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl mb-16 px-4"
           variants={staggerContainer}
           initial="initial"
           whileInView="animate"
           viewport={{ once: true }}
         >
+          {[
+            {
+              icon: <Sparkles className="w-7 h-7 text-myanmar-gold" />, 
+              title: "What is Scholar-M?",
+              desc: "Scholar-M is a free platform for Myanmar students to discover scholarships, connect with peers, and get AI-powered guidance for studying abroad."
+            },
+            {
+              icon: <Bot className="w-7 h-7 text-myanmar-jade" />, 
+              title: "How does the AI Assistant help me?",
+              desc: "Our AI Assistant answers your questions, helps you find scholarships, and provides tips for applications—all in English or Myanmar."
+            },
+            {
+              icon: <Users className="w-7 h-7 text-myanmar-maroon" />, 
+              title: "How do I join the community?",
+              desc: "Simply visit the Community page to join discussions, ask questions, and connect with other Myanmar students and alumni."
+            },
+            {
+              icon: <GraduationCap className="w-7 h-7 text-myanmar-gold" />, 
+              title: "Are all features really free?",
+              desc: "Yes! Scholar-M is completely free for Myanmar students. There are no hidden fees or charges for using our core features."
+            },
+            {
+              icon: <BookOpen className="w-7 h-7 text-myanmar-jade" />, 
+              title: "How do I find the right scholarship?",
+              desc: "Use our filters on the Scholarships page to search by country, degree, or field. Each listing has details and deadlines."
+            },
+            {
+              icon: <Pencil className="w-7 h-7 text-myanmar-maroon" />, 
+              title: "Can I save notes or AI answers?",
+              desc: "Yes, you can save your own notes and AI responses for future reference—perfect for tracking your application journey."
+            },
+          ].map((faq, idx) => (
           <motion.div 
-            className="flex flex-col gap-4"
-            variants={fadeInLeft}
-          >
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="faq-1" className="rounded-lg border border-myanmar-jade/30 bg-[#FFF8F2] mb-4 shadow">
-                <AccordionTrigger className="text-lg font-semibold text-myanmar-maroon px-6 py-4">
-                  <span className="flex items-center gap-2"><span className="inline-block bg-myanmar-gold/40 rounded-full w-8 h-8 flex items-center justify-center font-bold text-myanmar-maroon">01</span> How do I create an account?</span>
-                </AccordionTrigger>
-                <AccordionContent className="text-myanmar-maroon/80 px-6 pb-4">
-                  Click the sign up button and fill in your details. You'll get access to all features for free.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="faq-2" className="rounded-lg border border-myanmar-jade/30 bg-[#FFF8F2] mb-4 shadow">
-                <AccordionTrigger className="text-lg font-semibold text-myanmar-maroon px-6 py-4">
-                  <span className="flex items-center gap-2"><span className="inline-block bg-myanmar-gold/40 rounded-full w-8 h-8 flex items-center justify-center font-bold text-myanmar-maroon">02</span> How do I join the community?</span>
-                </AccordionTrigger>
-                <AccordionContent className="text-myanmar-maroon/80 px-6 pb-4">
-                  Go to the Community page and join discussions, ask questions, and connect with others.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="faq-3" className="rounded-lg border border-myanmar-jade/30 bg-[#FFF8F2] mb-4 shadow">
-                <AccordionTrigger className="text-lg font-semibold text-myanmar-maroon px-6 py-4">
-                  <span className="flex items-center gap-2"><span className="inline-block bg-myanmar-gold/40 rounded-full w-8 h-8 flex items-center justify-center font-bold text-myanmar-maroon">03</span> Is it free to use?</span>
-                </AccordionTrigger>
-                <AccordionContent className="text-myanmar-maroon/80 px-6 pb-4">
-                  Yes, all features are free for Myanmar students.
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+              key={faq.title}
+              className="flex flex-col items-start gap-4 min-h-[160px]"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 * idx }}
+            >
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-myanmar-gold/10 mb-2">
+                {faq.icon}
+              </div>
+              <h4 className="font-bold text-lg text-myanmar-maroon mb-1">{faq.title}</h4>
+              <p className="text-myanmar-maroon/70 text-base leading-relaxed">{faq.desc}</p>
+            </motion.div>
+          ))}
           </motion.div>
           <motion.div 
-            className="flex items-center justify-center"
-            variants={fadeInRight}
-          >
-            <img src="https://aysvkiyuzqktcumdzxqh.supabase.co/storage/v1/object/public/images//faq%20section.jpg" alt="FAQ Illustration" className="w-80 h-80 object-contain" />
-          </motion.div>
+          className="w-full max-w-2xl mx-auto bg-[#F8FAFC] rounded-2xl shadow-lg flex flex-col items-center py-10 px-6"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, delay: 0.2 }}
+        >
+          <div className="flex -space-x-4 mb-4">
+            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User 1" className="w-10 h-10 rounded-full border-2 border-white shadow" />
+            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User 2" className="w-10 h-10 rounded-full border-2 border-white shadow" />
+            <img src="https://randomuser.me/api/portraits/men/65.jpg" alt="User 3" className="w-10 h-10 rounded-full border-2 border-white shadow" />
+            <img src="https://randomuser.me/api/portraits/women/22.jpg" alt="User 4" className="w-10 h-10 rounded-full border-2 border-white shadow" />
+            <img src="https://randomuser.me/api/portraits/men/12.jpg" alt="User 5" className="w-10 h-10 rounded-full border-2 border-white shadow" />
+          </div>
+          <h4 className="text-xl font-bold text-myanmar-maroon mb-2">Join Our Community</h4>
+          <p className="text-myanmar-maroon/70 text-center mb-6">If you have more questions or want to connect, join our community forum to chat, share, and learn together.</p>
+          <Button asChild size="lg" className="rounded-full bg-myanmar-maroon text-white font-bold px-8 py-2 shadow hover:bg-myanmar-gold/90 hover:text-myanmar-maroon transition-all">
+            <Link to="/community">Join Community</Link>
+          </Button>
         </motion.div>
       </section>
     </div>

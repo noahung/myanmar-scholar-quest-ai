@@ -187,6 +187,16 @@ export default function GuideDetail() {
           )}
         </motion.div>
       </motion.div>
+      <style>{`
+        .ml-11 iframe {
+          width: 100% !important;
+          max-width: 100%;
+          aspect-ratio: 16/9;
+          border-radius: 1rem;
+          margin: 1.5rem 0;
+          display: block;
+        }
+      `}</style>
     </motion.div>
   );
 }
