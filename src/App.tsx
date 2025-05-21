@@ -26,6 +26,7 @@ import StaticPage from "./pages/StaticPage";
 import NotFound from "./pages/NotFound";
 import SavedScholarshipsPage from "./pages/SavedScholarshipsPage";
 import AboutUs from "./pages/AboutUs";
+import AICompanion from "./pages/AICompanion";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
                 <Route path="/privacy" element={<StaticPage />} />
                 <Route path="/terms" element={<StaticPage />} />
                 <Route path="/saved-scholarships" element={<SavedScholarshipsPage />} />
+                <Route path="/ai-companion" element={<AICompanion />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

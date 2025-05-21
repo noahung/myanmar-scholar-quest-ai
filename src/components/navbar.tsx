@@ -9,7 +9,8 @@ import {
   X,
   UserCircle,
   LogOut,
-  Settings
+  Settings,
+  Bot
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -96,6 +97,7 @@ export function Navbar() {
     { name: 'Scholarships', href: "/scholarships", icon: BookOpen },
     { name: 'Community', href: "/community", icon: MessageCircle },
     { name: 'Guides', href: "/guides", icon: Search },
+    { name: 'AI Companion', href: "/ai-companion", icon: Bot },
   ];
 
   const getInitials = (name: string | null) => {
