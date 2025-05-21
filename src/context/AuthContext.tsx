@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             duration: 2000
           });
         } else {
-          // Optionally, clean up the URL
+          // Clean up the URL so the code param disappears
           window.history.replaceState({}, document.title, window.location.pathname);
         }
       }
