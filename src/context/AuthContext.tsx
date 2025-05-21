@@ -34,16 +34,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const searchParams = new URLSearchParams(window.location.search);
       const code = searchParams.get('code');
       const state = searchParams.get('state');
-      
+
       if (code && state) {
-        // If we have OAuth parameters, show a toast to indicate login processing
         toast({
           title: "Processing login...",
           description: "Please wait while we complete your authentication."
         });
+
+        // Exchange the code for a session!
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) {
+          console.error("Error exchanging code for session:", error);
+          toast({
+            variant: "destructive",
+            title: "Login Failed",
+            description: error.message,
+            duration: 2000
+          });
+        } else {
+          // Optionally, clean up the URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
       }
     };
-    
+
     checkForOAuthCode();
   }, [location]);
 
