@@ -180,14 +180,14 @@ export function Navbar() {
             </DropdownMenu>
           ) : (
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" asChild className="rounded-full px-6 py-2 font-bold border-myanmar-maroon text-myanmar-maroon bg-white hover:bg-myanmar-gold/10 hover:text-myanmar-maroon">
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+                className="rounded-full px-6 py-2 font-bold border-myanmar-maroon text-myanmar-maroon bg-white hover:bg-myanmar-gold/10 hover:text-myanmar-maroon"
+              >
                 <Link to="/login">
-                  Log In
-                </Link>
-              </Button>
-              <Button size="sm" asChild className="rounded-full px-6 py-2 font-bold bg-myanmar-maroon text-white hover:bg-myanmar-gold hover:text-myanmar-maroon">
-                <Link to="/register">
-                  Sign Up
+                  Login / Sign Up
                 </Link>
               </Button>
             </div>
@@ -273,6 +273,19 @@ export function Navbar() {
                 <span>{t('Sign Out')}</span>
               </Button>
             </>
+          )}
+          {!user && (
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className="rounded-full px-6 py-2 font-bold border-myanmar-maroon text-myanmar-maroon bg-white hover:bg-myanmar-gold/10 hover:text-myanmar-maroon mt-4"
+              onClick={toggleMobileMenu}
+            >
+              <Link to="/login">
+                Login / Sign Up
+              </Link>
+            </Button>
           )}
         </nav>
       </div>

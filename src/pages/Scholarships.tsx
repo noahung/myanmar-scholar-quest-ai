@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Calendar, 
   ArrowRight, 
@@ -11,7 +12,8 @@ import {
   Filter,
   BookOpen,
   Loader2,
-  GraduationCap
+  GraduationCap,
+  Sparkles
 } from "lucide-react";
 import {
   Select,
@@ -41,6 +43,27 @@ export type Scholarship = {
   updated_at?: string;
   source_url?: string;
   image_url?: string;
+};
+
+// Animation variants
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5 }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const cardVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 }
 };
 
 export default function Scholarships() {
@@ -160,18 +183,28 @@ export default function Scholarships() {
 
   return (
     <div className="container py-8 md:py-12">
-      <div className="flex flex-col items-center justify-center mb-8 text-center">
+      <motion.div 
+        className="flex flex-col items-center justify-center mb-8 text-center"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="pattern-border pb-2">
           <h1 className="text-3xl font-bold tracking-tighter mb-2">Scholarships</h1>
         </div>
         <p className="max-w-[600px] text-muted-foreground">
           Find and filter international scholarships available for Myanmar students.
         </p>
-      </div>
+      </motion.div>
 
       {/* Search and Filters */}
-      <div className="mb-8 space-y-4">
-        <div className="flex flex-col md:flex-row gap-4 w-full max-w-4xl mx-auto bg-white/80 rounded-xl shadow-lg p-4 md:p-2 items-center">
+      <motion.div 
+        className="mb-8 space-y-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <div className="flex flex-col md:flex-row gap-4 w-full max-w-4xl mx-auto bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-4 md:p-2 items-center">
           <div className="flex-1 flex items-center relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-myanmar-maroon/60 w-5 h-5" />
             <input
@@ -204,141 +237,169 @@ export default function Scholarships() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={selectedLevel || "_all"} onValueChange={handleLevelChange}>
-            <SelectTrigger className="min-w-[150px] bg-white border-myanmar-jade/30 rounded-lg">
-              <SelectValue placeholder="Degree Level" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="_all">All Levels</SelectItem>
-              {levels.map(level => (
-                <SelectItem key={level} value={level}>{level}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
-        {/* Functional badge tabs for level filter */}
-        <div className="flex flex-wrap justify-center gap-4 mb-4">
+
+        <motion.div 
+          className="flex flex-wrap justify-center gap-4 mb-4"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
           {[
             { label: 'All', value: '_all', color: 'border-myanmar-jade text-myanmar-jade' },
             { label: 'Undergraduate', value: 'Undergraduate', color: 'border-myanmar-gold text-myanmar-gold' },
             { label: 'Masters', value: 'Masters', color: 'border-myanmar-jade text-myanmar-jade' },
             { label: 'PhD', value: 'PhD', color: 'border-myanmar-maroon text-myanmar-maroon' },
-          ].map(tab => (
-            <button
+          ].map((tab, index) => (
+            <motion.button
               key={tab.value}
+              variants={fadeInUp}
               className={`px-5 py-2 rounded-full border font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-myanmar-gold/50 ${tab.color} ${selectedLevel === tab.value || (tab.value === '_all' && (!selectedLevel || selectedLevel === '_all')) ? 'bg-myanmar-gold/20 shadow' : 'bg-white hover:bg-myanmar-gold/10'}`}
               onClick={() => handleLevelChange(tab.value)}
               type="button"
+              style={{ transitionDelay: `${index * 0.1}s` }}
             >
               {tab.label}
-            </button>
+            </motion.button>
           ))}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
 
       {/* Results count */}
-      <div className="flex items-center gap-2 mb-4">
+      <motion.div 
+        className="flex items-center gap-2 mb-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
         <BookOpen className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm text-muted-foreground">
           {filteredScholarships.length} scholarships found
         </span>
-      </div>
+      </motion.div>
 
       {/* Loading state */}
       {isLoading && (
-        <div className="flex justify-center items-center py-20">
+        <motion.div 
+          className="flex justify-center items-center py-20"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
           <Loader2 className="h-8 w-8 animate-spin text-myanmar-jade" />
-        </div>
+        </motion.div>
       )}
 
       {/* Empty state */}
       {!isLoading && scholarships.length === 0 && (
-        <div className="text-center py-10">
+        <motion.div 
+          className="text-center py-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <Sparkles className="h-12 w-12 mx-auto mb-4 text-myanmar-gold" />
           <h3 className="text-lg font-medium">No scholarships found</h3>
           <p className="text-muted-foreground mt-2">Try importing scholarship data from your web scraper</p>
-        </div>
+        </motion.div>
       )}
 
       {/* No results after filtering */}
       {!isLoading && scholarships.length > 0 && filteredScholarships.length === 0 && (
-        <div className="text-center py-10">
+        <motion.div 
+          className="text-center py-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <Sparkles className="h-12 w-12 mx-auto mb-4 text-myanmar-gold" />
           <h3 className="text-lg font-medium">No scholarships match your filters</h3>
           <p className="text-muted-foreground mt-2">Try adjusting your filters or search term</p>
-        </div>
+        </motion.div>
       )}
 
       {/* Scholarships grid */}
       {!isLoading && filteredScholarships.length > 0 && (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {paginatedScholarships.map((scholarship) => (
-              <Card key={scholarship.id} className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10 hover:scale-105 transition-transform">
-                <CardHeader className="flex flex-col items-center">
-                  <div className="w-14 h-14 rounded-full bg-myanmar-gold/40 flex items-center justify-center mb-2">
-                    <GraduationCap className="w-8 h-8 text-myanmar-maroon" />
-                  </div>
-                  <CardTitle className="text-lg font-bold text-myanmar-maroon text-center">{scholarship.title}</CardTitle>
-                  <CardDescription className="text-myanmar-maroon/70 text-center">{scholarship.institution}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col items-center">
-                  <div className="flex gap-2 mb-2 flex-wrap justify-center">
-                    <Badge variant="default" className="bg-myanmar-jade text-white border-none font-semibold">{scholarship.country}</Badge>
-                    <Badge variant="outline" className="border-myanmar-gold text-myanmar-gold bg-myanmar-gold/20 font-semibold">{scholarship.level}</Badge>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mb-2 justify-center">
-                    {Array.isArray(scholarship.fields) && scholarship.fields.map((field, index) => (
-                      field ? <Badge key={index} variant="outline" className="text-xs bg-myanmar-maroon/10 border-myanmar-maroon text-myanmar-maroon font-medium">{field}</Badge> : null
-                    ))}
-                  </div>
-                  <p className="text-xs text-myanmar-maroon/70 text-center line-clamp-2">{scholarship.description}</p>
-                  <p className="text-xs text-myanmar-maroon/70 text-center mt-2">
-                    <Calendar className="inline-block w-4 h-4 mr-1 align-text-bottom" />
-                    Deadline: {new Date(scholarship.deadline).toLocaleDateString()}
-                  </p>
-                </CardContent>
-                <CardFooter className="flex justify-center">
-                  <Button asChild variant="outline" className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold w-full">
-                    <Link to={`/scholarships/${scholarship.id}`}>
-                      View Details
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
+        <motion.div
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        >
+          <AnimatePresence>
+            {paginatedScholarships.map((scholarship, index) => (
+              <motion.div
+                key={scholarship.id}
+                variants={cardVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+                className="h-full"
+              >
+                <Card className="h-full rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10 transition-all">
+                  <CardHeader className="flex flex-col items-center">
+                    <div className="w-14 h-14 rounded-full bg-myanmar-gold/40 flex items-center justify-center mb-2">
+                      <GraduationCap className="w-8 h-8 text-myanmar-maroon" />
+                    </div>
+                    <CardTitle className="text-lg font-bold text-myanmar-maroon text-center line-clamp-2">{scholarship.title}</CardTitle>
+                    <CardDescription className="text-myanmar-maroon/70 text-center line-clamp-1">{scholarship.institution}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex gap-2 mb-2 flex-wrap justify-center">
+                      <Badge variant="default" className="bg-myanmar-jade text-white border-none font-semibold">{scholarship.country}</Badge>
+                      <Badge variant="outline" className="border-myanmar-gold text-myanmar-gold bg-myanmar-gold/20 font-semibold">{scholarship.level}</Badge>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-2 justify-center">
+                      {Array.isArray(scholarship.fields) && scholarship.fields.map((field, index) => (
+                        field ? <Badge key={index} variant="outline" className="text-xs bg-myanmar-maroon/10 border-myanmar-maroon text-myanmar-maroon font-medium">{field}</Badge> : null
+                      ))}
+                    </div>
+                    <p className="text-xs text-myanmar-maroon/70 text-center line-clamp-2">{scholarship.description}</p>
+                    <p className="text-xs text-myanmar-maroon/70 text-center mt-2">
+                      <Calendar className="inline-block w-4 h-4 mr-1 align-text-bottom" />
+                      Deadline: {new Date(scholarship.deadline).toLocaleDateString()}
+                    </p>
+                  </CardContent>
+                  <CardFooter className="flex justify-center">
+                    <Button asChild variant="outline" className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold w-full">
+                      <Link to={`/scholarships/${scholarship.id}`}>
+                        View Details
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </motion.div>
             ))}
-          </div>
+          </AnimatePresence>
+        </motion.div>
+      )}
 
-          {/* Pagination controls */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2 mt-8">
-              <Button
-                variant="outline"
-                className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold px-4 py-2"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </Button>
-              {[...Array(totalPages)].map((_, idx) => (
-                <button
-                  key={idx + 1}
-                  className={`w-9 h-9 rounded-full font-bold border-2 mx-1 transition-colors ${currentPage === idx + 1 ? 'bg-myanmar-maroon text-white border-myanmar-maroon' : 'bg-white text-myanmar-maroon border-myanmar-maroon hover:bg-myanmar-gold/20'}`}
-                  onClick={() => setCurrentPage(idx + 1)}
-                >
-                  {idx + 1}
-                </button>
-              ))}
-              <Button
-                variant="outline"
-                className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold px-4 py-2"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </Button>
-            </div>
-          )}
-        </>
+      {/* Pagination controls */}
+      {totalPages > 1 && (
+        <motion.div 
+          className="flex justify-center gap-2 mt-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          <span className="flex items-center px-4 text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
+        </motion.div>
       )}
     </div>
   );

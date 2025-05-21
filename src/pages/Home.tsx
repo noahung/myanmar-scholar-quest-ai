@@ -422,29 +422,29 @@ export default function Home() {
                 >
                   <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10 hover:scale-105 transition-transform h-[420px] flex flex-col">
                     <CardHeader className="flex flex-col items-center flex-shrink-0">
-                      <div className="w-14 h-14 rounded-full bg-myanmar-gold/40 flex items-center justify-center mb-2">
-                        <GraduationCap className="w-8 h-8 text-myanmar-maroon" />
-                      </div>
+                    <div className="w-14 h-14 rounded-full bg-myanmar-gold/40 flex items-center justify-center mb-2">
+                      <GraduationCap className="w-8 h-8 text-myanmar-maroon" />
+                    </div>
                       <CardTitle className="text-lg font-bold text-myanmar-maroon text-center line-clamp-2 min-h-[3.5rem]">{scholarship.title}</CardTitle>
                       <CardDescription className="text-myanmar-maroon/70 text-center line-clamp-1">{scholarship.institution}</CardDescription>
-                    </CardHeader>
+                  </CardHeader>
                     <CardContent className="flex flex-col items-center flex-grow">
                       <div className="flex gap-2 mb-3 flex-wrap justify-center">
-                        <Badge variant="default" className="bg-myanmar-jade/80 text-white border-none">{scholarship.country}</Badge>
-                        <Badge variant="outline" className="border-myanmar-gold text-myanmar-gold">{scholarship.level}</Badge>
-                      </div>
+                      <Badge variant="default" className="bg-myanmar-jade/80 text-white border-none">{scholarship.country}</Badge>
+                      <Badge variant="outline" className="border-myanmar-gold text-myanmar-gold">{scholarship.level}</Badge>
+                    </div>
                       <p className="text-sm text-myanmar-maroon/70 text-center line-clamp-3 mb-auto">{scholarship.description}</p>
                       <p className="text-xs text-myanmar-maroon/70 text-center mt-3 flex items-center justify-center">
                         <Calendar className="inline-block w-4 h-4 mr-1" />
-                        Deadline: {new Date(scholarship.deadline).toLocaleDateString()}
-                      </p>
-                    </CardContent>
+                      Deadline: {new Date(scholarship.deadline).toLocaleDateString()}
+                    </p>
+                  </CardContent>
                     <CardFooter className="flex justify-center mt-auto pt-4">
                       <Button asChild variant="outline" className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold hover:bg-myanmar-maroon hover:text-white transition-colors">
-                        <Link to={`/scholarships/${scholarship.id}`}>View Details</Link>
-                      </Button>
-                    </CardFooter>
-                  </Card>
+                      <Link to={`/scholarships/${scholarship.id}`}>View Details</Link>
+                    </Button>
+                  </CardFooter>
+                </Card>
                 </motion.div>
               ))
             ) : (
@@ -584,7 +584,7 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-            </div>
+          </div>
           </motion.div>
         </div>
       </section>
@@ -598,14 +598,14 @@ export default function Home() {
           whileInView="animate"
           viewport={{ once: true }}
         >
-          <h3 className="text-2xl font-bold text-myanmar-maroon mb-4">We are happy to Follow Us with incredible clients</h3>
-          <p className="text-myanmar-maroon/70 mb-4">Plus hundreds of Myanmar students and organizations have trusted us to find the perfect match.</p>
+        <h3 className="text-2xl font-bold text-myanmar-maroon mb-4">We are happy to Follow Us with incredible clients</h3>
+        <p className="text-myanmar-maroon/70 mb-4">Plus hundreds of Myanmar students and organizations have trusted us to find the perfect match.</p>
           <motion.div 
             className="mb-4"
             variants={fadeInUp}
             transition={{ delay: 0.2 }}
           >
-            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="Client Logo" className="h-16" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="Client Logo" className="h-16" />
           </motion.div>
           <motion.div 
             className="flex gap-4 justify-center"

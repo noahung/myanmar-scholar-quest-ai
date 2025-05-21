@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Book, Globe } from "lucide-react";
+import { Book, Globe, Sparkles } from "lucide-react";
 import { supabase } from "@/lib/supabase-client";
 import { toast } from "@/components/ui/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface GuideStep {
   title: string;
@@ -33,6 +34,22 @@ const CATEGORIES = [
   "Language Preparation",
   "Cultural Adjustment"
 ];
+
+// Animation variants
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+  transition: { duration: 0.5 }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
 
 export default function Guides() {
   const [guides, setGuides] = useState<Guide[]>([]);
@@ -98,13 +115,26 @@ export default function Guides() {
 
   return (
     <div className="container py-8">
-      <h1 className="text-3xl font-bold tracking-tighter mb-2 text-myanmar-maroon">Educational Guides</h1>
-      <p className="text-myanmar-maroon/80 mb-8">Step-by-step guides to help you navigate the scholarship process</p>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="mb-2"
+      >
+        <h1 className="text-3xl font-bold tracking-tighter mb-2 text-myanmar-maroon">Educational Guides</h1>
+        <p className="text-myanmar-maroon/80 mb-8">Step-by-step guides to help you navigate the scholarship process</p>
+      </motion.div>
       {/* Category filter badges */}
-      <div className="flex flex-wrap gap-4 mb-8">
-        {CATEGORIES.map(category => (
-          <button
+      <motion.div
+        className="flex flex-wrap gap-4 mb-8"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
+        {CATEGORIES.map((category, idx) => (
+          <motion.button
             key={category}
+            variants={fadeInUp}
             className={`px-5 py-2 rounded-full border font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-myanmar-gold/50 ${
               category === "All"
                 ? "border-myanmar-jade text-myanmar-jade"
@@ -118,31 +148,59 @@ export default function Guides() {
             } ${selectedCategory === category ? "bg-myanmar-gold/20 shadow" : "bg-white hover:bg-myanmar-gold/10"}`}
             onClick={() => setSelectedCategory(category)}
             type="button"
+            style={{ transitionDelay: `${idx * 0.05}s` }}
           >
             {category}
-          </button>
+          </motion.button>
         ))}
-      </div>
+      </motion.div>
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
           {Array(6).fill(0).map((_, index) => (
-            <GuideSkeleton key={index} />
+            <motion.div key={index} variants={fadeInUp}>
+              <GuideSkeleton />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       ) : filteredGuides.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredGuides.map((guide) => (
-            <GuideCard key={guide.id} guide={guide} />
-          ))}
-        </div>
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <AnimatePresence>
+            {filteredGuides.map((guide, idx) => (
+              <motion.div
+                key={guide.id}
+                variants={fadeInUp}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.3, delay: idx * 0.1 }}
+              >
+                <GuideCard guide={guide} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       ) : (
-        <div className="text-center py-12">
-          <Book className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <motion.div
+          className="text-center py-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <Sparkles className="h-12 w-12 mx-auto text-myanmar-gold mb-4" />
           <h3 className="text-xl font-semibold mb-2">No guides available</h3>
           <p className="text-muted-foreground mb-6">
             Educational guides will appear here once they're published.
           </p>
-        </div>
+        </motion.div>
       )}
     </div>
   );
