@@ -13,6 +13,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 import { SaveToNotesButton } from "@/components/user-notes";
 import { API_URL, SUPABASE_ANON_KEY } from "@/lib/constants";
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: string;
@@ -345,7 +346,11 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
                       : "bg-myanmar-jade/10 text-myanmar-maroon"
                   )}
                 >
-                  <p className="text-sm">{message.content}</p>
+                  {message.sender === 'assistant' ? (
+                    <ReactMarkdown className="text-sm">{message.content}</ReactMarkdown>
+                  ) : (
+                    <p className="text-sm">{message.content}</p>
+                  )}
                   {message.status === 'sending' && (
                     <div className="flex justify-end mt-1">
                       <div className="animate-pulse text-xs text-myanmar-maroon/70">
