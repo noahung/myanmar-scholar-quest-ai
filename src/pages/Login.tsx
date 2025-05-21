@@ -110,7 +110,12 @@ export default function Login() {
           <div className="flex w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl">
             {/* Left side - Welcome Section */}
             <motion.div 
-              className="relative hidden w-1/2 bg-gradient-to-br from-blue-600 via-blue-500 to-blue-700 p-12 text-white lg:block"
+              className="relative hidden w-1/2 p-12 text-white lg:block overflow-hidden"
+              style={{
+                backgroundImage: "url('https://aysvkiyuzqktcumdzxqh.supabase.co/storage/v1/object/public/images//login.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center"
+              }}
               initial={{ opacity: 0, x: -50 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
@@ -154,26 +159,6 @@ export default function Login() {
                   </motion.p>
                 </div>
               </div>
-              
-              {/* Background wave pattern */}
-              <motion.div 
-                className="absolute inset-0 z-0"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.1 }}
-                transition={{ delay: 0.6, duration: 0.5 }}
-              >
-                <svg className="h-full w-full" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
-                  <path 
-                    d="M 0 150 C 200 50, 400 50, 600 150 C 800 250, 1000 250, 1200 150 L 1200 600 L 0 600 Z" 
-                    fill="currentColor"
-                  />
-                  <path 
-                    d="M 0 300 C 200 200, 400 200, 600 300 C 800 400, 1000 400, 1200 300 L 1200 600 L 0 600 Z" 
-                    fill="currentColor"
-                    opacity="0.5"
-                  />
-                </svg>
-              </motion.div>
             </motion.div>
 
             {/* Right side - Login/Signup Form */}
@@ -195,22 +180,36 @@ export default function Login() {
                     alt="Scholar-M Logo" 
                     className="h-16 w-16 mb-4 rounded-xl border-2 border-myanmar-maroon shadow" 
                   />
-                  <div className="w-full flex justify-center mb-2">
+                  <motion.div
+                    className="flex w-full mb-8"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.5 }}
+                  >
                     <button
-                      className={`px-6 py-2 rounded-t-xl font-bold text-lg transition-colors duration-200 ${tab === 'signin' ? 'bg-myanmar-maroon text-white' : 'bg-gray-100 text-myanmar-maroon'}`}
+                      className={`w-1/2 py-2 font-bold text-lg transition-colors duration-200 
+                        ${tab === 'signin' 
+                          ? 'bg-myanmar-maroon text-white' 
+                          : 'bg-gray-100 text-myanmar-maroon'} 
+                        rounded-l-xl 
+                        ${tab === 'signin' ? '' : 'border-r border-gray-200'}`}
                       onClick={() => setTab('signin')}
                       type="button"
                     >
                       Sign In
                     </button>
                     <button
-                      className={`px-6 py-2 rounded-t-xl font-bold text-lg transition-colors duration-200 ${tab === 'signup' ? 'bg-myanmar-maroon text-white' : 'bg-gray-100 text-myanmar-maroon'}`}
+                      className={`w-1/2 py-2 font-bold text-lg transition-colors duration-200 
+                        ${tab === 'signup' 
+                          ? 'bg-myanmar-maroon text-white' 
+                          : 'bg-gray-100 text-myanmar-maroon'} 
+                        rounded-r-xl`}
                       onClick={() => setTab('signup')}
                       type="button"
                     >
                       Sign Up
                     </button>
-                  </div>
+                  </motion.div>
                 </motion.div>
 
                 {/* Tab Content */}
