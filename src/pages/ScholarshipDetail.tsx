@@ -21,6 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/components/ui/use-toast";
 import { SavedScholarshipButton } from "@/components/saved-scholarship-button";
+import { motion } from "framer-motion";
 
 export type Scholarship = {
   id: string;
@@ -115,22 +116,25 @@ export default function ScholarshipDetail() {
   };
 
   return (
-    <div className="container py-8 md:py-12">
-      <div className="flex flex-col max-w-4xl mx-auto">
+    <motion.div
+      className="container py-8 md:py-12"
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7 }}
+    >
+      <motion.div className="flex flex-col max-w-4xl mx-auto" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}>
         {/* Back button */}
-        <div className="mb-6">
+        <motion.div className="mb-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
           <Button variant="outline" asChild className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold">
             <Link to="/scholarships">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Scholarships
             </Link>
           </Button>
-        </div>
-
+        </motion.div>
         {/* Scholarship header */}
-        <h1 className="text-3xl font-bold tracking-tighter mb-4 text-myanmar-maroon">{scholarship.title}</h1>
-        
-        <div className="flex flex-wrap gap-2 mb-6">
+        <motion.h1 className="text-3xl font-bold tracking-tighter mb-4 text-myanmar-maroon" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>{scholarship.title}</motion.h1>
+        <motion.div className="flex flex-wrap gap-2 mb-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.35 }}>
           <Badge variant="outline" className="border-myanmar-gold text-myanmar-gold font-semibold">{scholarship.level}</Badge>
           <Badge variant="default" className="bg-myanmar-jade/80 text-white border-none">{scholarship.country}</Badge>
           {scholarship.featured && <Badge variant="secondary">Featured</Badge>}
@@ -140,8 +144,7 @@ export default function ScholarshipDetail() {
               <Badge variant="outline" className="cursor-pointer hover:bg-muted">Edit in Admin</Badge>
             </Link>
           )}
-        </div>
-
+        </motion.div>
         <Tabs 
           value={activeTab} 
           onValueChange={setActiveTab}
@@ -152,81 +155,81 @@ export default function ScholarshipDetail() {
             <TabsTrigger value="ai-assistant" id="ai-tab" className="rounded-full px-6 py-2 font-semibold">AI Assistant</TabsTrigger>
             <TabsTrigger value="my-notes" className="rounded-full px-6 py-2 font-semibold">My Notes</TabsTrigger>
           </TabsList>
-
           <TabsContent value="details" className="mt-6">
             {/* Key information card */}
-            <Card className="mb-8 rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10">
-              <CardHeader>
-                <h2 className="text-xl font-semibold text-myanmar-maroon">Key Information</h2>
-              </CardHeader>
-              <CardContent className="grid gap-4 md:grid-cols-2">
-                <div className="flex items-start gap-2">
-                  <Globe className="h-5 w-5 text-myanmar-jade mt-0.5" />
-                  <div>
-                    <p className="font-medium">Institution</p>
-                    <p className="text-sm text-muted-foreground">{scholarship.institution}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CalendarIcon className="h-5 w-5 text-myanmar-jade mt-0.5" />
-                  <div>
-                    <p className="font-medium">Application Deadline</p>
-                    <p className="text-sm text-muted-foreground">{formattedDeadline}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <GraduationCap className="h-5 w-5 text-myanmar-jade mt-0.5" />
-                  <div>
-                    <p className="font-medium">Degree Level</p>
-                    <p className="text-sm text-muted-foreground">{scholarship.level}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <FileText className="h-5 w-5 text-myanmar-jade mt-0.5" />
-                  <div>
-                    <p className="font-medium">Fields of Study</p>
-                    <div className="flex flex-wrap gap-1 mt-1">
-                      {scholarship.fields.map((field, index) => (
-                        <Badge key={index} variant="outline" className="text-xs border-myanmar-gold text-myanmar-gold">
-                          {field}
-                        </Badge>
-                      ))}
+            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
+              <Card className="mb-8 rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10">
+                <CardHeader>
+                  <h2 className="text-xl font-semibold text-myanmar-maroon">Key Information</h2>
+                </CardHeader>
+                <CardContent className="grid gap-4 md:grid-cols-2">
+                  <div className="flex items-start gap-2">
+                    <Globe className="h-5 w-5 text-myanmar-jade mt-0.5" />
+                    <div>
+                      <p className="font-medium">Institution</p>
+                      <p className="text-sm text-muted-foreground">{scholarship.institution}</p>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
+                  <div className="flex items-start gap-2">
+                    <CalendarIcon className="h-5 w-5 text-myanmar-jade mt-0.5" />
+                    <div>
+                      <p className="font-medium">Application Deadline</p>
+                      <p className="text-sm text-muted-foreground">{formattedDeadline}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <GraduationCap className="h-5 w-5 text-myanmar-jade mt-0.5" />
+                    <div>
+                      <p className="font-medium">Degree Level</p>
+                      <p className="text-sm text-muted-foreground">{scholarship.level}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <FileText className="h-5 w-5 text-myanmar-jade mt-0.5" />
+                    <div>
+                      <p className="font-medium">Fields of Study</p>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {scholarship.fields.map((field, index) => (
+                          <Badge key={index} variant="outline" className="text-xs border-myanmar-gold text-myanmar-gold">
+                            {field}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
             {/* Description */}
-            <div className="mb-8">
+            <motion.div className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
               <h2 className="text-xl font-semibold mb-4 text-myanmar-maroon">Description</h2>
               <p className="text-muted-foreground whitespace-pre-line">{scholarship.description}</p>
-            </div>
+            </motion.div>
 
             <Separator className="my-6" />
 
             {/* Benefits */}
-            <div className="mb-8">
+            <motion.div className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.5 }}>
               <h2 className="text-xl font-semibold mb-4 text-myanmar-maroon">Benefits</h2>
               <ul className="space-y-2 list-disc pl-5">
                 {scholarship.benefits.map((benefit, index) => (
                   <li key={index} className="text-muted-foreground">{benefit}</li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
 
             {/* Requirements */}
-            <div className="mb-8">
+            <motion.div className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.6 }}>
               <h2 className="text-xl font-semibold mb-4 text-myanmar-maroon">Eligibility Requirements</h2>
               <ul className="space-y-2 list-disc pl-5">
                 {scholarship.requirements.map((requirement, index) => (
                   <li key={index} className="text-muted-foreground">{requirement}</li>
                 ))}
               </ul>
-            </div>
+            </motion.div>
 
             {/* Application button and AI chat */}
-            <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">
+            <motion.div className="mt-6 flex flex-col sm:flex-row justify-center gap-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.7 }}>
               <Button size="lg" asChild className="rounded-full bg-myanmar-gold text-myanmar-maroon font-bold px-8 py-2 shadow hover:bg-myanmar-gold/90 transition-all">
                 <a href={scholarship.application_url} target="_blank" rel="noopener noreferrer">
                   <LinkIcon className="mr-2 h-4 w-4" />
@@ -249,11 +252,11 @@ export default function ScholarshipDetail() {
                 size="lg"
                 className="rounded-full"
               />
-            </div>
+            </motion.div>
 
             {/* Show original source */}
             {scholarship.source_url && (
-              <div className="mt-4 text-center">
+              <motion.div className="mt-4 text-center" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.8 }}>
                 <a 
                   href={scholarship.source_url} 
                   target="_blank" 
@@ -262,32 +265,24 @@ export default function ScholarshipDetail() {
                 >
                   View original source
                 </a>
-              </div>
+              </motion.div>
             )}
           </TabsContent>
 
           <TabsContent value="ai-assistant" className="mt-6">
-            <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10">
-              <CardHeader>
-                <h2 className="text-xl font-semibold text-myanmar-maroon">Scholarship Assistant</h2>
-                <p className="text-sm text-muted-foreground">Ask any questions about this scholarship</p>
-              </CardHeader>
-              <CardContent className="h-[500px]">
-                <AiAssistant 
-                  scholarshipId={scholarship.id}
-                  isScholarshipAssistant={true}
-                  initialMessage={`Tell me more about the ${scholarship.title} scholarship.`}
-                />
-              </CardContent>
-            </Card>
+            <AiAssistant 
+              scholarshipId={scholarship.id}
+              isScholarshipAssistant={true}
+              initialMessage={`Tell me more about the ${scholarship.title} scholarship.`}
+            />
           </TabsContent>
 
           <TabsContent value="my-notes" className="mt-6">
             <UserNotes scholarshipId={scholarship.id} />
           </TabsContent>
         </Tabs>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

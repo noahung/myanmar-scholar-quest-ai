@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabase-client";
 import { FancyButton } from "@/components/ui/fancy-button";
 import { useToast } from "@/components/ui/use-toast";
+import { motion } from "framer-motion";
 
 interface GuideStep {
   title: string;
@@ -114,20 +115,24 @@ export default function GuideDetail() {
   }
 
   return (
-    <div className="container py-8 md:py-12">
-      <div className="flex flex-col max-w-3xl mx-auto">
+    <motion.div
+      className="container py-8 md:py-12"
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7 }}
+    >
+      <motion.div className="flex flex-col max-w-3xl mx-auto" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}>
         {/* Back button */}
-        <div className="mb-6">
+        <motion.div className="mb-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
           <Button variant="outline" asChild>
             <Link to="/guides">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Guides
             </Link>
           </Button>
-        </div>
-
+        </motion.div>
         {/* Guide header */}
-        <div className="mb-8">
+        <motion.div className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
           <div className="flex flex-wrap gap-2 mb-2">
             <Badge variant="outline">{guide.category}</Badge>
             <Badge variant="secondary" className="flex items-center gap-1">
@@ -136,14 +141,12 @@ export default function GuideDetail() {
           </div>
           <h1 className="text-3xl font-bold tracking-tighter">{guide.title}</h1>
           <p className="text-muted-foreground mt-4">{guide.description}</p>
-        </div>
-
+        </motion.div>
         <Separator className="mb-8" />
-
         {/* Steps */}
-        <div className="space-y-8">
+        <motion.div className="space-y-8" initial="initial" animate="animate" variants={{ initial: {}, animate: { transition: { staggerChildren: 0.15 } } }}>
           {guide.steps_content?.map((step, index) => (
-            <div key={index}>
+            <motion.div key={index} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 * index }}>
               <div className="flex items-center mb-2">
                 <div className="w-8 h-8 rounded-full bg-myanmar-jade text-white flex items-center justify-center mr-3 flex-shrink-0">
                   {index + 1}
@@ -153,12 +156,11 @@ export default function GuideDetail() {
               <div className="ml-11">
                 <div className="text-muted-foreground" dangerouslySetInnerHTML={{ __html: step.content }} />
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
-
+        </motion.div>
         {/* Navigation */}
-        <div className="mt-12 flex flex-wrap justify-center gap-4">
+        <motion.div className="mt-12 flex flex-wrap justify-center gap-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.5 }}>
           {prevGuide && (
             <Button 
               variant="outline" 
@@ -171,7 +173,6 @@ export default function GuideDetail() {
               </Link>
             </Button>
           )}
-
           {nextGuide && (
             <Button 
               variant="outline" 
@@ -184,9 +185,9 @@ export default function GuideDetail() {
               </Link>
             </Button>
           )}
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }
 

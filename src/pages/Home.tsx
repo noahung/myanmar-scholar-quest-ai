@@ -261,16 +261,7 @@ export default function Home() {
       </section>
 
       {/* Platform Features Section */}
-      <section className="w-full py-16 md:py-24 bg-gradient-to-br from-white via-myanmar-gold/10 to-myanmar-jade/10 flex flex-col items-center relative overflow-hidden">
-        <motion.div 
-          className="w-full flex justify-center mb-4"
-          variants={fadeInUp}
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true }}
-        >
-          <div className="h-1 w-24 bg-myanmar-gold/60 rounded-full" />
-        </motion.div>
+      <section className="w-full py-16 md:py-24 bg-white flex flex-col items-center relative overflow-hidden">
         <motion.h2 
           className="text-3xl md:text-4xl font-bold text-myanmar-maroon text-center mb-2"
           variants={fadeInUp}
@@ -288,7 +279,7 @@ export default function Home() {
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
         >
-          Discover what makes Scholar-M unique. Our platform is designed to empower Myanmar students with smart tools, a supportive community, and resources for global success.
+          Discover what makes Scholar-M unique. Empowering Myanmar students with smart tools, a supportive community, and resources for global success.
         </motion.p>
         <motion.div 
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl px-4"
@@ -297,72 +288,72 @@ export default function Home() {
           whileInView="animate"
           viewport={{ once: true }}
         >
-          {/* Feature 1: AI Assistant */}
-          <motion.div 
-            className="bg-white rounded-3xl border border-myanmar-gold/20 shadow-xl p-8 flex flex-col items-center transition-transform duration-200 hover:scale-105 hover:shadow-2xl group cursor-pointer"
-            variants={fadeInUp}
-          >
-            <div className="bg-gradient-to-br from-myanmar-gold/40 to-myanmar-gold/10 rounded-full p-4 mb-4 shadow-sm">
-              <MessageCircle className="w-8 h-8 text-myanmar-maroon" />
-            </div>
-            <h3 className="text-xl font-semibold text-myanmar-maroon mb-2 text-center">AI Assistant for Scholarship Guidance</h3>
-            <p className="text-myanmar-maroon/70 text-center">Get instant, personalized help with scholarships and applications from our integrated AI assistant, available anywhere on the platform.</p>
-          </motion.div>
-          {/* Feature 2: Myanmar-Focused Discovery */}
-          <motion.div 
-            className="bg-white rounded-3xl border border-myanmar-jade/20 shadow-xl p-8 flex flex-col items-center transition-transform duration-200 hover:scale-105 hover:shadow-2xl group cursor-pointer"
-            variants={fadeInUp}
-          >
-            <div className="bg-gradient-to-br from-myanmar-jade/40 to-myanmar-jade/10 rounded-full p-4 mb-4 shadow-sm">
-              <Globe className="w-8 h-8 text-myanmar-maroon" />
-            </div>
-            <h3 className="text-xl font-semibold text-myanmar-maroon mb-2 text-center">Myanmar-Focused Scholarship Discovery</h3>
-            <p className="text-myanmar-maroon/70 text-center">A platform dedicated to Myanmar students, with bilingual support and tailored content for your unique needs.</p>
-          </motion.div>
-          {/* Feature 3: Scholarship Management */}
-          <motion.div 
-            className="bg-white rounded-3xl border border-myanmar-maroon/20 shadow-xl p-8 flex flex-col items-center transition-transform duration-200 hover:scale-105 hover:shadow-2xl group cursor-pointer"
-            variants={fadeInUp}
-          >
-            <div className="bg-gradient-to-br from-myanmar-maroon/30 to-myanmar-gold/10 rounded-full p-4 mb-4 shadow-sm">
-              <GraduationCap className="w-8 h-8 text-myanmar-maroon" />
-            </div>
-            <h3 className="text-xl font-semibold text-myanmar-maroon mb-2 text-center">Comprehensive Scholarship Management</h3>
-            <p className="text-myanmar-maroon/70 text-center">Browse, filter, and save scholarships. Access detailed info, deadlines, and application links all in one place.</p>
-          </motion.div>
-          {/* Feature 4: Community Forum */}
-          <motion.div 
-            className="bg-white rounded-3xl border border-myanmar-gold/20 shadow-xl p-8 flex flex-col items-center transition-transform duration-200 hover:scale-105 hover:shadow-2xl group cursor-pointer"
-            variants={fadeInUp}
-          >
-            <div className="bg-gradient-to-br from-myanmar-gold/40 to-myanmar-maroon/10 rounded-full p-4 mb-4 shadow-sm">
-              <Users className="w-8 h-8 text-myanmar-maroon" />
-            </div>
-            <h3 className="text-xl font-semibold text-myanmar-maroon mb-2 text-center">Community Forum</h3>
-            <p className="text-myanmar-maroon/70 text-center">Connect with peers, ask questions, and share experiences in a supportive Myanmar student community.</p>
-          </motion.div>
-          {/* Feature 5: Guides and Resources */}
-          <motion.div 
-            className="bg-white rounded-3xl border border-myanmar-jade/20 shadow-xl p-8 flex flex-col items-center transition-transform duration-200 hover:scale-105 hover:shadow-2xl group cursor-pointer"
-            variants={fadeInUp}
-          >
-            <div className="bg-gradient-to-br from-myanmar-jade/40 to-myanmar-gold/10 rounded-full p-4 mb-4 shadow-sm">
-              <BookOpen className="w-8 h-8 text-myanmar-maroon" />
-            </div>
-            <h3 className="text-xl font-semibold text-myanmar-maroon mb-2 text-center">Guides and Resources</h3>
-            <p className="text-myanmar-maroon/70 text-center">Access step-by-step guides and resources to help you prepare and succeed in your scholarship journey.</p>
-          </motion.div>
-          {/* Feature 6: User Notes System */}
-          <motion.div 
-            className="bg-white rounded-3xl border border-myanmar-maroon/20 shadow-xl p-8 flex flex-col items-center transition-transform duration-200 hover:scale-105 hover:shadow-2xl group cursor-pointer"
-            variants={fadeInUp}
-          >
-            <div className="bg-gradient-to-br from-myanmar-maroon/30 to-myanmar-jade/10 rounded-full p-4 mb-4 shadow-sm">
-              <Pencil className="w-8 h-8 text-myanmar-maroon" />
-            </div>
-            <h3 className="text-xl font-semibold text-myanmar-maroon mb-2 text-center">User Notes System</h3>
-            <p className="text-myanmar-maroon/70 text-center">Create, organize, and save your own notes—including AI responses—linked to scholarships for easy reference.</p>
-          </motion.div>
+          {/* Feature Cards */}
+          {[
+            {
+              label: "AI",
+              bg: "bg-[#D6F0FF]",
+              title: "AI Scholarship Guide",
+              desc: "Get instant, personalized help with scholarships and applications. Guidance is available anywhere on the platform.",
+              icon: <MessageCircle className="w-8 h-8 text-myanmar-maroon" />, 
+            },
+            {
+              label: "Discovery",
+              bg: "bg-[#FFE3EC]",
+              title: "Myanmar-Focused Discovery",
+              desc: "Bilingual, tailored content for Myanmar students. Find opportunities and resources made just for you.",
+              icon: <Globe className="w-8 h-8 text-myanmar-maroon" />, 
+            },
+            {
+              label: "Management",
+              bg: "bg-[#FFF7D6]",
+              title: "Scholarship Management",
+              desc: "Save, filter, and track scholarships easily. Stay organized and never miss a deadline again.",
+              icon: <GraduationCap className="w-8 h-8 text-myanmar-maroon" />, 
+            },
+            {
+              label: "Community",
+              bg: "bg-[#E6F7E6]",
+              title: "Community Forum",
+              desc: "Connect, ask questions, and share experiences with Myanmar peers in a supportive community.",
+              icon: <Users className="w-8 h-8 text-myanmar-maroon" />, 
+            },
+            {
+              label: "Guides",
+              bg: "bg-[#F3E8FF]",
+              title: "Guides & Resources",
+              desc: "Step-by-step guides and resources to help you prepare, apply, and succeed in your journey.",
+              icon: <BookOpen className="w-8 h-8 text-myanmar-maroon" />, 
+            },
+            {
+              label: "Notes",
+              bg: "bg-[#FFEFD6]",
+              title: "User Notes System",
+              desc: "Create, organize, and save your own notes—including AI responses—for easy reference.",
+              icon: <Pencil className="w-8 h-8 text-myanmar-maroon" />, 
+            },
+          ].map((feature, idx) => (
+            <motion.div
+              key={feature.label}
+              className={`relative rounded-2xl ${feature.bg} p-8 flex flex-col justify-between min-h-[260px] shadow-lg transition-transform duration-200 hover:scale-[1.03] group cursor-pointer`}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 * idx }}
+            >
+              {/* Badge */}
+              <span className="absolute top-6 left-6 bg-white/80 text-myanmar-maroon text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                {feature.label}
+              </span>
+              {/* Title & Icon */}
+              <div className="flex items-center gap-4 mt-8 mb-4">
+                <div className="flex-shrink-0">{feature.icon}</div>
+                <h3 className="text-2xl font-bold text-myanmar-maroon leading-tight">{feature.title}</h3>
+              </div>
+              {/* Description */}
+              <p className="text-myanmar-maroon/70 text-base mb-2 min-h-[72px]">{feature.desc}</p>
+            </motion.div>
+          ))}
         </motion.div>
       </section>
 
@@ -430,9 +421,19 @@ export default function Home() {
                   </CardHeader>
                     <CardContent className="flex flex-col items-center flex-grow">
                       <div className="flex gap-2 mb-3 flex-wrap justify-center">
-                      <Badge variant="default" className="bg-myanmar-jade/80 text-white border-none">{scholarship.country}</Badge>
-                      <Badge variant="outline" className="border-myanmar-gold text-myanmar-gold">{scholarship.level}</Badge>
-                    </div>
+                        <Badge variant="default" className="bg-myanmar-jade/80 text-white border-none">{scholarship.country}</Badge>
+                        <Badge
+                          className={
+                            `font-semibold px-3 py-1 rounded-full text-white ` +
+                            (scholarship.level === 'Undergraduate' ? 'bg-blue-500' :
+                              scholarship.level === 'Masters' ? 'bg-green-500' :
+                              scholarship.level === 'PhD' ? 'bg-purple-600' :
+                              'bg-gray-400')
+                          }
+                        >
+                          {scholarship.level}
+                        </Badge>
+                      </div>
                       <p className="text-sm text-myanmar-maroon/70 text-center line-clamp-3 mb-auto">{scholarship.description}</p>
                       <p className="text-xs text-myanmar-maroon/70 text-center mt-3 flex items-center justify-center">
                         <Calendar className="inline-block w-4 h-4 mr-1" />
