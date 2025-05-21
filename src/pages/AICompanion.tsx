@@ -26,7 +26,7 @@ export default function AICompanion() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -54,22 +54,15 @@ export default function AICompanion() {
     setIsLoading(true);
 
     try {
-      // Use your existing AI chat functionality here
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('chat-assistant', {
+        body: {
           message: input.trim(),
           userId: user?.id,
-        }),
+        }
       });
 
-      if (!response.ok) throw new Error('Failed to get response');
+      if (error) throw error;
 
-      const data = await response.json();
-      
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -78,10 +71,10 @@ export default function AICompanion() {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to get AI response. Please try again.",
+        description: error.message || "Failed to get AI response. Please try again.",
         variant: "destructive",
       });
     } finally {
