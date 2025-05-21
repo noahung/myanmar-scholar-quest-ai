@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.21.0";
@@ -12,6 +11,18 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+interface Message {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
+interface RequestBody {
+  message: string;
+  userId?: string;
+  scholarshipId?: string;
+  conversationContext?: Message[];
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -19,7 +30,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message, userId, scholarshipId } = await req.json();
+    const { message, userId, scholarshipId, conversationContext = [] }: RequestBody = await req.json();
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
     // Get scholarship details if scholarshipId is provided
@@ -40,9 +51,11 @@ serve(async (req) => {
       }
     }
 
-    // Set up the messages for OpenAI
+    // Set up the system message
     const systemMessage = scholarshipDetails ? 
-      `You are a helpful scholarship assistant for the "${scholarshipDetails.title}" scholarship. Here are the details of this scholarship:
+      `You are a helpful scholarship assistant for the "${scholarshipDetails.title}" scholarship. 
+      If the user writes in Burmese, always reply in natural, fluent Burmese. If the user writes in English, reply in English. 
+      Here are the details of this scholarship:
       
       Title: ${scholarshipDetails.title}
       Institution: ${scholarshipDetails.institution}
@@ -63,30 +76,62 @@ serve(async (req) => {
       
       When answering questions, provide specific information about this scholarship based on the details above. If you don't know something specific about this scholarship that isn't included in these details, be honest about not having that information.`
       :
-      `You are a helpful assistant for Myanmar students looking for scholarships and educational opportunities. Your name is Scholar-M Assistant. You should help them find educational opportunities, explain application requirements, and provide guidance on studying abroad. You can respond in either English or Burmese (Myanmar language), matching the language the user uses. Be friendly, informative, and encourage users to pursue their educational goals.`;
+      `You are a helpful assistant for Myanmar students looking for scholarships and educational opportunities. If the user writes in Burmese, always reply in natural, fluent Burmese. If the user writes in English, reply in English. Your name is Scholar-M Assistant. You should help them find educational opportunities, explain application requirements, and provide guidance on studying abroad. Be friendly, informative, and encourage users to pursue their educational goals.`;
 
-    // Call OpenAI for a response
-    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemMessage },
-          { role: 'user', content: message }
-        ],
-        max_tokens: 500,
-        temperature: 0.7,
-      }),
-    });
+    // Prepare messages array with conversation context
+    const messages: Message[] = [
+      { role: 'system', content: systemMessage },
+      ...conversationContext,
+      { role: 'user', content: message }
+    ];
 
-    const openAIData = await openAIResponse.json();
+    // Retry mechanism for OpenAI API calls
+    const maxRetries = 3;
+    let retryCount = 0;
+    let openAIResponse;
+    let openAIData;
+
+    while (retryCount < maxRetries) {
+      try {
+        openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openAIApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'gpt-4', // Updated to use GPT-4
+            messages,
+            max_tokens: 4000, // Increased token limit for longer responses
+            temperature: 0.7,
+          }),
+        });
+
+        openAIData = await openAIResponse.json();
+        
+        if (openAIResponse.ok) {
+          break;
+        }
+
+        // If rate limited, wait before retrying
+        if (openAIResponse.status === 429) {
+          const waitTime = Math.pow(2, retryCount) * 1000; // Exponential backoff
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          retryCount++;
+          continue;
+        }
+
+        throw new Error(`OpenAI API error: ${openAIData.error?.message || 'Unknown error'}`);
+      } catch (error) {
+        if (retryCount === maxRetries - 1) {
+          throw error;
+        }
+        retryCount++;
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
+      }
+    }
     
     if (!openAIResponse.ok) {
-      console.error('OpenAI API error:', openAIData);
       throw new Error(`OpenAI API error: ${openAIData.error?.message || 'Unknown error'}`);
     }
     
@@ -107,9 +152,14 @@ serve(async (req) => {
       }
     }
 
+    // Return both the response and the updated conversation context
     return new Response(
       JSON.stringify({
         response,
+        conversationContext: [...conversationContext, 
+          { role: 'user', content: message },
+          { role: 'assistant', content: response }
+        ].slice(-10) // Keep last 10 messages for context
       }),
       {
         headers: {

@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js'
 import { Database } from './supabase-types'
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './constants'
@@ -8,8 +7,10 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, 
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    storage: typeof window !== 'undefined' ? localStorage : undefined,
-    debug: true
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    detectSessionInUrl: true,
+    flowType: 'pkce',
+    debug: false
   }
 });
 

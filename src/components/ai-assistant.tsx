@@ -14,12 +14,18 @@ import { useToast } from "@/components/ui/use-toast";
 import { SaveToNotesButton } from "@/components/user-notes";
 import { API_URL, SUPABASE_ANON_KEY } from "@/lib/constants";
 
-type Message = {
+interface Message {
   id: string;
   content: string;
   sender: 'user' | 'assistant';
   timestamp: Date;
-};
+  status?: 'sending' | 'sent' | 'error';
+}
+
+interface ConversationContext {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
 
 interface AiAssistantProps {
   scholarshipId?: string;
@@ -33,6 +39,7 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [conversationContext, setConversationContext] = useState<ConversationContext[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -146,12 +153,13 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
   const handleSendMessage = async (message = inputMessage) => {
     if (!message.trim()) return;
 
-    // Add user message
+    // Add user message with sending status
     const userMessage: Message = {
       id: Date.now().toString(),
       content: message,
       sender: 'user',
-      timestamp: new Date()
+      timestamp: new Date(),
+      status: 'sending'
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -163,7 +171,8 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
         body: {
           message: message,
           userId: user?.id,
-          scholarshipId: scholarshipId
+          scholarshipId: scholarshipId,
+          conversationContext: conversationContext
         }
       });
 
@@ -171,23 +180,44 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
         throw new Error(error.message);
       }
 
+      // Update user message status to sent
+      setMessages(prev => prev.map(msg => 
+        msg.id === userMessage.id 
+          ? { ...msg, status: 'sent' }
+          : msg
+      ));
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: data.response || "Sorry, I couldn't process your request.",
         sender: 'assistant',
-        timestamp: new Date()
+        timestamp: new Date(),
+        status: 'sent'
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+      
+      // Update conversation context
+      if (data.conversationContext) {
+        setConversationContext(data.conversationContext);
+      }
     } catch (error: any) {
       console.error("Error calling AI assistant:", error);
+      
+      // Update user message status to error
+      setMessages(prev => prev.map(msg => 
+        msg.id === userMessage.id 
+          ? { ...msg, status: 'error' }
+          : msg
+      ));
       
       // Add error message
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: "Sorry, I encountered an error. Please try again later.",
         sender: 'assistant',
-        timestamp: new Date()
+        timestamp: new Date(),
+        status: 'error'
       };
       
       setMessages(prev => [...prev, errorMessage]);
@@ -255,7 +285,6 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
             : isScholarshipAssistant
               ? "w-full h-[500px]"
               : "w-80 sm:w-96 h-96",
-          // Responsive: on mobile, make chat window nearly full width
           !isExpanded && !isScholarshipAssistant ? "max-w-xs w-[95vw] sm:w-96" : ""
         )}>
           <div className="flex items-center justify-between bg-myanmar-maroon text-white p-3 rounded-t-2xl">
@@ -301,35 +330,47 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
             isScholarshipAssistant ? "" : ""
           )}>
             {messages.map((message) => (
-              <div 
+              <div
                 key={message.id}
                 className={cn(
-                  "max-w-[80%] rounded-2xl p-3 shadow-sm",
-                  message.sender === 'user' 
-                    ? "bg-myanmar-gold/80 text-myanmar-maroon ml-auto" 
-                    : "bg-myanmar-jade/10 text-myanmar-maroon mr-auto"
+                  "flex",
+                  message.sender === 'user' ? "justify-end" : "justify-start"
                 )}
               >
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                <div className="flex justify-between items-center mt-1">
-                  <span className="text-xs opacity-70">
-                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                  
-                  {message.sender === 'assistant' && (
-                    <SaveToNotesButton 
-                      content={message.content}
-                      scholarshipId={scholarshipId}
-                    />
+                <div
+                  className={cn(
+                    "max-w-[80%] rounded-2xl px-4 py-2",
+                    message.sender === 'user'
+                      ? "bg-myanmar-gold text-myanmar-maroon"
+                      : "bg-myanmar-jade/10 text-myanmar-maroon"
+                  )}
+                >
+                  <p className="text-sm">{message.content}</p>
+                  {message.status === 'sending' && (
+                    <div className="flex justify-end mt-1">
+                      <div className="animate-pulse text-xs text-myanmar-maroon/70">
+                        Sending...
+                      </div>
+                    </div>
+                  )}
+                  {message.status === 'error' && (
+                    <div className="flex justify-end mt-1">
+                      <div className="text-xs text-red-500">
+                        Failed to send
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
             ))}
             {isLoading && (
-              <div className="bg-myanmar-jade/10 rounded-2xl p-3 max-w-[80%] mr-auto">
-                <div className="flex items-center space-x-2">
-                  <Loader className="h-4 w-4 animate-spin" />
-                  <span className="text-sm">AI is thinking...</span>
+              <div className="flex justify-start">
+                <div className="bg-myanmar-jade/10 rounded-2xl px-4 py-2">
+                  <div className="flex space-x-2">
+                    <div className="w-2 h-2 bg-myanmar-gold rounded-full animate-bounce" />
+                    <div className="w-2 h-2 bg-myanmar-gold rounded-full animate-bounce delay-100" />
+                    <div className="w-2 h-2 bg-myanmar-gold rounded-full animate-bounce delay-200" />
+                  </div>
                 </div>
               </div>
             )}

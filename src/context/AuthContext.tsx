@@ -26,6 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const hasShownWelcomeToast = React.useRef(false);
+  const isInitialized = React.useRef(false);
 
   // Check if we have a code and state in the URL (Google OAuth callback)
   useEffect(() => {
@@ -47,83 +48,95 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [location]);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
+    let mounted = true;
+
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
-        console.log("Auth state changed:", event, newSession?.user?.email);
+        console.log("Auth state changed:", event);
         
-        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && !hasShownWelcomeToast.current) {
+        if (!mounted) return;
+
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           setSession(newSession);
           setUser(newSession?.user ?? null);
-          dismiss();
-
-          // Get user's name from profile
-          if (newSession?.user) {
+          
+          if (newSession?.user && !hasShownWelcomeToast.current) {
+            dismiss();
             const { data: profileData } = await supabase
               .from('profiles')
-              .select('full_name')
+              .select('full_name, is_admin')
               .eq('id', newSession.user.id)
               .single();
 
-            const userName = profileData?.full_name || newSession.user.user_metadata?.full_name || newSession.user.user_metadata?.name || newSession.user.email?.split('@')[0];
-            
-            toast({
-              title: "Signed in successfully",
-              description: `Welcome${userName ? ', ' + userName : ''}!`,
-              duration: 1500
-            });
-          }
+            if (profileData) {
+              setIsAdmin(!!profileData.is_admin);
+              const userName = profileData.full_name || newSession.user.user_metadata?.full_name || newSession.user.email?.split('@')[0];
+              
+              toast({
+                title: "Signed in successfully",
+                description: `Welcome${userName ? ', ' + userName : ''}!`,
+                duration: 1500
+              });
+            }
 
-          hasShownWelcomeToast.current = true;
-          // Navigate to home or previous page after login
-          if (location.pathname === '/login') {
-            navigate("/");
-          }
-          // Defer fetching user profile with setTimeout to prevent deadlock
-          if (newSession?.user) {
-            setTimeout(() => {
-              fetchUserProfile(newSession.user.id);
-            }, 0);
+            hasShownWelcomeToast.current = true;
+            if (location.pathname === '/login') {
+              navigate("/");
+            }
           }
         } else if (event === 'SIGNED_OUT') {
           setSession(null);
           setUser(null);
           setIsAdmin(false);
-          setIsLoading(false);
           hasShownWelcomeToast.current = false;
           dismiss();
           toast({
             title: "Signed out successfully",
             duration: 1500
           });
-        } else if (event === 'USER_UPDATED') {
-          setSession(newSession);
-          setUser(newSession?.user ?? null);
-          
-          // Defer fetching user profile with setTimeout to prevent deadlock
-          if (newSession?.user) {
-            setTimeout(() => {
-              fetchUserProfile(newSession.user.id);
-            }, 0);
-          }
         }
+        
+        setIsLoading(false);
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session: existingSession } }) => {
-      setSession(existingSession);
-      setUser(existingSession?.user ?? null);
-      
-      if (existingSession?.user) {
-        fetchUserProfile(existingSession.user.id);
-        hasShownWelcomeToast.current = true; // Prevent welcome toast on initial load
-      } else {
-        setIsLoading(false);
+    // Check for existing session
+    const initializeAuth = async () => {
+      if (isInitialized.current) return;
+      isInitialized.current = true;
+
+      try {
+        const { data: { session: existingSession } } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+
+        if (existingSession?.user) {
+          setSession(existingSession);
+          setUser(existingSession.user);
+          
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('is_admin')
+            .eq('id', existingSession.user.id)
+            .single();
+            
+          setIsAdmin(!!profileData?.is_admin);
+          hasShownWelcomeToast.current = true;
+        }
+      } catch (error) {
+        console.error('Error checking auth session:', error);
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
-    });
+    };
+
+    initializeAuth();
 
     return () => {
+      mounted = false;
       subscription?.unsubscribe();
     };
   }, []);
@@ -377,19 +390,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const value = {
+    user,
+    session,
+    isLoading,
+    signIn,
+    signUp,
+    signInWithGoogle,
+    signOut,
+    isAdmin,
+  };
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        session,
-        isLoading,
-        signIn,
-        signUp,
-        signInWithGoogle,
-        signOut,
-        isAdmin,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
