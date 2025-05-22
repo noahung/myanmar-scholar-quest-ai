@@ -133,6 +133,15 @@ export default function GuideDetail() {
         </motion.div>
         {/* Guide header */}
         <motion.div className="mb-8" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
+          {guide.image && (
+            <div className="w-full aspect-video mb-6 rounded-2xl overflow-hidden bg-muted">
+              <img
+                src={guide.image}
+                alt={guide.title}
+                className="object-cover w-full h-full"
+              />
+            </div>
+          )}
           <div className="flex flex-wrap gap-2 mb-2">
             <Badge variant="outline">{guide.category}</Badge>
             <Badge variant="secondary" className="flex items-center gap-1">

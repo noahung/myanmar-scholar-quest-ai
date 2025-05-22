@@ -19,11 +19,31 @@ export default function AICompanion() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [profileName, setProfileName] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single()
+        .then(({ data, error }) => {
+          if (!error && data && data.full_name) {
+            setProfileName(data.full_name);
+          } else {
+            setProfileName(null);
+          }
+        });
+    } else {
+      setProfileName(null);
+    }
+  }, [user]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -95,7 +115,7 @@ export default function AICompanion() {
           <Bot className="w-8 h-8 text-myanmar-maroon" />
         </div>
         <h1 className="text-3xl font-bold text-myanmar-maroon mb-2">
-          Hey {user?.email?.split('@')[0] || 'there'}!
+          Hey {profileName || user?.email?.split('@')[0] || 'there'}!
         </h1>
         <p className="text-myanmar-maroon/70 text-center max-w-md">
           Ready to assist you with anything you need.
@@ -197,11 +217,31 @@ export function AICompanionChatOnly() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [profileName, setProfileName] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single()
+        .then(({ data, error }) => {
+          if (!error && data && data.full_name) {
+            setProfileName(data.full_name);
+          } else {
+            setProfileName(null);
+          }
+        });
+    } else {
+      setProfileName(null);
+    }
+  }, [user]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

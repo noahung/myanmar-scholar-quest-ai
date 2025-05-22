@@ -32,7 +32,8 @@ const CATEGORIES = [
   "Application Documents",
   "Study Tips",
   "Language Preparation",
-  "Cultural Adjustment"
+  "Cultural Adjustment",
+  "Subject Highlights",
 ];
 
 // Animation variants

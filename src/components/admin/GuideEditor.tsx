@@ -473,6 +473,7 @@ export function GuideEditor() {
                         <SelectItem value="Study Tips">Study Tips</SelectItem>
                         <SelectItem value="Language Preparation">Language Preparation</SelectItem>
                         <SelectItem value="Cultural Adjustment">Cultural Adjustment</SelectItem>
+                        <SelectItem value="Subject Highlights">Subject Highlights</SelectItem>
                       </SelectContent>
                     </Select>
                     {form.formState.errors.category && (
@@ -497,6 +498,7 @@ export function GuideEditor() {
                         <SelectItem value="Germany">Germany</SelectItem>
                         <SelectItem value="South Korea">South Korea</SelectItem>
                         <SelectItem value="Singapore">Singapore</SelectItem>
+                        <SelectItem value="Worldwide">Worldwide</SelectItem>
                       </SelectContent>
                     </Select>
                     {form.formState.errors.country && (
