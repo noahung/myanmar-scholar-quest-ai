@@ -44,6 +44,17 @@ export function Navbar() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflowX = 'hidden';
+    } else {
+      document.body.style.overflowX = '';
+    }
+    return () => {
+      document.body.style.overflowX = '';
+    };
+  }, [mobileMenuOpen]);
+
   const fetchProfileData = async () => {
     if (!user) return;
     
