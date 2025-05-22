@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Loader2, Save, UserCircle, BookOpen, MessageCircle, History, BookmarkIcon, CheckSquare, Trash } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -373,12 +373,14 @@ export default function Profile() {
                 ) : (
                   <ul className="space-y-4">
                     {userPosts.map(post => (
-                      <li key={post.id} className="border border-myanmar-gold/30 rounded-xl p-3 bg-white/80">
-                        <div className="font-semibold text-myanmar-maroon">{post.title}</div>
-                        <div className="text-sm text-myanmar-maroon/70">{post.content}</div>
-                        <div className="text-xs text-myanmar-maroon/50 mt-2">
-                          {post.date ? new Date(post.date).toLocaleString() : ""}
-                        </div>
+                      <li key={post.id} className="border border-myanmar-gold/30 rounded-xl p-3 bg-white/80 hover:bg-myanmar-gold/10 transition-colors cursor-pointer">
+                        <Link to={`/community/${post.id}`} className="block">
+                          <div className="font-semibold text-myanmar-maroon">{post.title}</div>
+                          <div className="text-sm text-myanmar-maroon/70">{post.content}</div>
+                          <div className="text-xs text-myanmar-maroon/50 mt-2">
+                            {post.date ? new Date(post.date).toLocaleString() : ""}
+                          </div>
+                        </Link>
                       </li>
                     ))}
                   </ul>
