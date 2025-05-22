@@ -132,7 +132,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 if (profileError) {
                   console.error("Error fetching profile:", profileError);
                   // If profile doesn't exist, create it
-                  if (profileError.message?.includes('found')) {
+                  if (
+                    profileError.message?.includes('found') ||
+                    profileError.code === 'PGRST116' ||
+                    profileError.message?.includes('multiple (or no) row is returned')
+                  ) {
                     console.log("Profile not found, creating new profile");
                     await createUserProfile(newSession.user.id);
                   }
@@ -208,7 +212,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           
           if (profileError) {
             console.error("Error fetching profile in initializeAuth:", profileError);
-            if (profileError.message?.includes('found')) {
+            if (
+              profileError.message?.includes('found') ||
+              profileError.code === 'PGRST116' ||
+              profileError.message?.includes('multiple (or no) row is returned')
+            ) {
               console.log("Profile not found in initializeAuth, creating new profile");
               await createUserProfile(existingSession.user.id);
             }
