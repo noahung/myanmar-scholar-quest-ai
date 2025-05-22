@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         try {
           // Exchange the code for a session
-          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
           if (error) {
             console.error("Error exchanging code for session:", error);
             toast({
@@ -53,9 +53,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               duration: 2000
             });
           } else {
+            // Set the session and user immediately
+            setSession(data.session);
+            setUser(data.session?.user ?? null);
+            
             // Clean up the URL by removing the code and state parameters
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
+            
+            // Fetch user profile
+            if (data.session?.user) {
+              await fetchUserProfile(data.session.user.id);
+            }
           }
         } catch (error) {
           console.error("Error in OAuth callback:", error);
