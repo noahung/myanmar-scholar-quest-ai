@@ -3,6 +3,15 @@ import { supabase } from "@/lib/supabase-client";
 import { User, Session } from "@supabase/supabase-js";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate, useLocation } from "react-router-dom";
+import { PostgrestResponse, PostgrestSingleResponse } from "@supabase/postgrest-js";
+
+interface Profile {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  avatar_url: string | null;
+  is_admin: boolean;
+}
 
 type AuthContextType = {
   user: User | null;
@@ -108,15 +117,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
               try {
                 // Race between the profile fetch and timeout
-                const { data: profileData, error: profileError } = await Promise.race([
+                const result = await Promise.race([
                   supabase
                     .from('profiles')
                     .select('*')
                     .eq('id', newSession.user.id)
                     .single(),
                   timeoutPromise
-                ]);
+                ]) as PostgrestSingleResponse<Profile>;
 
+                const { data: profileData, error: profileError } = result;
                 console.log("Profile fetch response:", { data: profileData, error: profileError });
 
                 if (profileError) {
