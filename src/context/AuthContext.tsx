@@ -41,19 +41,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           description: "Please wait while we complete your authentication."
         });
 
-        // Exchange the code for a session!
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (error) {
-          console.error("Error exchanging code for session:", error);
+        try {
+          // Exchange the code for a session
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) {
+            console.error("Error exchanging code for session:", error);
+            toast({
+              variant: "destructive",
+              title: "Login Failed",
+              description: error.message,
+              duration: 2000
+            });
+          } else {
+            // Clean up the URL by removing the code and state parameters
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+          }
+        } catch (error) {
+          console.error("Error in OAuth callback:", error);
           toast({
             variant: "destructive",
             title: "Login Failed",
-            description: error.message,
+            description: "An unexpected error occurred during authentication.",
             duration: 2000
           });
-        } else {
-          // Clean up the URL so the code param disappears
-          window.history.replaceState({}, document.title, window.location.pathname);
         }
       }
     };
@@ -326,8 +337,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     try {
       console.log("Starting Google sign-in process");
-      // Use the correct redirect URL for GitHub Pages deployment
-      const redirectTo = `${window.location.protocol}//${window.location.host}/myanmar-scholar-quest-ai/`;
+      // Use the current URL as the redirect URL
+      const redirectTo = window.location.origin + window.location.pathname;
       console.log("Setting redirect URL:", redirectTo);
       dismiss();
       toast({
