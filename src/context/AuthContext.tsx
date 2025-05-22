@@ -93,43 +93,68 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         try {
           if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            console.log("Setting session and user");
             setSession(newSession);
             setUser(newSession?.user ?? null);
             
             if (newSession?.user && !hasShownWelcomeToast.current) {
               dismiss();
-              console.log("Fetching profile data for user:", newSession.user.id);
-              const { data: profileData, error: profileError } = await supabase
-                .from('profiles')
-                .select('full_name, is_admin')
-                .eq('id', newSession.user.id)
-                .single();
+              console.log("Attempting to fetch profile data for user:", newSession.user.id);
+              
+              // Create a timeout promise
+              const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Profile fetch timeout')), 5000);
+              });
 
-              if (profileError) {
-                console.error("Error fetching profile:", profileError);
-                // If profile doesn't exist, create it
-                if (profileError.message?.includes('found')) {
-                  console.log("Profile not found, creating new profile");
-                  await createUserProfile(newSession.user.id);
+              try {
+                // Race between the profile fetch and timeout
+                const { data: profileData, error: profileError } = await Promise.race([
+                  supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', newSession.user.id)
+                    .single(),
+                  timeoutPromise
+                ]);
+
+                console.log("Profile fetch response:", { data: profileData, error: profileError });
+
+                if (profileError) {
+                  console.error("Error fetching profile:", profileError);
+                  // If profile doesn't exist, create it
+                  if (profileError.message?.includes('found')) {
+                    console.log("Profile not found, creating new profile");
+                    await createUserProfile(newSession.user.id);
+                  }
+                } else if (profileData) {
+                  console.log("Profile found:", profileData);
+                  setIsAdmin(!!profileData.is_admin);
+                  const userName = profileData.full_name || newSession.user.user_metadata?.full_name || newSession.user.email?.split('@')[0];
+                  
+                  toast({
+                    title: "Signed in successfully",
+                    description: `Welcome${userName ? ', ' + userName : ''}!`,
+                    duration: 1500
+                  });
                 }
-              } else if (profileData) {
-                console.log("Profile found:", profileData);
-                setIsAdmin(!!profileData.is_admin);
-                const userName = profileData.full_name || newSession.user.user_metadata?.full_name || newSession.user.email?.split('@')[0];
-                
+
+                hasShownWelcomeToast.current = true;
+                if (location.pathname === '/login') {
+                  navigate("/");
+                }
+              } catch (error) {
+                console.error("Profile fetch failed:", error);
+                // If timeout or other error, proceed without profile
                 toast({
-                  title: "Signed in successfully",
-                  description: `Welcome${userName ? ', ' + userName : ''}!`,
+                  title: "Signed in",
+                  description: "Welcome! Profile data may be incomplete.",
                   duration: 1500
                 });
-              }
-
-              hasShownWelcomeToast.current = true;
-              if (location.pathname === '/login') {
-                navigate("/");
+                hasShownWelcomeToast.current = true;
               }
             }
           } else if (event === 'SIGNED_OUT') {
+            console.log("Handling sign out");
             setSession(null);
             setUser(null);
             setIsAdmin(false);
