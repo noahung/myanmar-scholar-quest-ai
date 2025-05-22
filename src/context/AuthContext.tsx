@@ -87,51 +87,65 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
-        console.log("Auth state changed:", event);
+        console.log("Auth state changed:", event, "Session:", newSession?.user?.id);
         
         if (!mounted) return;
 
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          setSession(newSession);
-          setUser(newSession?.user ?? null);
-          
-          if (newSession?.user && !hasShownWelcomeToast.current) {
+        try {
+          if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            setSession(newSession);
+            setUser(newSession?.user ?? null);
+            
+            if (newSession?.user && !hasShownWelcomeToast.current) {
+              dismiss();
+              console.log("Fetching profile data for user:", newSession.user.id);
+              const { data: profileData, error: profileError } = await supabase
+                .from('profiles')
+                .select('full_name, is_admin')
+                .eq('id', newSession.user.id)
+                .single();
+
+              if (profileError) {
+                console.error("Error fetching profile:", profileError);
+                // If profile doesn't exist, create it
+                if (profileError.message?.includes('found')) {
+                  console.log("Profile not found, creating new profile");
+                  await createUserProfile(newSession.user.id);
+                }
+              } else if (profileData) {
+                console.log("Profile found:", profileData);
+                setIsAdmin(!!profileData.is_admin);
+                const userName = profileData.full_name || newSession.user.user_metadata?.full_name || newSession.user.email?.split('@')[0];
+                
+                toast({
+                  title: "Signed in successfully",
+                  description: `Welcome${userName ? ', ' + userName : ''}!`,
+                  duration: 1500
+                });
+              }
+
+              hasShownWelcomeToast.current = true;
+              if (location.pathname === '/login') {
+                navigate("/");
+              }
+            }
+          } else if (event === 'SIGNED_OUT') {
+            setSession(null);
+            setUser(null);
+            setIsAdmin(false);
+            hasShownWelcomeToast.current = false;
             dismiss();
-            const { data: profileData } = await supabase
-              .from('profiles')
-              .select('full_name, is_admin')
-              .eq('id', newSession.user.id)
-              .single();
-
-            if (profileData) {
-              setIsAdmin(!!profileData.is_admin);
-              const userName = profileData.full_name || newSession.user.user_metadata?.full_name || newSession.user.email?.split('@')[0];
-              
-              toast({
-                title: "Signed in successfully",
-                description: `Welcome${userName ? ', ' + userName : ''}!`,
-                duration: 1500
-              });
-            }
-
-            hasShownWelcomeToast.current = true;
-            if (location.pathname === '/login') {
-              navigate("/");
-            }
+            toast({
+              title: "Signed out successfully",
+              duration: 1500
+            });
           }
-        } else if (event === 'SIGNED_OUT') {
-          setSession(null);
-          setUser(null);
-          setIsAdmin(false);
-          hasShownWelcomeToast.current = false;
-          dismiss();
-          toast({
-            title: "Signed out successfully",
-            duration: 1500
-          });
+        } catch (error) {
+          console.error("Error in auth state change:", error);
+        } finally {
+          console.log("Setting isLoading to false after auth state change");
+          setIsLoading(false);
         }
-        
-        setIsLoading(false);
       }
     );
 
@@ -141,27 +155,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isInitialized.current = true;
 
       try {
+        console.log("Checking for existing session");
         const { data: { session: existingSession } } = await supabase.auth.getSession();
         
         if (!mounted) return;
 
         if (existingSession?.user) {
+          console.log("Found existing session for user:", existingSession.user.id);
           setSession(existingSession);
           setUser(existingSession.user);
           
-          const { data: profileData } = await supabase
+          const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('is_admin')
             .eq('id', existingSession.user.id)
             .single();
-            
-          setIsAdmin(!!profileData?.is_admin);
-          hasShownWelcomeToast.current = true;
+          
+          if (profileError) {
+            console.error("Error fetching profile in initializeAuth:", profileError);
+            if (profileError.message?.includes('found')) {
+              console.log("Profile not found in initializeAuth, creating new profile");
+              await createUserProfile(existingSession.user.id);
+            }
+          } else {
+            console.log("Profile found in initializeAuth:", profileData);
+            setIsAdmin(!!profileData?.is_admin);
+            hasShownWelcomeToast.current = true;
+          }
+        } else {
+          console.log("No existing session found");
         }
       } catch (error) {
         console.error('Error checking auth session:', error);
       } finally {
         if (mounted) {
+          console.log("Setting isLoading to false after initialization");
           setIsLoading(false);
         }
       }
@@ -221,6 +249,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Helper function to create the user profile
   async function createUserProfile(userId: string) {
     try {
+      console.log("Creating user profile for:", userId);
       const { data: userData } = await supabase.auth.getUser();
       if (userData?.user) {
         // Get name from various possible sources
@@ -231,6 +260,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             ? `${userData.user.user_metadata.given_name} ${userData.user.user_metadata.family_name}`.trim()
             : userData.user.email?.split('@')[0];
 
+        console.log("Inserting new profile with name:", fullName);
         const { error: insertError } = await supabase
           .from('profiles')
           .insert({
@@ -243,12 +273,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (insertError) {
           console.error('Error creating user profile:', insertError);
+        } else {
+          console.log("Successfully created user profile");
         }
         
         setIsAdmin(false);
       }
     } catch (error) {
-      console.error('Error creating user profile:', error);
+      console.error('Error in createUserProfile:', error);
     }
   }
 
