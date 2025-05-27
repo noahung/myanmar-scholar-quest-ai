@@ -42,10 +42,17 @@ export default function IELTSPreparation() {
     <div className="min-h-screen bg-background flex flex-col items-center w-full">
       {/* Hero Section */}
       <section className="w-full hero-gradient py-16 flex flex-col items-center justify-center text-center relative overflow-hidden">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg mb-4">IELTS စာမေးပွဲအတွက် ပြင်ဆင်နည်းများ</h1>
-        <p className="text-lg md:text-2xl text-white/90 max-w-2xl mx-auto mb-8">IELTS (International English Language Testing System) သည် နိုင်ငံတကာ အသိအမှတ်ပြုထားသော အင်္ဂလိပ်ဘာသာစကား ကျွမ်းကါမှုစစ်ဆေးရေး စာမေးပွဲတစ်ခုဖြစ်သည်။ ဤစာမေးပွဲသည် Listening, Reading, Writing, နှင့် Speaking ဟူ၍ အပိုင်းလေးပိုင်းပါဝင်ပြီး သင်၏ အင်္ဂလိပ်ဘာသာစကား ကျွမ်းကျင်မှုကို စမ်းသပ်သည်။ ဤလမ်းညွှန်ချက်တွင် IELTS စာမေးပွဲအတွက် အောင်မြင်မှုရရှိရန် အကြံပြုချက်များကို အပိုင်းတစ်ခုစီအလိုက် အသေးစိတ်ဖော်ပြထားပါသည်။</p>
-        <div className="absolute right-10 top-10 opacity-30 animate-float-slow"><ListeningSVG /></div>
-        <div className="absolute left-10 bottom-10 opacity-30 animate-float-slow"><ReadingSVG /></div>
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070"
+            alt="Students studying"
+            className="w-full h-full object-cover opacity-20"
+          />
+        </div>
+        <h1 className="text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg mb-4 relative z-10">IELTS စာမေးပွဲအတွက် ပြင်ဆင်နည်းများ</h1>
+        <p className="text-lg md:text-2xl text-white/90 max-w-2xl mx-auto mb-8 relative z-10">IELTS (International English Language Testing System) သည် နိုင်ငံတကာ အသိအမှတ်ပြုထားသော အင်္ဂလိပ်ဘာသာစကား ကျွမ်းကါမှုစစ်ဆေးရေး စာမေးပွဲတစ်ခုဖြစ်သည်။ ဤစာမေးပွဲသည် Listening, Reading, Writing, နှင့် Speaking ဟူ၍ အပိုင်းလေးပိုင်းပါဝင်ပြီး သင်၏ အင်္ဂလိပ်ဘာသာစကား ကျွမ်းကျင်မှုကို စမ်းသပ်သည်။ ဤလမ်းညွှန်ချက်တွင် IELTS စာမေးပွဲအတွက် အောင်မြင်မှုရရှိရန် အကြံပြုချက်များကို အပိုင်းတစ်ခုစီအလိုက် အသေးစိတ်ဖော်ပြထားပါသည်။</p>
+        <div className="absolute right-10 top-10 opacity-30 animate-float-slow z-10"><ListeningSVG /></div>
+        <div className="absolute left-10 bottom-10 opacity-30 animate-float-slow z-10"><ReadingSVG /></div>
       </section>
 
       {/* IELTS Sections */}
@@ -57,6 +64,13 @@ export default function IELTSPreparation() {
             <CardTitle>Listening Section အတွက် ပြင်ဆင်နည်း</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-base leading-relaxed">
+            <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070"
+                alt="Students listening to lecture"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <div>Listening အပိုင်းသည် မိနစ် ၃၀ ခန့်ကြာမြင့်ပြီး အပိုင်း ၄ ပိုင်းပါဝင်သည်။ ဤအပိုင်းတွင် အင်္ဂလိပ်စကားပြောသံများကို နားထောင်ပြီး မေးခွန်းများကို ဖြေဆိုရမည်ဖြစ်သည်။ အောက်ပါအကြံပြုချက်များသည် သင့်အား ဤအပိုင်းတွင် အောင်မြင်မှုရရှိရန် ကူညီပေးပါလိမ့်မည်။</div>
             <ul className="list-none pl-0 space-y-3">
               <li>
@@ -85,6 +99,13 @@ export default function IELTSPreparation() {
             <CardTitle>Reading Section အတွက် ပြင်ဆင်နည်း</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-base leading-relaxed">
+            <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2091"
+                alt="Students reading in library"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <div>Reading အပိုင်းသည် မိနစ် ၆၀ ကြာမြင့်ပြီး စာသားသုံးပုဒ်ပါဝင်သည်။ Academic နှင့် General Training ပုံစံများတွင် စာသားများသည် အနည်းငယ်ကွဲပြားသည်။ အောက်ပါအကြံပြုချက်များကို လိုက်နာပါ။</div>
             <ul className="list-none pl-0 space-y-3">
               <li>
@@ -113,6 +134,13 @@ export default function IELTSPreparation() {
             <CardTitle>Writing Section အတွက် ပြင်ဆင်နည်း</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-base leading-relaxed">
+            <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=2073"
+                alt="Student writing notes"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <div>Writing အပိုင်းတွင် Task 1 နှင့် Task 2 ဟူ၍ နှစ်ပိုင်းပါဝင်ပြီး မိနစ် ၆၀ အတွင်း ပြီးစီးရမည်။ Task 1 သည် ပုံများ၊ ဇယားများကို ဖော်ပြရေးသားရပြီး Task 2 သည် အက်ဆေးရေးသားရန်ဖြစ်သည်။</div>
             <div className="font-semibold">Task 1 အတွက် ပြင်ဆင်နည်း</div>
             <ul className="list-none pl-0 space-y-3 mb-2">
@@ -151,11 +179,18 @@ export default function IELTSPreparation() {
             <CardTitle>Speaking Section အတွက် ပြင်ဆင်နည်း</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-base leading-relaxed">
+            <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071"
+                alt="Group discussion"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <div>Speaking အပိုင်းသည် မိနစ် ၁၁ မှ ၁၄ မိနစ်အထိ ကြာမြင့်ပြီး အင်တာဗျူးပုံစံဖြင့် စစ်ဆေးသည်။ ဤအပိုင်းတွင် အပိုင်း ၃ ပိုင်းပါဝင်သည်- မိတ်ဆက်နှင့် အင်တာဗျူး၊ တစ်ဦးချင်းပြောဆိုမှု၊ နှင့် ဆွေးနွေးမှု။</div>
             <ul className="list-none pl-0 space-y-3">
               <li>
                 <span className="font-bold">အင်္ဂလိပ်စကားပြောကို လေ့ကျင့်ပါ</span><br />
-                <span>အင်္ဂလိပ်စကားပြောသူများနှင့် စကားပြောဆိုရန် အခွင့်အလမ်းရှာပါ။ Language exchange ပရိုဂရမ်များ သို့မဟုတ် အွန်လိုင်းပလက်ဖောင်းများကို အသုံးပြုပါ (ဥပမာ- iTalki, Tandem)။</span>
+                <span>အင်္ဂလိပ်စကားပြောသူများနှင့် စကားပြောဆိုရန် အခွင့်အလမ်းရှာပါ Language exchange ပရိုဂရမ်များ သို့မဟုတ် အွန်လိုင်းပလက်ဖောင်းများကို အသုံးပြုပါ (ဥပမာ- iTalki, Tandem)။</span>
               </li>
               <li>
                 <span className="font-bold">အသံထွက်ကို အာရုံစိုက်ပါ</span><br />
@@ -179,6 +214,13 @@ export default function IELTSPreparation() {
             <CardTitle>ယေဘုယျ အကြံပြုချက်များ</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-base leading-relaxed">
+            <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2070"
+                alt="Students studying together"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <ul className="list-none pl-0 space-y-3">
               <li>
                 <span className="font-bold">စာမေးပွဲပုံစံကို နားလည်ပါ</span><br />
@@ -210,6 +252,13 @@ export default function IELTSPreparation() {
             <CardTitle>Mock Test Resources</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-base leading-relaxed">
+            <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=2074"
+                alt="UK university campus"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <p>IELTS စမ်းသပ်စာမေးပွဲများနှင့် အရင်းအမြစ်များကို အောက်ပါလင့်များတွင် ရယူနိုင်ပါသည်။</p>
             <div className="flex flex-wrap gap-3">
               <Button asChild variant="secondary" className="rounded-full font-bold">
@@ -226,9 +275,18 @@ export default function IELTSPreparation() {
         </Card>
       </div>
       {/* Conclusion */}
-      <section className="w-full py-10 text-center bg-muted mt-8 fade-in-on-scroll opacity-0 translate-y-8 transition-all duration-700">
-        <h2 className="text-2xl md:text-3xl font-bold text-myanmar-maroon mb-2">နိဂုံးချုပ်</h2>
-        <p className="max-w-2xl mx-auto text-lg text-muted-foreground">IELTS စာမေးပွဲသည် စိန်ခေါ်မှုတစ်ခုဖြစ်သော်လည်း သင့်လျော်သော ပြင်ဆင်မှုနှင့် လေ့ကျင့်မှုဖြင့် အောင်မြင်မှုရရှိနိုင်သည်။ သင်၏ အားနည်းချက်များကို ဖော်ထုတ်ပြီး ၎င်းတို့ကို တိုးတက်အောင်လုပ်ပါ။ ယုံကြည်မှုနှင့် စိတ်အားထက်သန်မှုဖြင့် စာမေးပွဲကို ရင်ဆိုင်ပါ။ အောင်မြင်မှုအတွက် ဆုမွန်ကောင်းတောင်းပါသည်။</p>
+      <section className="w-full py-10 text-center bg-muted mt-8 fade-in-on-scroll opacity-0 translate-y-8 transition-all duration-700 relative">
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070"
+            alt="Students celebrating success"
+            className="w-full h-full object-cover opacity-10"
+          />
+        </div>
+        <div className="relative z-10">
+          <h2 className="text-2xl md:text-3xl font-bold text-myanmar-maroon mb-2">နိဂုံးချုပ်</h2>
+          <p className="max-w-2xl mx-auto text-lg text-muted-foreground">IELTS စာမေးပွဲသည် စိန်ခေါ်မှုတစ်ခုဖြစ်သော်လည်း သင့်လျော်သော ပြင်ဆင်မှုနှင့် လေ့ကျင့်မှုဖြင့် အောင်မြင်မှုရရှိနိုင်သည်။ သင်၏ အားနည်းချက်များကို ဖော်ထုတ်ပြီး ၎င်းတို့ကို တိုးတက်အောင်လုပ်ပါ။ ယုံကြည်မှုနှင့် စိတ်အားထက်သန်မှုဖြင့် စာမေးပွဲကို ရင်ဆိုင်ပါ။ အောင်မြင်မှုအတွက် ဆုမွန်ကောင်းတောင်းပါသည်။</p>
+        </div>
       </section>
       {/* Animation keyframes */}
       <style>{`
