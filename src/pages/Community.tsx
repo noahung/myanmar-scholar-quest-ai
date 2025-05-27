@@ -347,83 +347,85 @@ export default function Community() {
         </p>
       </div>
 
-      <div className="mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white/80 rounded-xl shadow-lg p-4">
-        <div className="flex items-center gap-2">
-          <BookOpen className="h-4 w-4 text-myanmar-maroon" />
-          <span className="text-sm text-myanmar-maroon font-semibold">{posts.length} posts in the community</span>
+      <div className="max-w-2xl mx-auto">
+        <div className="mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white/80 rounded-xl shadow-lg p-4">
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-myanmar-maroon" />
+            <span className="text-sm text-myanmar-maroon font-semibold">{posts.length} posts in the community</span>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="rounded-full border-myanmar-jade text-myanmar-jade font-bold">
+              <Filter className="h-4 w-4 mr-2" />
+              Filter
+            </Button>
+            <Button size="sm" className="rounded-full bg-myanmar-gold text-myanmar-maroon font-bold px-6" onClick={handleNewPost}>
+              <Plus className="h-4 w-4 mr-2" />
+              New Post
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="rounded-full border-myanmar-jade text-myanmar-jade font-bold">
-            <Filter className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
-          <Button size="sm" className="rounded-full bg-myanmar-gold text-myanmar-maroon font-bold px-6" onClick={handleNewPost}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Post
-          </Button>
-        </div>
-      </div>
 
-      {/* Loading state */}
-      {isLoading && (
-        <div className="flex justify-center items-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-myanmar-jade" />
-        </div>
-      )}
+        {/* Loading state */}
+        {isLoading && (
+          <div className="flex justify-center items-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-myanmar-jade" />
+          </div>
+        )}
 
-      {/* Rest of the component */}
-      {!isLoading && (
-        <Tabs defaultValue="popular" className="mb-8">
-          <TabsList className="w-full bg-myanmar-jade/10 rounded-xl p-1 flex gap-2">
-            <TabsTrigger value="popular" className="rounded-full px-6 py-2 font-semibold">Popular</TabsTrigger>
-            <TabsTrigger value="recent" className="rounded-full px-6 py-2 font-semibold">Recent</TabsTrigger>
-            <TabsTrigger value="unanswered" className="rounded-full px-6 py-2 font-semibold">Unanswered</TabsTrigger>
-          </TabsList>
-          <TabsContent value="popular" className="mt-4">
-            <div className="space-y-6">
-              {posts.sort((a, b) => b.likes - a.likes).map(post => (
-                <PostCard 
-                  key={post.id} 
-                  post={post} 
-                  onLike={handleLikePost} 
-                  onShare={handleSharePost}
-                />
-              ))}
-            </div>
-          </TabsContent>
-          <TabsContent value="recent" className="mt-4">
-            <div className="space-y-6">
-              {posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(post => (
-                <PostCard 
-                  key={post.id} 
-                  post={post} 
-                  onLike={handleLikePost} 
-                  onShare={handleSharePost}
-                />
-              ))}
-            </div>
-          </TabsContent>
-          <TabsContent value="unanswered" className="mt-4">
-            <div className="space-y-6">
-              {posts.filter(post => post.comments === 0).length > 0 ? (
-                posts.filter(post => post.comments === 0).map(post => (
+        {/* Rest of the component */}
+        {!isLoading && (
+          <Tabs defaultValue="popular" className="mb-8">
+            <TabsList className="w-full bg-myanmar-jade/10 rounded-xl p-1 flex gap-2">
+              <TabsTrigger value="popular" className="rounded-full px-6 py-2 font-semibold">Popular</TabsTrigger>
+              <TabsTrigger value="recent" className="rounded-full px-6 py-2 font-semibold">Recent</TabsTrigger>
+              <TabsTrigger value="unanswered" className="rounded-full px-6 py-2 font-semibold">Unanswered</TabsTrigger>
+            </TabsList>
+            <TabsContent value="popular" className="mt-4">
+              <div className="space-y-6">
+                {posts.sort((a, b) => b.likes - a.likes).map(post => (
                   <PostCard 
                     key={post.id} 
                     post={post} 
                     onLike={handleLikePost} 
                     onShare={handleSharePost}
                   />
-                ))
-              ) : (
-                <div className="text-center py-10">
-                  <h3 className="text-lg font-medium">No unanswered posts found</h3>
-                  <p className="text-muted-foreground mt-2">All posts have comments!</p>
-                </div>
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
-      )}
+                ))}
+              </div>
+            </TabsContent>
+            <TabsContent value="recent" className="mt-4">
+              <div className="space-y-6">
+                {posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).map(post => (
+                  <PostCard 
+                    key={post.id} 
+                    post={post} 
+                    onLike={handleLikePost} 
+                    onShare={handleSharePost}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+            <TabsContent value="unanswered" className="mt-4">
+              <div className="space-y-6">
+                {posts.filter(post => post.comments === 0).length > 0 ? (
+                  posts.filter(post => post.comments === 0).map(post => (
+                    <PostCard 
+                      key={post.id} 
+                      post={post} 
+                      onLike={handleLikePost} 
+                      onShare={handleSharePost}
+                    />
+                  ))
+                ) : (
+                  <div className="text-center py-10">
+                    <h3 className="text-lg font-medium">No unanswered posts found</h3>
+                    <p className="text-muted-foreground mt-2">All posts have comments!</p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        )}
+      </div>
     </div>
   );
 }
@@ -467,7 +469,7 @@ function PostCard({ post, onLike, onShare }: PostCardProps) {
             <img
               src={post.image_url}
               alt={post.title}
-              className="rounded-xl max-h-48 object-cover w-full border border-myanmar-gold/30"
+              className="rounded-xl w-full h-auto object-contain border border-myanmar-gold/30"
             />
           </div>
         )}
@@ -508,7 +510,7 @@ function PostCard({ post, onLike, onShare }: PostCardProps) {
             onClick={() => onShare(post)}
           >
             <Share className="h-4 w-4" />
-            <span>Share</span>
+            <span>{post.share_count || 0}</span>
           </Button>
         </div>
       </CardFooter>
