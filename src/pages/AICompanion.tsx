@@ -15,6 +15,17 @@ interface Message {
   timestamp: Date;
 }
 
+const SCHOLARSHIP_QUESTIONS = [
+  "နိုင်ငံတကာပညာသင်ဆုများအတွက် အဓိကလိုအပ်ချက်များက ဘာတွေလဲ?",
+  "ပညာသင်ဆုလျှောက်ထားရန် စာစီစာကုံးကို ဘယ်လိုရေးသားရမလဲ?",
+  "မြန်မာကျောင်းသားများအတွက် အကောင်းဆုံးပညာသင်ဆုများက ဘာတွေလဲ?",
+  "ပညာသင်ဆုအင်တာဗျူးအတွက် ဘယ်လိုပြင်ဆင်ရမလဲ?",
+  "ပညာသင်ဆုလျှောက်ထားရန် ဘယ်လိုစာရွက်စာတမ်းတွေ လိုအပ်သလဲ?",
+  "ပညာသင်ဆုရရှိဖို့ အခွင့်အလမ်းပိုကောင်းအောင် ဘယ်လိုလုပ်ရမလဲ?",
+  "ပညာသင်ဆုလျှောက်ထားရာတွင် ရှောင်ရှားသင့်သော အမှားများက ဘာတွေလဲ?",
+  "ကိုယ့်ရဲ့အရည်အချင်းနဲ့ ကိုက်ညီတဲ့ ပညာသင်ဆုတွေကို ဘယ်လိုရှာဖွေရမလဲ?",
+];
+
 export default function AICompanion() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -102,6 +113,14 @@ export default function AICompanion() {
     }
   };
 
+  const handleQuestionClick = (question: string) => {
+    setInput(question);
+    // Trigger the submit handler
+    const event = new Event('submit', { bubbles: true });
+    const form = document.querySelector('form');
+    form?.dispatchEvent(event);
+  };
+
   return (
     <div className="flex flex-col min-h-[calc(100vh-5rem)] bg-gradient-to-br from-white via-myanmar-gold/5 to-myanmar-jade/5">
       {/* Welcome Section */}
@@ -133,13 +152,27 @@ export default function AICompanion() {
           <AnimatePresence>
             {messages.length === 0 ? (
               <motion.div 
-                className="flex flex-col items-center justify-center h-full gap-4 text-myanmar-maroon/50"
+                className="flex flex-col items-center justify-center h-full gap-6 text-myanmar-maroon/50"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
                 <Sparkles className="w-12 h-12" />
-                <p className="text-center">Start a conversation with your AI companion!</p>
+                <p className="text-center text-lg mb-4">Start a conversation with your AI companion!</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl">
+                  {SCHOLARSHIP_QUESTIONS.map((question, index) => (
+                    <motion.button
+                      key={index}
+                      onClick={() => handleQuestionClick(question)}
+                      className="text-left p-3 rounded-xl bg-myanmar-gold/5 hover:bg-myanmar-gold/10 transition-colors text-myanmar-maroon/80 hover:text-myanmar-maroon"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      {question}
+                    </motion.button>
+                  ))}
+                </div>
               </motion.div>
             ) : (
               <div className="space-y-4">
