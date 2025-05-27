@@ -337,29 +337,30 @@ export default function Community() {
   };
 
   return (
-    <div className="container py-8 md:py-12">
-      <div className="flex flex-col items-center justify-center mb-8 text-center">
-        <div className="pattern-border pb-2">
-          <h1 className="text-3xl font-bold tracking-tighter mb-2 text-myanmar-maroon">Community</h1>
+    <div className="w-full min-h-screen bg-gradient-to-b from-[#f8fafc] via-[#fdf6ee] to-[#f8fafc] pb-12">
+      <div className="w-full flex flex-col items-center justify-center pt-10 pb-6 px-2 bg-gradient-to-b from-[#fff8f0] via-[#f8fafc] to-transparent">
+        <div className="relative flex flex-col items-center">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-myanmar-maroon mb-2 drop-shadow-sm">Community</h1>
+          <span className="block w-24 h-2 rounded-full bg-gradient-to-r from-myanmar-maroon via-myanmar-gold to-myanmar-jade mb-2" />
         </div>
-        <p className="max-w-[600px] text-muted-foreground">
+        <p className="max-w-xl text-lg text-myanmar-maroon/80 text-center mb-6 mt-2">
           Connect with fellow Myanmar students, share experiences, and learn from others in the scholarship journey.
         </p>
       </div>
 
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white/80 rounded-xl shadow-lg p-4">
+      <div className="max-w-2xl mx-auto -mt-8">
+        <div className="mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white/90 rounded-2xl shadow-2xl p-6 border border-myanmar-gold/10">
           <div className="flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-myanmar-maroon" />
-            <span className="text-sm text-myanmar-maroon font-semibold">{posts.length} posts in the community</span>
+            <BookOpen className="h-5 w-5 text-myanmar-maroon" />
+            <span className="text-base md:text-lg text-myanmar-maroon font-semibold">{posts.length} posts in the community</span>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="rounded-full border-myanmar-jade text-myanmar-jade font-bold">
-              <Filter className="h-4 w-4 mr-2" />
+            <Button variant="outline" size="sm" className="rounded-full border-myanmar-jade text-myanmar-jade font-bold px-5 py-2 text-base">
+              <Filter className="h-5 w-5 mr-2" />
               Filter
             </Button>
-            <Button size="sm" className="rounded-full bg-myanmar-gold text-myanmar-maroon font-bold px-6" onClick={handleNewPost}>
-              <Plus className="h-4 w-4 mr-2" />
+            <Button size="sm" className="rounded-full bg-myanmar-gold text-myanmar-maroon font-bold px-6 py-2 text-base shadow hover:bg-myanmar-gold/90 transition-all" onClick={handleNewPost}>
+              <Plus className="h-5 w-5 mr-2" />
               New Post
             </Button>
           </div>
