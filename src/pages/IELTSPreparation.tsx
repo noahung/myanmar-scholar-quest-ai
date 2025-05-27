@@ -187,10 +187,69 @@ const sectionCards = [
   },
 ];
 
+const videoLibrary = [
+  {
+    id: '1',
+    title: 'IELTS Listening Tips & Tricks',
+    description: 'Learn the best strategies to ace the IELTS Listening section with real examples and expert advice.',
+    youtubeId: 'Yt2l1rSkb8A',
+    thumbnail: 'https://img.youtube.com/vi/Yt2l1rSkb8A/hqdefault.jpg',
+  },
+  {
+    id: '2',
+    title: 'How to Score Band 8 in IELTS Reading',
+    description: 'Step-by-step guide to improve your reading skills and manage your time effectively.',
+    youtubeId: 'd8q9k1bGq1E',
+    thumbnail: 'https://img.youtube.com/vi/d8q9k1bGq1E/hqdefault.jpg',
+  },
+  {
+    id: '3',
+    title: 'IELTS Writing Task 2: Full Essay Walkthrough',
+    description: 'Watch a full essay being written and learn how to structure your answer for maximum marks.',
+    youtubeId: 't8r7E6Qp1wE',
+    thumbnail: 'https://img.youtube.com/vi/t8r7E6Qp1wE/hqdefault.jpg',
+  },
+  {
+    id: '4',
+    title: 'Speaking Band 9 Sample Answers',
+    description: 'Listen to real Band 9 answers and learn how to impress the examiner in your speaking test.',
+    youtubeId: '3Q8zTVlZb1E',
+    thumbnail: 'https://img.youtube.com/vi/3Q8zTVlZb1E/hqdefault.jpg',
+  },
+  {
+    id: '5',
+    title: 'IELTS Preparation for Beginners',
+    description: "A complete beginner's guide to the IELTS exam, including tips for each section.",
+    youtubeId: '1nQZ6yWQJdA',
+    thumbnail: 'https://img.youtube.com/vi/1nQZ6yWQJdA/hqdefault.jpg',
+  },
+  {
+    id: '6',
+    title: 'Time Management in IELTS',
+    description: 'Learn how to manage your time in each section to maximize your score.',
+    youtubeId: '5vR1kQwQ2pA',
+    thumbnail: 'https://img.youtube.com/vi/5vR1kQwQ2pA/hqdefault.jpg',
+  },
+  {
+    id: '7',
+    title: 'Common IELTS Mistakes to Avoid',
+    description: 'Discover the most common mistakes candidates make and how to avoid them.',
+    youtubeId: '9bZkp7q19f0',
+    thumbnail: 'https://img.youtube.com/vi/9bZkp7q19f0/hqdefault.jpg',
+  },
+  {
+    id: '8',
+    title: 'IELTS Speaking: Real Test Simulation',
+    description: 'Watch a real IELTS speaking test simulation and learn examiner expectations.',
+    youtubeId: '2Vv-BfVoq4g',
+    thumbnail: 'https://img.youtube.com/vi/2Vv-BfVoq4g/hqdefault.jpg',
+  },
+];
+
 export default function IELTSPreparation() {
   useScrollFadeIn();
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center w-full font-sans relative overflow-x-hidden">
+    <div className="min-h-screen bg-background flex flex-col items-center w-full font-sans">
       {/* Decorative Dots */}
       <div className="absolute top-10 left-10 w-3 h-3 bg-green-400 rounded-full opacity-30 animate-bounce-slow" />
       <div className="absolute top-1/2 right-10 w-2 h-2 bg-yellow-400 rounded-full opacity-30 animate-pulse" />
@@ -202,7 +261,7 @@ export default function IELTSPreparation() {
             IELTS <span className="text-green-500">Preparation</span> for <span className="text-yellow-500">Myanmar</span> Students
           </h1>
           <p className="text-lg text-gray-700 max-w-xl">
-            Get ready for IELTS success with expert tips, practice tests, and Myanmar language support. All you need to ace Listening, Reading, Writing, and Speaking!
+          IELTS အောင်မြင်မှုအတွက် ကျွမ်းကျင်သူများ၏ အကြံပြုချက်များ၊ လေ့ကျင့်ရန် စာမေးပွဲများနှင့် မြန်မာဘာသာစကား ပံ့ပိုးမှုတို့ဖြင့် ပြင်ဆင်ပါ။ နားထောင်ခြင်း၊ ဖတ်ရှုခြင်း၊ ရေးသားခြင်းနှင့် ပြောဆိုခြင်းတို့တွင် အောင်မြင်ရန် လိုအပ်သမျှ အရာများ
           </p>
           <div className="flex gap-4 mt-2">
             <Button className="rounded-full px-6 py-3 text-lg font-bold shadow-lg animate-fadein">Start Preparing</Button>
@@ -358,10 +417,10 @@ export default function IELTSPreparation() {
                 Speaking အပိုင်းသည် မိနစ် ၁၁ မှ ၁၄ မိနစ်အထိ ကြာမြင့်ပြီး အင်တာဗျူးပုံစံဖြင့် စစ်ဆေးသည်။ ဤအပိုင်းတွင် အပိုင်း ၃ ပိုင်းပါဝင်သည်- မိတ်ဆက်နှင့် အင်တာဗျူး၊ တစ်ဦးချင်းပြောဆိုမှု၊ နှင့် ဆွေးနွေးမှု။
               </div>
               <ul className="list-disc pl-5 space-y-2 text-gray-700 mt-2">
-                <li><span className="font-bold">အင်္ဂလိပ်စကားပြောကို လေ့ကျင့်ပါ</span> - အင်္ဂလိပ်စကားပြောသူများနှင့် စကားပြောဆိုရန် အခွင့်အလမ်းရှာပါ။</li>
-                <li><span className="font-bold">အသံထွက်ကို အာရုံစိုက်ပါ</span> - မတိကျသော အသံထွက်သည် ရမှတ်ကို ထိခိုက်စေနိုင်သည်။</li>
-                <li><span className="font-bold">အကြောင်းအမျိုးမျိုးကို ပြင်ဆင်ထားပါ</span> - နေ့စဉ်ဘဝ၊ ပညာရေး၊ အလုပ်အကိုင်၊ ခရီးသွားခြင်း၊ နှင့် ယဉ်ကျေးမှုဆိုင်ရာ အကြောင်းအရာများကို လေ့ကျင့်ပြောဆိုပါ။</li>
-                <li><span className="font-bold">စိတ်လှုပ်ရှားမှုကို ထိန်းချုပ်ပါ</span> - စာမေးပွဲတွင် စိတ်လှုပ်ရှားမှုသည် ပုံမှန်ဖြစ်သည်။</li>
+                <li><span className="font-bold">အင်္ဂလိပ်စကားပြောကို လေ့ကျင့်ပါ</span> - အင်္ဂလိပ်စကားပြောသူများနှင့် စကားပြောဆိုရန် အခွင့်အလမ်းရှာပါ Language exchange ပရိုဂရမ်များ သို့မဟုတ် အွန်လိုင်းပလက်ဖောင်းများကို အသုံးပြုပါ (ဥပမာ- iTalki, Tandem)။</li>
+                <li><span className="font-bold">အသံထွက်ကို အာရုံစိုက်ပါ</span> - မတိကျသော အသံထွက်သည် ရမှတ်ကို ထိခိုက်စေနိုင်သည်။ Pronunciation ကို လေ့ကျင့်ရန် အင်္ဂလိပ်စကားပြောသံများကို နားထောင်ပြီး အတုယူပါ။</li>
+                <li><span className="font-bold">အကြောင်းအမျိုးမျိုးကို ပြင်ဆင်ထားပါ</span> - နေ့စဉ်ဘဝ၊ ပညာရေး၊ အလုပ်အကိုင်၊ ခရီးသွားခြင်း၊ နှင့် ယဉ်ကျေးမှုဆိုင်ရာ အကြောင်းအရာများကို လေ့ကျင့်ပြောဆိုပါ။ Part 2 အတွက် ၁-၂ မိနစ်ကြာ စကားပြောရန် အဆင်သင့်ဖြစ်အောင် လေ့ကျင့်ပါ။</li>
+                <li><span className="font-bold">စိတ်လှုပ်ရှားမှုကို ထိန်းချုပ်ပါ</span> - စာမေးပွဲတွင် စိတ်လှုပ်ရှားမှုသည် ပုံမှန်ဖြစ်သည်။ အင်တာဗျူးပုံစံဖြင့် လေ့ကျင့်ခြင်းဖြင့် ယုံကြည်မှုကို တည်ဆောက်ပါ။</li>
               </ul>
               <Button className="rounded-full mt-4 w-max px-8 py-3 bg-blue-500 text-white font-bold shadow-lg hover:bg-blue-400 transition-colors duration-200">See Speaking Tips</Button>
             </div>
@@ -397,10 +456,10 @@ export default function IELTSPreparation() {
               </div>
               <ul className="list-disc pl-5 space-y-2 text-gray-700 mt-2">
                 <li><span className="font-bold">စာမေးပွဲပုံစံကို နားလည်ပါ</span> - IELTS စာမေးပွဲ၏ ဖွဲ့စည်းပုံအား အသေးစိတ်လေ့လာပါ။</li>
-                <li><span className="font-bold">အချိန်ဇယားတစ်ခု ချမှတ်ပါ</span> - တစ်ပတ်လျှင် အနည်းဆုံး ၁၀-၁၅ နာရီ လေ့ကျင့်ရန် အချိန်ဇယားတစ်ခု ပြုလုပ်ပါ။</li>
-                <li><span className="font-bold">စမ်းသပ်စာမေးပွဲများဖြေဆိုပါ</span> - စမ်းသပ်စာမေးပွဲများကို ဖြေဆိုခြင်းဖြင့် သင်၏ တိုးတက်မှုကို စစ်ဆေးပါ။</li>
+                <li><span className="font-bold">အချိန်ဇယားတစ်ခု ချမှတ်ပါ</span> - တစ်ပတ်လျှင် အနည်းဆုံး ၁၀-၁၅ နာရီ လေ့ကျင့်ရန် အချိန်ဇယားတစ်ခု ပြုလုပ်ပါ။ အပိုင်းလေးပိုင်းလုံးကို မျှတစွာ လေ့ကျင့်ပါ။</li>
+                <li><span className="font-bold">စမ်းသပ်စာမေးပွဲများဖြေဆိုပါ</span> - စမ်းသပ်စာမေးပွဲများကို ဖြေဆိုခြင်းဖြင့် သင်၏ တိုးတက်မှုကို စစ်ဆေးပါ။ အချိန်ကန့်သတ်ချက်အောက်တွင် လေ့ကျင့်ခြင်းသည် စာမေးပွဲအငွေ့အသက်ကို ရင်းနှီးစေသည်။</li>
                 <li><span className="font-bold">အကူအညီရယူပါ</span> - IELTS သင်တန်းများ၊ ဆရာများ၊ သို့မဟုတ် အွန်လိုင်းအရင်းအမြစ်များကို အသုံးပြုပါ။</li>
-                <li><span className="font-bold">ကျန်းမာရေးကို ဂရုစိုက်ပါ</span> - စာမေးပွဲမတိုင်မီ အိပ်ရေးဝဝအိပ်စက်ပြီး ကျန်းမာသော အစားအသောက်ကို စားသုံးပါ။</li>
+                <li><span className="font-bold">ကျန်းမာရေးကို ဂရုစိုက်ပါ</span> - စာမေးပွဲမတိုင်မီ အိပ်ရေးဝဝအိပ်စက်ပြီး ကျန်းမာသော အစားအသောက်ကို စားသုံးပါ။ စိတ်ဖိစီးမှုကို လျှော့ချရန် တရားထိုင်ခြင်း သို့မဟုတ် လေ့ကျင့်ခန်းလုပ်ပါ။</li>
               </ul>
               <Button className="rounded-full mt-4 w-max px-8 py-3 bg-purple-500 text-white font-bold shadow-lg hover:bg-purple-400 transition-colors duration-200">See All Tips</Button>
             </div>
@@ -458,22 +517,6 @@ export default function IELTSPreparation() {
           </div>
         </div>
       </div>
-      {/* Benefits/Features Grid */}
-      <section className="w-full max-w-5xl mx-auto py-12 px-4 grid grid-cols-1 md:grid-cols-3 gap-8 fade-in-on-scroll opacity-0 translate-y-8 transition-all duration-700">
-        {benefits.map((b, i) => (
-          <div key={b.title} className="bg-white rounded-2xl shadow-lg p-8 flex flex-col items-center text-center gap-3 animate-fadein" style={{ animationDelay: `${0.1 * i}s` }}>
-            <span className="mb-2">{React.createElement(b.icon)}</span>
-            <h3 className="text-lg font-bold text-gray-900">{b.title}</h3>
-            <p className="text-gray-600 text-sm">{b.desc}</p>
-          </div>
-        ))}
-      </section>
-      {/* Call to Action */}
-      <section className="w-full bg-gradient-to-r from-green-400 to-yellow-200 py-12 flex flex-col items-center justify-center gap-6 fade-in-on-scroll opacity-0 translate-y-8 transition-all duration-700">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 animate-slidein">Ready to Start Your IELTS Journey?</h2>
-        <p className="text-lg text-gray-800 max-w-xl text-center">Join thousands of Myanmar students who have succeeded with our tips, practice tests, and expert guidance. Start preparing today!</p>
-        <Button className="rounded-full px-8 py-4 text-lg font-bold shadow-lg animate-fadein">Get Started Now</Button>
-      </section>
       {/* Animation keyframes and custom styles */}
       <style>{`
         .animate-fadein {
@@ -498,6 +541,39 @@ export default function IELTSPreparation() {
           100% { transform: translateY(-16px); }
         }
       `}</style>
+      {/* Video Library Section */}
+      <section className="w-full max-w-6xl mx-auto flex flex-col items-center justify-center py-16 px-4 gap-6 fade-in-on-scroll opacity-0 translate-y-8 transition-all duration-700">
+        <h1 className="text-4xl md:text-5xl font-extrabold leading-tight text-gray-900 animate-slidein text-center">
+          IELTS <span className="text-red-500">Video Library</span>
+        </h1>
+        <p className="text-lg text-gray-700 max-w-2xl text-center">
+        မြန်မာကျောင်းသားများအတွက် ရွေးချယ်ထားသော အကောင်းဆုံး IELTS ပြင်ဆင်မှု ဗီဒီယိုများကို ကြည့်ရှုပါ။ ထိပ်တန်း YouTube ပညာပေးသူများထံမှ အကြံပြုချက်များ၊ ဗျူဟာများနှင့် တကယ့်စာမေးပွဲ နည်းပညာများကို လေ့လာပါ။
+        </p>
+      </section>
+      <section className="w-full max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 py-8 px-4 fade-in-on-scroll opacity-0 translate-y-8 transition-all duration-700">
+        {videoLibrary.map((video, i) => (
+          <div
+            key={video.id}
+            className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col group hover:scale-[1.03] hover:shadow-2xl transition-transform duration-300 animate-fadein"
+            style={{ animationDelay: `${0.1 * i}s` }}
+          >
+            <div className="relative w-full aspect-video bg-black overflow-hidden">
+              <iframe
+                className="w-full h-full absolute top-0 left-0"
+                src={`https://www.youtube.com/embed/${video.youtubeId}`}
+                title={video.title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            </div>
+            <div className="p-5 flex-1 flex flex-col gap-2">
+              <h2 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-red-500 transition-colors duration-200">{video.title}</h2>
+              <p className="text-gray-600 text-sm line-clamp-3">{video.description}</p>
+            </div>
+          </div>
+        ))}
+      </section>
     </div>
   );
 } 
