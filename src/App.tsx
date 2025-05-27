@@ -27,6 +27,7 @@ import NotFound from "./pages/NotFound";
 import SavedScholarshipsPage from "./pages/SavedScholarshipsPage";
 import AboutUs from "./pages/AboutUs";
 import AICompanion from "./pages/AICompanion";
+import IELTSPreparation from "./pages/IELTSPreparation";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
                 <Route path="/terms" element={<StaticPage />} />
                 <Route path="/saved-scholarships" element={<SavedScholarshipsPage />} />
                 <Route path="/ai-companion" element={<AICompanion />} />
+                <Route path="/ielts-preparation" element={<IELTSPreparation />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

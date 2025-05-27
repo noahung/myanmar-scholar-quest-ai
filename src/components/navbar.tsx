@@ -109,6 +109,7 @@ export function Navbar() {
     { name: 'Community', href: "/community", icon: MessageCircle },
     { name: 'Guides', href: "/guides", icon: Search },
     { name: 'AI Companion', href: "/ai-companion", icon: Bot },
+    { name: 'IELTS Preparation', href: "/ielts-preparation", icon: BookOpen },
   ];
 
   const getInitials = (name: string | null) => {
