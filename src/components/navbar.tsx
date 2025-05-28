@@ -118,25 +118,23 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10 backdrop-blur">
+    <header className="sticky top-0 z-50 w-full border-b bg-white">
       <div className="container flex h-20 items-center justify-between">
         <div className="flex items-center gap-3">
           <Link to="/" className="flex items-center gap-3">
-            <img src="https://aysvkiyuzqktcumdzxqh.supabase.co/storage/v1/object/public/images//myanmar%20scholar%20logo.png" alt="Scholar-M Logo" className="h-12 w-12 object-contain bg-white rounded-xl border-2 border-myanmar-maroon shadow" />
-            <span className="font-extrabold text-2xl text-myanmar-maroon hidden md:block tracking-tight">Scholar-M</span>
+            <img src="https://aysvkiyuzqktcumdzxqh.supabase.co/storage/v1/object/public/images//myanmarscholar.png" alt="Myanmar Scholar Logo" className="h-16 object-contain" />
           </Link>
         </div>
         
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8 ml-8">
+        <nav className="hidden lg:flex items-center gap-8 ml-8">
           {navItems.map((item) => (
             <Link 
               key={item.name} 
               to={item.href}
-              className="flex items-center gap-1 text-lg font-bold text-myanmar-maroon/80 hover:text-myanmar-maroon transition-colors px-3 py-1 rounded-full hover:bg-myanmar-gold/20 focus:bg-myanmar-gold/30 focus:outline-none"
+              className="text-lg font-bold text-myanmar-maroon/80 hover:text-myanmar-maroon transition-colors px-3 py-1 rounded-full hover:bg-myanmar-gold/20 focus:bg-myanmar-gold/30 focus:outline-none"
             >
-              <item.icon className="h-5 w-5" />
-              <span>{t(item.name)}</span>
+              {t(item.name)}
             </Link>
           ))}
         </nav>
@@ -209,7 +207,7 @@ export function Navbar() {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden rounded-full border border-myanmar-maroon text-myanmar-maroon"
+            className="lg:hidden rounded-full border border-myanmar-maroon text-myanmar-maroon"
             onClick={toggleMobileMenu}
           >
             {mobileMenuOpen ? (
@@ -222,15 +220,8 @@ export function Navbar() {
       </div>
       
       {/* Mobile Navigation Menu */}
-      {mobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 md:hidden"
-          onClick={toggleMobileMenu}
-          aria-label="Close menu overlay"
-        />
-      )}
       <div className={cn(
-        "md:hidden fixed inset-y-0 right-0 top-20 z-50 bg-white/95 pt-6 px-6 w-4/5 max-w-xs shadow-2xl rounded-l-3xl transition-transform duration-300 ease-in-out flex flex-col h-[calc(100vh-5rem)]",
+        "lg:hidden fixed inset-y-0 right-0 top-20 z-50 bg-white pt-6 px-6 w-4/5 max-w-xs shadow-2xl rounded-l-3xl transition-transform duration-300 ease-in-out flex flex-col h-[calc(100vh-5rem)]",
         mobileMenuOpen ? "translate-x-0" : "translate-x-full"
       )} style={{ pointerEvents: mobileMenuOpen ? 'auto' : 'none' }}>
         <nav className="flex flex-col gap-4">
@@ -241,7 +232,6 @@ export function Navbar() {
               className="flex items-center gap-3 p-3 text-lg font-bold text-myanmar-maroon rounded-full hover:bg-myanmar-gold/20 transition-colors"
               onClick={toggleMobileMenu}
             >
-              <item.icon className="h-5 w-5" />
               <span>{t(item.name)}</span>
             </Link>
           ))}
