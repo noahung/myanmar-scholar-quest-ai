@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               codeFromRedirect = params.get('code');
               stateFromRedirect = params.get('state');
             }
-            if (codeFromRedirect && stateFromRedirect) {
+            if (codeFromRedirect) { // Only require code, not state
               code = codeFromRedirect;
               state = stateFromRedirect;
               window.history.replaceState({}, document.title, window.location.pathname);
@@ -74,14 +74,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      if (code && state) {
+      if (code) { // Only require code, not state
         console.log('[AuthContext] Detected OAuth code in URL (main or redirect) on route:', window.location.pathname, 'code:', code, 'state:', state);
         setIsLoading(true);
         toast({
           title: 'Processing login...',
           description: 'Please wait while we complete your authentication.'
         });
-
         try {
           // Exchange the code for a session
           const { data, error } = await supabase.auth.exchangeCodeForSession(code);
@@ -116,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setIsLoading(false);
         }
       } else {
-        console.log('[AuthContext] No OAuth code/state found in URL.');
+        console.log('[AuthContext] No OAuth code found in URL.');
       }
     };
     checkForOAuthCode();
