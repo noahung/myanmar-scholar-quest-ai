@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://noahung.github.io/myanmar-scholar-quest-ai",
+  "homepage": "https://myanmarscholar.com",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
