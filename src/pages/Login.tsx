@@ -309,11 +309,13 @@ export default function Login() {
                   </motion.form>
                 )}
 
+                {/* Hide the OR separator and Google login section */}
                 <motion.div
                   className="relative my-6"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4, duration: 0.5 }}
+                  style={{ display: 'none' }}
                 >
                   <Separator />
                   <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-sm text-muted-foreground">
@@ -325,6 +327,7 @@ export default function Login() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.5, duration: 0.5 }}
+                  style={{ display: 'none' }} // Hide Google login section
                 >
                   <Button
                     type="button"
