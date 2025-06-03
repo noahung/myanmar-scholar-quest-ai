@@ -4,7 +4,7 @@ import App from './App.tsx'
 import './index.css'
 
 createRoot(document.getElementById("root")!).render(
-  <BrowserRouter basename="/myanmar-scholar-quest-ai">
+  <BrowserRouter>
     <App />
   </BrowserRouter>
 );
