@@ -36,10 +36,10 @@ function App() {
   const { isLoading } = useAuth();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light">
-        <TooltipProvider>
-          <AuthProvider>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider defaultTheme="light">
+          <TooltipProvider>
             <LanguageProvider>
               <CustomCSS />
               <Toaster />
@@ -77,10 +77,10 @@ function App() {
               <Footer />
               <AiAssistant />
             </LanguageProvider>
-          </AuthProvider>
-        </TooltipProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+          </TooltipProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </AuthProvider>
   );
 }
 
