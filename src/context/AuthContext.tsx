@@ -43,16 +43,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let searchParams = new URLSearchParams(window.location.search);
       let code = searchParams.get('code');
       let state = searchParams.get('state');
+      console.log('[AuthContext] OAuth check: code:', code, 'state:', state, 'search:', window.location.search);
 
       // If not found in main URL, check ?redirect= param (for GitHub Pages/SPA 404.html redirects)
       if ((!code || !state) && searchParams.get('redirect')) {
         try {
           const redirectParam = searchParams.get('redirect');
           if (redirectParam) {
-            // redirectParam is a URI-encoded string like /login?code=...&state=...
             let codeFromRedirect = null;
             let stateFromRedirect = null;
-            // If it starts with /, remove the path and just get the query string
             const qIndex = redirectParam.indexOf('?');
             if (qIndex !== -1) {
               const qs = redirectParam.substring(qIndex + 1);
@@ -63,92 +62,81 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (codeFromRedirect && stateFromRedirect) {
               code = codeFromRedirect;
               state = stateFromRedirect;
-              // Clean up the URL to remove the ?redirect param
               window.history.replaceState({}, document.title, window.location.pathname);
+              console.log('[AuthContext] Extracted code/state from redirect param:', code, state);
             }
           }
         } catch (e) {
-          // Ignore parse errors
+          console.error('[AuthContext] Error parsing redirect param:', e);
         }
       }
 
       if (code && state) {
-        console.log("[AuthContext] Detected OAuth code in URL (main or redirect) on route:", window.location.pathname);
+        console.log('[AuthContext] Detected OAuth code in URL (main or redirect) on route:', window.location.pathname, 'code:', code, 'state:', state);
         setIsLoading(true);
         toast({
-          title: "Processing login...",
-          description: "Please wait while we complete your authentication."
+          title: 'Processing login...',
+          description: 'Please wait while we complete your authentication.'
         });
 
         try {
           // Exchange the code for a session
           const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+          console.log('[AuthContext] exchangeCodeForSession result:', { data, error });
           if (error) {
-            console.error("Error exchanging code for session:", error);
+            console.error('[AuthContext] Error exchanging code for session:', error);
             toast({
-              variant: "destructive",
-              title: "Login Failed",
+              variant: 'destructive',
+              title: 'Login Failed',
               description: error.message,
               duration: 2000
             });
           } else {
-            // Set the session and user immediately
             setSession(data.session);
             setUser(data.session?.user ?? null);
-
-            // Clean up the URL by removing the code and state parameters
+            console.log('[AuthContext] Session and user set after exchange:', data.session, data.session?.user);
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
-
-            // Fetch user profile
             if (data.session?.user) {
               await fetchUserProfile(data.session.user.id);
             }
           }
         } catch (error) {
-          console.error("Error in OAuth callback:", error);
+          console.error('[AuthContext] Error in OAuth callback:', error);
           toast({
-            variant: "destructive",
-            title: "Login Failed",
-            description: "An unexpected error occurred during authentication.",
+            variant: 'destructive',
+            title: 'Login Failed',
+            description: 'An unexpected error occurred during authentication.',
             duration: 2000
           });
         } finally {
           setIsLoading(false);
         }
+      } else {
+        console.log('[AuthContext] No OAuth code/state found in URL.');
       }
     };
-
     checkForOAuthCode();
   }, [location]);
 
   useEffect(() => {
     let mounted = true;
-
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
-        console.log("Auth state changed:", event, "Session:", newSession?.user?.id);
-        
+        console.log('[AuthContext] Auth state changed:', event, 'Session:', newSession?.user?.id, newSession);
         if (!mounted) return;
-
         try {
           if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-            console.log("Setting session and user");
+            console.log('[AuthContext] Setting session and user');
             setSession(newSession);
             setUser(newSession?.user ?? null);
-            
             if (newSession?.user && !hasShownWelcomeToast.current) {
               dismiss();
-              console.log("Attempting to fetch profile data for user:", newSession.user.id);
-              
-              // Create a timeout promise
+              console.log('[AuthContext] Attempting to fetch profile data for user:', newSession.user.id);
               const timeoutPromise = new Promise((_, reject) => {
                 setTimeout(() => reject(new Error('Profile fetch timeout')), 5000);
               });
-
               try {
-                // Race between the profile fetch and timeout
                 const result = await Promise.race([
                   supabase
                     .from('profiles')
@@ -157,64 +145,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     .single(),
                   timeoutPromise
                 ]) as PostgrestSingleResponse<Profile>;
-
                 const { data: profileData, error: profileError } = result;
-                console.log("Profile fetch response:", { data: profileData, error: profileError });
-
+                console.log('[AuthContext] Profile fetch response:', { data: profileData, error: profileError });
                 if (profileError) {
-                  console.error("Error fetching profile:", profileError);
-                  // If profile doesn't exist, create it
+                  console.error('[AuthContext] Error fetching profile:', profileError);
                   if (
                     profileError.message?.includes('found') ||
                     profileError.code === 'PGRST116' ||
                     profileError.message?.includes('multiple (or no) row is returned')
                   ) {
-                    console.log("Profile not found, creating new profile");
+                    console.log('[AuthContext] Profile not found, creating new profile');
                     await createUserProfile(newSession.user.id);
                   }
                 } else if (profileData) {
-                  console.log("Profile found:", profileData);
+                  console.log('[AuthContext] Profile found:', profileData);
                   setIsAdmin(!!profileData.is_admin);
                   const userName = profileData.full_name || newSession.user.user_metadata?.full_name || newSession.user.email?.split('@')[0];
-                  
                   toast({
-                    title: "Signed in successfully",
+                    title: 'Signed in successfully',
                     description: `Welcome${userName ? ', ' + userName : ''}!`,
                     duration: 1500
                   });
                 }
-
                 hasShownWelcomeToast.current = true;
                 if (location.pathname === '/login') {
-                  navigate("/");
+                  navigate('/');
                 }
               } catch (error) {
-                console.error("Profile fetch failed:", error);
-                // If timeout or other error, proceed without profile
+                console.error('[AuthContext] Profile fetch failed:', error);
                 toast({
-                  title: "Signed in",
-                  description: "Welcome! Profile data may be incomplete.",
+                  title: 'Signed in',
+                  description: 'Welcome! Profile data may be incomplete.',
                   duration: 1500
                 });
                 hasShownWelcomeToast.current = true;
               }
             }
           } else if (event === 'SIGNED_OUT') {
-            console.log("Handling sign out");
+            console.log('[AuthContext] Handling sign out');
             setSession(null);
             setUser(null);
             setIsAdmin(false);
             hasShownWelcomeToast.current = false;
             dismiss();
             toast({
-              title: "Signed out successfully",
+              title: 'Signed out successfully',
               duration: 1500
             });
           }
         } catch (error) {
-          console.error("Error in auth state change:", error);
+          console.error('[AuthContext] Error in auth state change:', error);
         } finally {
-          console.log("Setting isLoading to false after auth state change");
+          console.log('[AuthContext] Setting isLoading to false after auth state change');
           setIsLoading(false);
         }
       }
