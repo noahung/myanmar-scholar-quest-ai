@@ -309,7 +309,7 @@ export default function Login() {
                   </motion.form>
                 )}
 
-                {/* Hide the OR separator and Google login section */}
+                {/* OR separator and Google login section */}
                 <motion.div
                   className="relative my-6"
                   initial={{ opacity: 0 }}
