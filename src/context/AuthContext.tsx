@@ -50,11 +50,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const redirectParam = searchParams.get('redirect');
           if (redirectParam) {
             // redirectParam is a URI-encoded string like /login?code=...&state=...
-            const redirectUrl = new URL(redirectParam, window.location.origin);
-            const redirectParams = new URLSearchParams(redirectUrl.search);
-            code = redirectParams.get('code');
-            state = redirectParams.get('state');
-            if (code && state) {
+            let codeFromRedirect = null;
+            let stateFromRedirect = null;
+            // If it starts with /, remove the path and just get the query string
+            const qIndex = redirectParam.indexOf('?');
+            if (qIndex !== -1) {
+              const qs = redirectParam.substring(qIndex + 1);
+              const params = new URLSearchParams(qs);
+              codeFromRedirect = params.get('code');
+              stateFromRedirect = params.get('state');
+            }
+            if (codeFromRedirect && stateFromRedirect) {
+              code = codeFromRedirect;
+              state = stateFromRedirect;
               // Clean up the URL to remove the ?redirect param
               window.history.replaceState({}, document.title, window.location.pathname);
             }
