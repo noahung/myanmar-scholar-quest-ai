@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="refresh" content="0; url=/index.html" />
+    <script>
+      // For client-side routers (like React Router)
+      // Redirect to index.html and preserve the path
+      var l = window.location;
+      var path = l.pathname + l.search + l.hash;
+      window.location.replace('/index.html?redirect=' + encodeURIComponent(path));
+    </script>
+  </head>
+  <body>
+    <h1>Redirecting...</h1>
+  </body>
+</html>

@@ -22,7 +22,13 @@ export default function Login() {
   const { user, signIn, signUp, signInWithGoogle } = useAuth();
 
   useEffect(() => {
-    if (user) {
+    // Check for ?redirect= in the URL (from 404.html redirect)
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect');
+    if (user && redirect) {
+      // Remove ?redirect= from URL and navigate
+      navigate(redirect, { replace: true });
+    } else if (user) {
       navigate('/');
     }
   }, [user, navigate]);
