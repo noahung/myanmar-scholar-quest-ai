@@ -50,11 +50,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const redirectParam = searchParams.get('redirect');
           if (redirectParam) {
+            // Fix: decode the redirect param before extracting code/state
+            const decoded = decodeURIComponent(redirectParam);
             let codeFromRedirect = null;
             let stateFromRedirect = null;
-            const qIndex = redirectParam.indexOf('?');
+            const qIndex = decoded.indexOf('?');
             if (qIndex !== -1) {
-              const qs = redirectParam.substring(qIndex + 1);
+              const qs = decoded.substring(qIndex + 1);
               const params = new URLSearchParams(qs);
               codeFromRedirect = params.get('code');
               stateFromRedirect = params.get('state');
