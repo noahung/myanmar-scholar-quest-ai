@@ -19,7 +19,7 @@ export default function Login() {
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { user, signIn, signUp, signInWithGoogle } = useAuth();
+  const { user, signIn, signUp, signInWithGoogle, isLoading } = useAuth();
 
   useEffect(() => {
     // Check for ?redirect= in the URL (from 404.html redirect)
@@ -109,6 +109,11 @@ export default function Login() {
 
   return (
     <div className="min-h-[calc(100vh-5rem)] bg-white">
+      {isLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80">
+          <Loader2 className="h-10 w-10 animate-spin text-myanmar-maroon" />
+        </div>
+      )}
       <div className="container mx-auto h-full">
         <div className="flex h-full items-center justify-center py-12">
           <div className="flex w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl">

@@ -45,6 +45,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const state = searchParams.get('state');
 
       if (code && state) {
+        console.log("[AuthContext] Detected OAuth code in URL on route:", window.location.pathname);
+        setIsLoading(true);
         toast({
           title: "Processing login...",
           description: "Please wait while we complete your authentication."
@@ -65,11 +67,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Set the session and user immediately
             setSession(data.session);
             setUser(data.session?.user ?? null);
-            
+
             // Clean up the URL by removing the code and state parameters
             const newUrl = window.location.pathname;
             window.history.replaceState({}, document.title, newUrl);
-            
+
             // Fetch user profile
             if (data.session?.user) {
               await fetchUserProfile(data.session.user.id);
@@ -83,6 +85,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             description: "An unexpected error occurred during authentication.",
             duration: 2000
           });
+        } finally {
+          setIsLoading(false);
         }
       }
     };
