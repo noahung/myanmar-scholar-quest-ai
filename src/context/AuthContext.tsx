@@ -421,8 +421,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     try {
       console.log("Starting Google sign-in process");
-      // Use the current URL as the redirect URL
-      const redirectTo = window.location.origin + window.location.pathname;
+      // Always use the canonical login route for redirect
+      const redirectTo = window.location.origin + "/login";
       console.log("Setting redirect URL:", redirectTo);
       dismiss();
       toast({
