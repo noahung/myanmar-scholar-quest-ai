@@ -40,12 +40,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Check if we have a code and state in the URL (Google OAuth callback)
   useEffect(() => {
     const checkForOAuthCode = async () => {
-      const searchParams = new URLSearchParams(window.location.search);
-      const code = searchParams.get('code');
-      const state = searchParams.get('state');
+      let searchParams = new URLSearchParams(window.location.search);
+      let code = searchParams.get('code');
+      let state = searchParams.get('state');
+
+      // If not found in main URL, check ?redirect= param (for GitHub Pages/SPA 404.html redirects)
+      if ((!code || !state) && searchParams.get('redirect')) {
+        try {
+          const redirectParam = searchParams.get('redirect');
+          if (redirectParam) {
+            // redirectParam is a URI-encoded string like /login?code=...&state=...
+            const redirectUrl = new URL(redirectParam, window.location.origin);
+            const redirectParams = new URLSearchParams(redirectUrl.search);
+            code = redirectParams.get('code');
+            state = redirectParams.get('state');
+            if (code && state) {
+              // Clean up the URL to remove the ?redirect param
+              window.history.replaceState({}, document.title, window.location.pathname);
+            }
+          }
+        } catch (e) {
+          // Ignore parse errors
+        }
+      }
 
       if (code && state) {
-        console.log("[AuthContext] Detected OAuth code in URL on route:", window.location.pathname);
+        console.log("[AuthContext] Detected OAuth code in URL (main or redirect) on route:", window.location.pathname);
         setIsLoading(true);
         toast({
           title: "Processing login...",
