@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { AiAssistant } from "@/components/ai-assistant";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { CustomCSS } from "@/components/CustomCSS";
 import { Loader2 } from "lucide-react";
@@ -33,54 +33,45 @@ import IELTSPreparation from "./pages/IELTSPreparation";
 const queryClient = new QueryClient();
 
 function App() {
-  const { isLoading } = useAuth();
-
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="light">
-          <TooltipProvider>
-            <LanguageProvider>
-              <CustomCSS />
-              <Toaster />
-              <Sonner />
-              <Navbar />
-              <main>
-                {isLoading && (
-                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80">
-                    <Loader2 className="h-10 w-10 animate-spin text-myanmar-maroon" />
-                  </div>
-                )}
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/index.html" element={<Home />} />
-                  <Route path="/scholarships" element={<Scholarships />} />
-                  <Route path="/scholarships/:id" element={<ScholarshipDetail />} />
-                  <Route path="/community" element={<Community />} />
-                  <Route path="/create-post" element={<CreatePost />} />
-                  <Route path="/community/:id" element={<PostDetail />} />
-                  <Route path="/guides" element={<Guides />} />
-                  <Route path="/guides/:id" element={<GuideDetail />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/about" element={<AboutUs />} />
-                  <Route path="/faq" element={<StaticPage />} />
-                  <Route path="/privacy" element={<StaticPage />} />
-                  <Route path="/terms" element={<StaticPage />} />
-                  <Route path="/saved-scholarships" element={<SavedScholarshipsPage />} />
-                  <Route path="/ai-companion" element={<AICompanion />} />
-                  <Route path="/ielts-preparation" element={<IELTSPreparation />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </main>
-              <Footer />
-              <AiAssistant />
-            </LanguageProvider>
-          </TooltipProvider>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="light">
+        <TooltipProvider>
+          <LanguageProvider>
+            <CustomCSS />
+            <Toaster />
+            <Sonner />
+            <Navbar />
+            <main>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/index.html" element={<Home />} />
+                <Route path="/scholarships" element={<Scholarships />} />
+                <Route path="/scholarships/:id" element={<ScholarshipDetail />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/create-post" element={<CreatePost />} />
+                <Route path="/community/:id" element={<PostDetail />} />
+                <Route path="/guides" element={<Guides />} />
+                <Route path="/guides/:id" element={<GuideDetail />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/about" element={<AboutUs />} />
+                <Route path="/faq" element={<StaticPage />} />
+                <Route path="/privacy" element={<StaticPage />} />
+                <Route path="/terms" element={<StaticPage />} />
+                <Route path="/saved-scholarships" element={<SavedScholarshipsPage />} />
+                <Route path="/ai-companion" element={<AICompanion />} />
+                <Route path="/ielts-preparation" element={<IELTSPreparation />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+            <Footer />
+            <AiAssistant />
+          </LanguageProvider>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 
