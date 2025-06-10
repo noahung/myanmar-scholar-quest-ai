@@ -11,11 +11,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/components/ui/use-toast";
 import { motion } from "framer-motion";
+import { AdminBadge } from "@/components/AdminBadge";
 
 interface Author {
   id: string;
   name: string;
   avatar: string;
+  is_admin?: boolean;
 }
 
 interface Post {
@@ -74,7 +76,7 @@ export default function PostDetail() {
       // Get author details
       const { data: authorData } = await supabase
         .from('profiles')
-        .select('full_name, avatar_url')
+        .select('full_name, avatar_url, is_admin')
         .eq('id', postData.author_id)
         .single();
       
@@ -107,7 +109,7 @@ export default function PostDetail() {
         // Get comment author details
         const { data: commentAuthorData } = await supabase
           .from('profiles')
-          .select('full_name, avatar_url')
+          .select('full_name, avatar_url, is_admin')
           .eq('id', comment.user_id)
           .single();
           
@@ -129,7 +131,8 @@ export default function PostDetail() {
           author: {
             id: comment.user_id,
             name: commentAuthorData?.full_name || 'Anonymous',
-            avatar: commentAuthorData?.avatar_url || '/placeholder.svg'
+            avatar: commentAuthorData?.avatar_url || '/placeholder.svg',
+            is_admin: commentAuthorData?.is_admin || false,
           },
           author_id: comment.user_id,
           content: comment.content,
@@ -146,7 +149,8 @@ export default function PostDetail() {
         author: {
           id: postData.author_id,
           name: authorData?.full_name || 'Anonymous',
-          avatar: authorData?.avatar_url || '/placeholder.svg'
+          avatar: authorData?.avatar_url || '/placeholder.svg',
+          is_admin: authorData?.is_admin || false,
         },
         author_id: postData.author_id,
         date: postData.date,
@@ -436,7 +440,6 @@ export default function PostDetail() {
             </Link>
           </Button>
         </motion.div>
-
         {/* Post card */}
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
           <div className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10 p-6 mb-8">
@@ -445,10 +448,11 @@ export default function PostDetail() {
                 <AvatarImage src={post.author.avatar} alt={post.author.name} />
                 <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
               </Avatar>
-              <div>
+              <div className="flex items-center gap-1">
                 <p className="font-medium text-myanmar-maroon">{post.author.name}</p>
-                <p className="text-xs text-myanmar-maroon/70">{new Date(post.date).toLocaleDateString()}</p>
+                {post.author.is_admin && <AdminBadge />}
               </div>
+              <p className="text-xs text-myanmar-maroon/70">{new Date(post.date).toLocaleDateString()}</p>
             </div>
             <h1 className="text-2xl font-bold text-myanmar-maroon mb-2">{post.title}</h1>
             <div className="flex flex-wrap gap-2 mb-4">
@@ -505,7 +509,6 @@ export default function PostDetail() {
             </div>
           </div>
         </motion.div>
-
         {/* Comments section */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
           <div className="mt-8">
@@ -549,7 +552,10 @@ export default function PostDetail() {
                   </Avatar>
                   <div className="flex-1">
                     <div className="flex justify-between items-center mb-1">
-                      <p className="font-medium text-myanmar-maroon">{comment.author.name}</p>
+                      <div className="flex items-center gap-1">
+                        <p className="font-medium text-myanmar-maroon">{comment.author.name}</p>
+                        {comment.author.is_admin && <AdminBadge />}
+                      </div>
                       <p className="text-xs text-myanmar-maroon/70">
                         {new Date(comment.date).toLocaleDateString()}
                       </p>

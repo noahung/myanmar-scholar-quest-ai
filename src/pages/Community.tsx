@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,10 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Link, useNavigate } from "react-router-dom";
-import { MessageCircle, Heart, Share, Plus, Filter, BookOpen, Loader2 } from "lucide-react";
+import { MessageCircle, Heart, Share, Plus, Filter, BookOpen, Loader2, ArrowUp, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/components/ui/use-toast";
+import { AdminBadge } from "@/components/AdminBadge";
 
 type Post = {
   id: string;
@@ -18,6 +20,7 @@ type Post = {
     id: string;
     name: string;
     avatar?: string;
+    is_admin?: boolean;
   };
   date: string;
   likes: number;
@@ -31,37 +34,58 @@ type Post = {
 export default function Community() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [showTopBtn, setShowTopBtn] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const POSTS_PER_PAGE = 10;
+  const loaderRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchPosts();
   }, [user]);
 
-  async function fetchPosts() {
+  // Infinite scroll: observe loader div
+  React.useEffect(() => {
+    if (!hasMore || isLoading) return;
+    const observer = new window.IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isFetchingMore) {
+          setIsFetchingMore(true);
+          setPage((prev) => prev + 1);
+        }
+      },
+      { threshold: 1 }
+    );
+    if (loaderRef.current) observer.observe(loaderRef.current);
+    return () => {
+      if (loaderRef.current) observer.unobserve(loaderRef.current);
+    };
+  }, [loaderRef, hasMore, isFetchingMore, isLoading]);
+
+  // Show back to top button on scroll
+  React.useEffect(() => {
+    const onScroll = () => {
+      setShowTopBtn(window.scrollY > 400);
+    };
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Fetch posts with pagination
+  async function fetchPosts(pageNum = 1, replace = false) {
     try {
-      setIsLoading(true);
-      
-      // Query posts and join with profiles for author information
+      if (replace) setIsLoading(true);
+      const from = (pageNum - 1) * POSTS_PER_PAGE;
+      const to = from + POSTS_PER_PAGE - 1;
       const { data: postsData, error } = await supabase
         .from('community_posts')
-        .select(`
-          id,
-          title,
-          content,
-          author_id,
-          date,
-          likes,
-          comments,
-          tags,
-          image_url,
-          share_count
-        `)
-        .order('date', { ascending: false });
-
-      if (error) {
-        throw error;
-      }
+        .select(`id, title, content, author_id, date, likes, comments, tags, image_url, share_count`)
+        .order('date', { ascending: false })
+        .range(from, to);
+      if (error) throw error;
 
       // For each post, fetch the author's profile
       const formattedPosts: Post[] = [];
@@ -70,7 +94,7 @@ export default function Community() {
         // Get author profile
         const { data: authorData } = await supabase
           .from('profiles')
-          .select('full_name, avatar_url')
+          .select('full_name, avatar_url, is_admin')
           .eq('id', post.author_id)
           .single();
           
@@ -105,7 +129,8 @@ export default function Community() {
           author: {
             id: post.author_id,
             name: authorData?.full_name || 'Anonymous',
-            avatar: authorData?.avatar_url || undefined
+            avatar: authorData?.avatar_url || undefined,
+            is_admin: authorData?.is_admin || false,
           },
           date: post.date,
           likes: post.likes || 0,
@@ -117,89 +142,15 @@ export default function Community() {
         });
       }
 
-      setPosts(formattedPosts);
+      setPosts((prev) => replace ? formattedPosts : [...prev, ...formattedPosts]);
+      setHasMore((postsData?.length || 0) === POSTS_PER_PAGE);
     } catch (error) {
       console.error("Error fetching posts:", error);
-      // Fallback to mock data if Supabase fetch fails
-      setPosts([
-        {
-          id: "1",
-          title: "My Experience with the JICA Scholarship Application",
-          content: "Hello everyone! I wanted to share my experience applying for the JICA scholarship last year. The process was quite intensive but well worth it. I'm now studying Environmental Engineering in Tokyo...",
-          author: {
-            id: "author1",
-            name: "Thet Paing",
-            avatar: "/placeholder.svg"
-          },
-          date: "2025-04-10",
-          likes: 24,
-          comments: 8,
-          tags: ["JICA", "Japan", "Experience"],
-          isLiked: false
-        },
-        {
-          id: "2",
-          title: "Tips for IELTS Preparation from a 7.5 Scorer",
-          content: "After three months of intensive preparation, I scored 7.5 on my IELTS test. Here are some strategies that worked for me: 1. Consistent daily practice with real test materials...",
-          author: {
-            id: "author2",
-            name: "Su Myat",
-            avatar: "/placeholder.svg"
-          },
-          date: "2025-04-05",
-          likes: 32,
-          comments: 15,
-          tags: ["IELTS", "Language Test", "Study Tips"],
-          isLiked: false
-        },
-        {
-          id: "3",
-          title: "Need Advice on Statement of Purpose for Fulbright",
-          content: "I'm planning to apply for the Fulbright scholarship this year, but I'm struggling with my statement of purpose. My field is Public Health, and I want to focus on improving healthcare systems in rural Myanmar...",
-          author: {
-            id: "author3",
-            name: "Min Thu",
-            avatar: "/placeholder.svg"
-          },
-          date: "2025-04-02",
-          likes: 10,
-          comments: 22,
-          tags: ["Fulbright", "USA", "SoP", "Help Needed"],
-          isLiked: false
-        },
-        {
-          id: "4",
-          title: "Success Story: From Yangon to Cambridge",
-          content: "Three years ago, I was just a graduate trying to figure out my next steps. Today, I'm completing my Master's at Cambridge University. Here's my full journey and how Scholar-M resources helped me...",
-          author: {
-            id: "author4",
-            name: "Kyaw Zin",
-            avatar: "/placeholder.svg"
-          },
-          date: "2025-03-28",
-          likes: 56,
-          comments: 13,
-          tags: ["Success Story", "UK", "Cambridge"],
-          isLiked: false
-        },
-        {
-          id: "5",
-          title: "Guide to Moving to Germany for Studies",
-          content: "I moved to Berlin last semester and wanted to share a practical guide for Myanmar students planning to study in Germany. From visa application to finding accommodation, public transportation, and cultural adjustments...",
-          author: {
-            id: "author5",
-            name: "Phyu Phyu",
-            avatar: "/placeholder.svg"
-          },
-          date: "2025-03-25",
-          likes: 41,
-          comments: 17,
-          tags: ["Germany", "Practical Tips", "Relocation"],
-          isLiked: false
-        }
-      ]);
+      toast({ title: "Error", description: "Failed to load posts", variant: "destructive" });
+      setHasMore(false);
     } finally {
       setIsLoading(false);
+      setIsFetchingMore(false);
     }
   }
 
@@ -336,6 +287,20 @@ export default function Community() {
     }
   };
 
+  // Initial and paginated fetch
+  React.useEffect(() => {
+    fetchPosts(page, page === 1);
+    // eslint-disable-next-line
+  }, [page, user]);
+
+  // Refresh handler
+  const handleRefresh = () => {
+    setPage(1);
+    setHasMore(true);
+    setPosts([]);
+    fetchPosts(1, true);
+  };
+
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-[#f8fafc] via-[#fdf6ee] to-[#f8fafc] pb-12">
       <div className="w-full flex flex-col items-center justify-center pt-10 pb-6 px-2 bg-gradient-to-b from-[#fff8f0] via-[#f8fafc] to-transparent">
@@ -424,8 +389,30 @@ export default function Community() {
                 )}
               </div>
             </TabsContent>
+            <div ref={loaderRef} className="h-8 flex items-center justify-center">
+              {isFetchingMore && <Loader2 className="h-6 w-6 animate-spin text-myanmar-jade" />}
+              {!hasMore && <span className="text-xs text-muted-foreground">No more posts</span>}
+            </div>
           </Tabs>
         )}
+        <div className="fixed bottom-8 right-8 flex flex-col gap-3 z-50">
+          {showTopBtn && (
+            <button
+              className="rounded-full bg-myanmar-maroon text-white shadow-lg p-3 hover:bg-myanmar-gold hover:text-myanmar-maroon transition-all"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              aria-label="Back to Top"
+            >
+              <ArrowUp className="h-5 w-5" />
+            </button>
+          )}
+          <button
+            className="rounded-full bg-white border border-myanmar-gold text-myanmar-maroon shadow-lg p-3 hover:bg-myanmar-gold/20 transition-all"
+            onClick={handleRefresh}
+            aria-label="Refresh"
+          >
+            <RefreshCw className="h-5 w-5 animate-spin" />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -449,12 +436,13 @@ function PostCard({ post, onLike, onShare }: PostCardProps) {
               <AvatarImage src={post.author.avatar} alt={post.author.name} />
               <AvatarFallback>{post.author.name.charAt(0)}</AvatarFallback>
             </Avatar>
-            <div>
+            <div className="flex items-center gap-1">
               <p className="font-medium text-myanmar-maroon">{post.author.name}</p>
-              <p className="text-xs text-myanmar-maroon/70">
-                {new Date(post.date).toLocaleDateString()}
-              </p>
+              {post.author.is_admin && <AdminBadge />}
             </div>
+            <p className="text-xs text-myanmar-maroon/70">
+              {new Date(post.date).toLocaleDateString()}
+            </p>
           </div>
         </div>
         <Link to={`/community/${post.id}`}>
