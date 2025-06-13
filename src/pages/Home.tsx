@@ -294,7 +294,7 @@ export default function Home() {
               label: "AI",
               bg: "bg-[#D6F0FF]",
               title: "AI Scholarship Guide",
-              desc: "Get instant, personalized help with scholarships and applications. Guidance is available anywhere on the platform.",
+              desc: "Get instant, personalised help with scholarships and applications. Guidance is available anywhere on the platform.",
               icon: <MessageCircle className="w-8 h-8 text-myanmar-maroon" />, 
             },
             {
@@ -483,7 +483,7 @@ export default function Home() {
             <p className="text-myanmar-maroon/70 text-lg mb-8">
               Over the years, the scholarship landscape has evolved.
               Our AI Assistant has learned from thousands of successful applications
-              to provide you with personalized guidance at every step.
+              to provide you with personalised guidance at every step.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
               <motion.div 
@@ -513,7 +513,7 @@ export default function Home() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-myanmar-maroon mb-1">Smart Recommendations</h3>
-                  <p className="text-sm text-myanmar-maroon/70">Personalized scholarship matches based on your profile</p>
+                  <p className="text-sm text-myanmar-maroon/70">Personalised scholarship matches based on your profile</p>
                 </div>
               </motion.div>
               <motion.div 
@@ -551,7 +551,7 @@ export default function Home() {
               asChild
               className="bg-myanmar-maroon text-white hover:bg-myanmar-maroon/90 rounded-full px-8 py-6 text-lg font-semibold"
             >
-              <Link to="/chat">Try AI Assistant Now</Link>
+              <Link to="/chat">Try AI Companion Now</Link>
             </Button>
           </motion.div>
 
@@ -571,17 +571,17 @@ export default function Home() {
                 muted
                 playsInline
               >
-                <source src="https://exafunction.github.io/public/videos/cascade/cascade_context_awareness.mp4" type="video/mp4" />
+                <source src="https://aysvkiyuzqktcumdzxqh.supabase.co/storage/v1/object/public/videos//web%20promo.mp4" type="video/mp4" />
               </video>
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent rounded-2xl"></div>
               <div className="absolute bottom-8 left-8 right-8">
                 <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
                   <div className="flex items-center gap-3 mb-2">
                     <Bot className="w-5 h-5 text-myanmar-maroon" />
-                    <p className="text-sm font-medium text-myanmar-maroon">AI Assistant</p>
+                    <p className="text-sm font-medium text-myanmar-maroon">AI Companion</p>
                   </div>
                   <p className="text-sm text-myanmar-maroon/70">
-                    "I can help you find and apply for scholarships that match your profile. Let's get started!"
+                    "Scholarship များနဲ့ ပတ်သက်ပြီး မေးခွန်းများ၊ အကြံပြုချက်များ၊ အကူအညီများကို AI Companion မှ တိုက်ရိုက် ရယူနိုင်ပါတယ်။"
                   </p>
                 </div>
               </div>
