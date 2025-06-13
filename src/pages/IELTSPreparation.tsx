@@ -44,10 +44,9 @@ function useScrollFadeIn() {
 }
 
 const partners = [
-  { name: "British Council", logo: "https://upload.wikimedia.org/wikipedia/commons/7/7a/British_Council_logo.svg" },
-  { name: "IDP", logo: "https://seeklogo.com/images/I/idp-education-logo-6B6B6B6B6B-seeklogo.com.png" },
-  { name: "Cambridge", logo: "https://upload.wikimedia.org/wikipedia/en/8/8c/University_of_Cambridge_coat_of_arms.svg" },
-  { name: "IELTS Liz", logo: "https://ieltsliz.com/wp-content/uploads/2015/03/cropped-IELTSLiz-Logo-1.png" },
+  { name: "British Council", logo: "https://brandlogos.net/wp-content/uploads/2021/12/british_council-brandlogo.net_-512x512.png" },
+  { name: "IDP", logo: "https://www.freelogovectors.net/wp-content/uploads/2021/06/idp-logo-freelogovectors.net_.png" },
+  { name: "Cambridge", logo: "https://www.cambridgeassessment.org.uk/Images/Simon-brand-blog-newest-logo.png" },
 ];
 
 const benefits = [
