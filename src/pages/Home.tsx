@@ -551,7 +551,7 @@ export default function Home() {
               asChild
               className="bg-myanmar-maroon text-white hover:bg-myanmar-maroon/90 rounded-full px-8 py-6 text-lg font-semibold"
             >
-              <Link to="/AICompanion">Try AI Companion Now</Link>
+              <Link to="/ai-companion">Try AI Companion Now</Link>
             </Button>
           </motion.div>
 
