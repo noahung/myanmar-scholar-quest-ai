@@ -30,6 +30,7 @@ import AboutUs from "./pages/AboutUs";
 import AICompanion from "./pages/AICompanion";
 import IELTSPreparation from "./pages/IELTSPreparation";
 import DonateMe from "./pages/DonateMe";
+import CommunityGuideline from "./pages/CommunityGuideline";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,7 @@ function App() {
                 <Route path="/ai-companion" element={<AICompanion />} />
                 <Route path="/ielts-preparation" element={<IELTSPreparation />} />
                 <Route path="/donate-me" element={<DonateMe />} />
+                <Route path="/community-guideline" element={<CommunityGuideline />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

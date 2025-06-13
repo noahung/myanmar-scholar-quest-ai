@@ -64,6 +64,11 @@ export function Footer() {
                   Donate Me
                 </Link>
               </li>
+              <li>
+                <Link to="/community-guideline" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Community Guidelines
+                </Link>
+              </li>
             </ul>
           </div>
           <div>

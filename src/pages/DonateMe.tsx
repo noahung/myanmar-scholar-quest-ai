@@ -4,13 +4,13 @@ const DonateMe: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] p-6">
       <img
-        src="/placeholder.svg"
+        src="https://aysvkiyuzqktcumdzxqh.supabase.co/storage/v1/object/public/images//my%20pic.png"
         alt="Donate"
         className="w-32 h-32 mb-6 rounded-full shadow-lg"
       />
-      <h1 className="text-3xl font-bold mb-4">Support Our Mission</h1>
+      <h1 className="text-3xl font-bold mb-4">Support the Developer</h1>
       <p className="text-lg text-center mb-8 max-w-xl">
-        Your donation helps us keep Myanmar Scholar Quest AI running and free for
+        Your donation helps me keep Myanmar Scholar running and free for
         everyone. Every contribution, big or small, makes a difference. Thank you
         for supporting our mission to empower students and scholars!
       </p>
