@@ -190,58 +190,51 @@ const videoLibrary = [
   {
     id: '1',
     title: 'IELTS Listening Tips & Tricks',
-    description: 'Learn the best strategies to ace the IELTS Listening section with real examples and expert advice.',
-    youtubeId: 'Yt2l1rSkb8A',
-    thumbnail: 'https://img.youtube.com/vi/Yt2l1rSkb8A/hqdefault.jpg',
+    description: '4 different distractors that you might encounter in the IELTS Listening Test. These distractors may cause you to make silly mistakes in the test so its important that you are ready to face them on test day.',
+    youtubeId: 'hOAsUNNyPIs',
+    thumbnail: 'https://img.youtube.com/vi/hOAsUNNyPIs/hqdefault.jpg',
   },
   {
     id: '2',
     title: 'How to Score Band 8 in IELTS Reading',
-    description: 'Step-by-step guide to improve your reading skills and manage your time effectively.',
-    youtubeId: 'd8q9k1bGq1E',
-    thumbnail: 'https://img.youtube.com/vi/d8q9k1bGq1E/hqdefault.jpg',
+    description: 'Understand the IELTS Reading test to get a better score.',
+    youtubeId: 'w_tIn3BGGPM',
+    thumbnail: 'https://img.youtube.com/vi/w_tIn3BGGPM/hqdefault.jpg',
   },
   {
     id: '3',
     title: 'IELTS Writing Task 2: Full Essay Walkthrough',
-    description: 'Watch a full essay being written and learn how to structure your answer for maximum marks.',
-    youtubeId: 't8r7E6Qp1wE',
-    thumbnail: 'https://img.youtube.com/vi/t8r7E6Qp1wE/hqdefault.jpg',
+    description: 'Understand IELTS Writing Task 2 in 5 Minutes',
+    youtubeId: 'yvt8RzGNhBc',
+    thumbnail: 'https://img.youtube.com/vi/yvt8RzGNhBc/hqdefault.jpg',
   },
   {
     id: '4',
     title: 'Speaking Band 9 Sample Answers',
-    description: 'Listen to real Band 9 answers and learn how to impress the examiner in your speaking test.',
-    youtubeId: '3Q8zTVlZb1E',
-    thumbnail: 'https://img.youtube.com/vi/3Q8zTVlZb1E/hqdefault.jpg',
+    description: 'Achieve IELTS Speaking Band 9 with confidence! In this video.',
+    youtubeId: '0L4rr7DUz-8',
+    thumbnail: 'https://img.youtube.com/vi/0L4rr7DUz-8/hqdefault.jpg',
   },
   {
     id: '5',
     title: 'IELTS Preparation for Beginners',
     description: "A complete beginner's guide to the IELTS exam, including tips for each section.",
-    youtubeId: '1nQZ6yWQJdA',
-    thumbnail: 'https://img.youtube.com/vi/1nQZ6yWQJdA/hqdefault.jpg',
+    youtubeId: '3gvJ_0qi_Tc',
+    thumbnail: 'https://img.youtube.com/vi/3gvJ_0qi_Tc/hqdefault.jpg',
   },
   {
     id: '6',
     title: 'Time Management in IELTS',
     description: 'Learn how to manage your time in each section to maximize your score.',
-    youtubeId: '5vR1kQwQ2pA',
-    thumbnail: 'https://img.youtube.com/vi/5vR1kQwQ2pA/hqdefault.jpg',
+    youtubeId: 'ZMVkP5ZD-6U',
+    thumbnail: 'https://img.youtube.com/vi/ZMVkP5ZD-6U/hqdefault.jpg',
   },
   {
     id: '7',
     title: 'Common IELTS Mistakes to Avoid',
     description: 'Discover the most common mistakes candidates make and how to avoid them.',
-    youtubeId: '9bZkp7q19f0',
-    thumbnail: 'https://img.youtube.com/vi/9bZkp7q19f0/hqdefault.jpg',
-  },
-  {
-    id: '8',
-    title: 'IELTS Speaking: Real Test Simulation',
-    description: 'Watch a real IELTS speaking test simulation and learn examiner expectations.',
-    youtubeId: '2Vv-BfVoq4g',
-    thumbnail: 'https://img.youtube.com/vi/2Vv-BfVoq4g/hqdefault.jpg',
+    youtubeId: 'wYFGZWy1DsU',
+    thumbnail: 'https://img.youtube.com/vi/wYFGZWy1DsU/hqdefault.jpg',
   },
 ];
 
@@ -494,16 +487,15 @@ export default function IELTSPreparation() {
               </div>
               <div className="flex flex-wrap gap-3 mt-2">
                 <Button asChild variant="secondary" className="rounded-full font-bold">
-                  <a href="https://takeielts.britishcouncil.org/take-ielts/prepare/sample-test-questions" target="_blank" rel="noopener noreferrer">British Council Mock Tests</a>
+                  <a href="https://takeielts.britishcouncil.org/take-ielts/prepare/free-ielts-english-practice-tests" target="_blank" rel="noopener noreferrer">British Council Mock Tests</a>
                 </Button>
                 <Button asChild variant="secondary" className="rounded-full font-bold">
-                  <a href="https://www.ielts.org/about-ielts/ielts-practice-test" target="_blank" rel="noopener noreferrer">Official IELTS Practice Test</a>
+                  <a href="https://ielts.org/take-a-test/preparation-resources/sample-test-questions" target="_blank" rel="noopener noreferrer">Official IELTS Practice Test</a>
                 </Button>
                 <Button asChild variant="secondary" className="rounded-full font-bold">
-                  <a href="https://ieltsliz.com/ielts-practice-tests/" target="_blank" rel="noopener noreferrer">IELTS Liz Practice Tests</a>
+                  <a href="https://mocktestielts.com/" target="_blank" rel="noopener noreferrer">Mock Tests collection</a>
                 </Button>
               </div>
-              <Button className="rounded-full mt-4 w-max px-8 py-3 bg-indigo-500 text-white font-bold shadow-lg hover:bg-indigo-400 transition-colors duration-200">Try Mock Test</Button>
             </div>
             {/* Image - Full Height */}
             <div className="flex-1 flex items-center justify-center relative mt-8 md:mt-0 h-full">
