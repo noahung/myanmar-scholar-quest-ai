@@ -171,6 +171,12 @@ export function Navbar() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
+                  <Link to="/profile#university-applications" className="cursor-pointer flex items-center">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    University Application Tracker
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link to="/donate-me" className="cursor-pointer flex items-center">
                     <span role="img" aria-label="Donate" className="h-4 w-4 mr-2">💖</span>
                     {t('Donate Me')}
@@ -258,6 +264,14 @@ export function Navbar() {
               >
                 <BookOpen className="h-5 w-5" />
                 <span>{t('Saved Scholarships')}</span>
+              </Link>
+              <Link 
+                to="/profile#university-applications" 
+                className="flex items-center gap-3 p-3 text-lg font-bold text-myanmar-maroon rounded-full hover:bg-myanmar-gold/20 transition-colors"
+                onClick={toggleMobileMenu}
+              >
+                <BookOpen className="h-5 w-5" />
+                <span>University Application Tracker</span>
               </Link>
               <Link 
                 to="/donate-me" 

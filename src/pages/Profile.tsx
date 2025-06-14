@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { Loader2, Save, UserCircle, BookOpen, MessageCircle, History, BookmarkIcon, CheckSquare, Trash } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
@@ -15,10 +15,12 @@ import { UserNotes } from "@/components/user-notes";
 import { SavedScholarships } from "@/components/saved-scholarships";
 import { PreparationHelper } from "@/components/preparation-helper";
 import React from "react";
+import { UniversityApplicationTracker } from "@/components/university-application-tracker";
 
 export default function Profile() {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [profile, setProfile] = useState({
     full_name: "",
     email: "",
@@ -31,6 +33,9 @@ export default function Profile() {
   const [chatHistory, setChatHistory] = useState([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const hasShownWelcomeToast = React.useRef(false);
+  
+  // Set initial tab from hash
+  const initialTab = location.hash?.replace('#', '') || "profile";
   
   useEffect(() => {
     if (!isLoading && !user) {
@@ -234,8 +239,7 @@ export default function Profile() {
     <div className="container py-8 md:py-12">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold tracking-tighter mb-8 text-myanmar-maroon">My Profile</h1>
-        
-        <Tabs defaultValue="profile" className="w-full">
+        <Tabs defaultValue={initialTab} className="w-full">
           {/* Themed TabsList - horizontally scrollable on mobile */}
           <div className="bg-myanmar-jade/10 rounded-xl p-1 mb-4">
             <div className="overflow-x-auto">
@@ -263,6 +267,10 @@ export default function Profile() {
                 <TabsTrigger value="chat-history" className="flex items-center gap-2 justify-center rounded-full px-6 py-2 font-semibold">
                   <History className="h-4 w-4" />
                   <span>Chat History</span>
+                </TabsTrigger>
+                <TabsTrigger value="university-applications" className="flex items-center gap-2 justify-center rounded-full px-6 py-2 font-semibold">
+                  <BookOpen className="h-4 w-4" />
+                  <span>University Application Tracker</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -438,6 +446,23 @@ export default function Profile() {
                     ))}
                   </ul>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="university-applications" className="mt-6 space-y-4">
+            <Card className="rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10">
+              <CardHeader>
+                <CardTitle className="text-myanmar-maroon">University Application Tracker</CardTitle>
+                <CardDescription className="text-myanmar-maroon/70">Track your university applications and deadlines here.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="w-full">
+                  {/* University Application Tracker Table */}
+                  <React.Suspense fallback={<div>Loading...</div>}>
+                    {user && <UniversityApplicationTracker userId={user.id} />}
+                  </React.Suspense>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
