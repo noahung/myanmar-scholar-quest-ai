@@ -75,7 +75,7 @@ export function Footer() {
             <h3 className="font-semibold text-foreground mb-4">Contact</h3>
             <ul className="space-y-2 text-sm">
               <li className="text-muted-foreground">
-                Email: contact@scholar-m.com
+                Email: hi@myanmarscholar.com
               </li>
               <li className="text-muted-foreground">
                 Yangon, Myanmar

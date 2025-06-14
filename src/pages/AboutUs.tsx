@@ -29,7 +29,7 @@ export default function AboutMe() {
           <a href="mailto:noah.aung@outlook.com" className="inline-block bg-myanmar-maroon text-white font-bold px-8 py-3 rounded-full shadow hover:bg-myanmar-gold/90 hover:text-myanmar-maroon transition-all">Send me an Email</a>
         </div>
         <div className="flex-shrink-0">
-          <img src="https://curiosityessays.com/wp-content/uploads/2023/09/366380351_215020391540551_7239895495502079946_n.jpg?w=1024" alt="Thar Htet Aung" className="rounded-2xl shadow-lg object-cover w-[320px] h-[400px]" />
+          <img src="https://aysvkiyuzqktcumdzxqh.supabase.co/storage/v1/object/public/images//my%20pic.png" alt="Thar Htet Aung" className="rounded-2xl shadow-lg object-cover w-[320px] h-[400px]" />
         </div>
       </motion.section>
 
@@ -77,8 +77,8 @@ export default function AboutMe() {
               <li><span className="font-bold text-myanmar-maroon">User Notes & Tools:</span> Save notes, track applications, and organize your journey in one place.</li>
             </ul>
             <div className="flex gap-3 mt-2">
-              <a href="https://facebook.com/tharhtetaung" target="_blank" rel="noopener noreferrer" className="bg-myanmar-maroon/10 text-myanmar-maroon hover:bg-myanmar-maroon hover:text-white rounded-full p-2 transition-colors"><FaFacebookF /></a>
-              <a href="https://linkedin.com/in/tharhtetaung" target="_blank" rel="noopener noreferrer" className="bg-myanmar-maroon/10 text-myanmar-maroon hover:bg-myanmar-maroon hover:text-white rounded-full p-2 transition-colors"><FaLinkedinIn /></a>
+              <a href="https://www.facebook.com/noahaung13/" target="_blank" rel="noopener noreferrer" className="bg-myanmar-maroon/10 text-myanmar-maroon hover:bg-myanmar-maroon hover:text-white rounded-full p-2 transition-colors"><FaFacebookF /></a>
+              <a href="https://www.linkedin.com/in/tharhtetaung/" target="_blank" rel="noopener noreferrer" className="bg-myanmar-maroon/10 text-myanmar-maroon hover:bg-myanmar-maroon hover:text-white rounded-full p-2 transition-colors"><FaLinkedinIn /></a>
               <a href="https://twitter.com/tharhtetaung" target="_blank" rel="noopener noreferrer" className="bg-myanmar-maroon/10 text-myanmar-maroon hover:bg-myanmar-maroon hover:text-white rounded-full p-2 transition-colors"><FaTwitter /></a>
               <a href="https://curiosityessays.com" target="_blank" rel="noopener noreferrer" className="bg-myanmar-maroon/10 text-myanmar-maroon hover:bg-myanmar-maroon hover:text-white rounded-full p-2 transition-colors"><FaGlobe /></a>
             </div>
