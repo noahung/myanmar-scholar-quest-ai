@@ -20,15 +20,15 @@ const staggerContainer = {
 
 const faqs = [
   {
-    question: 'What is Scholar-M?',
-    answer: 'Scholar-M is a platform dedicated to connecting Myanmar students with international scholarship opportunities, AI-powered guidance, and a supportive community.'
+    question: 'What is Myanmar Scholar?',
+    answer: 'Myanmar Scholar is a platform dedicated to connecting Myanmar students with international scholarship opportunities, AI-powered guidance, and a supportive community.'
   },
   {
-    question: 'Is Scholar-M free to use?',
-    answer: 'Yes, Scholar-M is completely free for Myanmar students. There are no fees or charges for using our core services.'
+    question: 'Is Myanmar Scholar free to use?',
+    answer: 'Yes, Myanmar Scholar is completely free for Myanmar students. There are no fees or charges for using our core services.'
   },
   {
-    question: 'How do I find scholarships on Scholar-M?',
+    question: 'How do I find scholarships on Myanmar Scholar?',
     answer: 'Browse the Scholarships page and use filters to narrow down by country, field, or degree. Each listing includes details and deadlines.'
   },
   {

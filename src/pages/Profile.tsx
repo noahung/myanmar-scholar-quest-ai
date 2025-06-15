@@ -18,7 +18,7 @@ import React from "react";
 import { UniversityApplicationTracker } from "@/components/university-application-tracker";
 
 export default function Profile() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, refreshUserProfile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [profile, setProfile] = useState({
@@ -205,7 +205,9 @@ export default function Profile() {
         ...prev,
         avatar_url: avatarUrl
       }));
-      
+      if (typeof refreshUserProfile === 'function') {
+        await refreshUserProfile();
+      }
       toast({
         title: "Success",
         description: "Your avatar has been updated"

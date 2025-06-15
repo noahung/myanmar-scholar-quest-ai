@@ -31,7 +31,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, session, signOut, isLoading, isAdmin } = useAuth();
+  const { user, session, signOut, isLoading, isAdmin, refreshUserProfile } = useAuth();
   const { t } = useLanguage();
   const [profileData, setProfileData] = useState({
     full_name: "",
@@ -41,6 +41,9 @@ export function Navbar() {
   useEffect(() => {
     if (user) {
       fetchProfileData();
+      if (typeof refreshUserProfile === 'function') {
+        refreshUserProfile(); // Ensure context stays in sync after avatar/profile update
+      }
     }
   }, [user]);
 

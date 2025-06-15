@@ -22,6 +22,7 @@ type AuthContextType = {
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
   isAdmin: boolean;
+  refreshUserProfile: () => Promise<void>; // <-- add this
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -515,6 +516,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  async function refreshUserProfile() {
+    if (user) {
+      await fetchUserProfile(user.id);
+    }
+  }
+
   const value = {
     user,
     session,
@@ -524,6 +531,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signInWithGoogle,
     signOut,
     isAdmin,
+    refreshUserProfile,
   };
 
   return (

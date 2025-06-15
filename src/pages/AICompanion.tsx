@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
+import { SaveToNotesButton } from '@/components/user-notes';
 
 interface Message {
   id: string;
@@ -60,8 +61,18 @@ export default function AICompanion() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Improved scroll: only scroll if user is near the bottom
+  const isUserNearBottom = () => {
+    const container = messagesEndRef.current?.parentElement;
+    if (!container) return true;
+    const threshold = 120; // px
+    return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+  };
+
   useEffect(() => {
-    scrollToBottom();
+    if (isUserNearBottom()) {
+      scrollToBottom();
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -185,13 +196,18 @@ export default function AICompanion() {
                     exit={{ opacity: 0, y: -10 }}
                   >
                     <div 
-                      className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                      className={`max-w-[80%] rounded-2xl px-4 py-2 relative ${
                         message.role === 'user' 
                           ? 'bg-myanmar-maroon text-white ml-4' 
                           : 'bg-myanmar-gold/10 text-myanmar-maroon mr-4'
                       }`}
                     >
                       <p className="whitespace-pre-wrap">{message.content}</p>
+                      {message.role === 'assistant' && (
+                        <div className="absolute bottom-2 right-2">
+                          <SaveToNotesButton content={message.content} />
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 ))}
@@ -280,8 +296,18 @@ export function AICompanionChatOnly() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Improved scroll: only scroll if user is near the bottom
+  const isUserNearBottom = () => {
+    const container = messagesEndRef.current?.parentElement;
+    if (!container) return true;
+    const threshold = 120; // px
+    return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+  };
+
   useEffect(() => {
-    scrollToBottom();
+    if (isUserNearBottom()) {
+      scrollToBottom();
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -357,13 +383,18 @@ export function AICompanionChatOnly() {
                   exit={{ opacity: 0, y: -10 }}
                 >
                   <div 
-                    className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                    className={`max-w-[80%] rounded-2xl px-4 py-2 relative ${
                       message.role === 'user' 
                         ? 'bg-myanmar-maroon text-white ml-4' 
                         : 'bg-myanmar-gold/10 text-myanmar-maroon mr-4'
                     }`}
                   >
                     <p className="whitespace-pre-wrap">{message.content}</p>
+                    {message.role === 'assistant' && (
+                      <div className="absolute bottom-2 right-2">
+                        <SaveToNotesButton content={message.content} />
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
@@ -410,4 +441,4 @@ export function AICompanionChatOnly() {
       </form>
     </div>
   );
-} 
+}

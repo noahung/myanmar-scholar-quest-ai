@@ -77,9 +77,13 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
   }, [isScholarshipAssistant, scholarshipId]);
 
   useEffect(() => {
-    // Scroll to bottom whenever messages change
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    // Scroll to bottom whenever messages change, but only if user is already at (or near) the bottom
+    const container = messagesEndRef.current?.parentElement;
+    if (container) {
+      const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 80;
+      if (isNearBottom) {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      }
     }
   }, [messages]);
 
@@ -275,7 +279,9 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
     <div className={cn(
       isExpanded
         ? "fixed inset-0 z-[100] flex items-center justify-center bg-black/30"
-        : "fixed bottom-4 right-4 z-50 w-auto",
+        : isScholarshipAssistant
+          ? "relative bottom-0 right-0 w-full h-full"
+          : "fixed bottom-4 right-4 z-50 w-auto",
       isScholarshipAssistant && !isExpanded ? "relative bottom-0 right-0 w-full h-full" : ""
     )}>
       {isOpen || isScholarshipAssistant ? (
@@ -284,7 +290,7 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
           isExpanded
             ? "w-[90vw] max-w-2xl h-[90vh] max-h-[90vh]"
             : isScholarshipAssistant
-              ? "w-full h-[500px]"
+              ? "w-full h-[500px] max-h-[80vh]"
               : "w-80 sm:w-96 h-96",
           !isExpanded && !isScholarshipAssistant ? "max-w-xs w-[95vw] sm:w-96" : ""
         )}>
@@ -328,7 +334,7 @@ export function AiAssistant({ scholarshipId, initialMessage, isScholarshipAssist
           
           <div className={cn(
             "flex-1 overflow-y-auto p-4 space-y-4 bg-white rounded-b-2xl",
-            isScholarshipAssistant ? "" : ""
+            isScholarshipAssistant ? "max-h-[calc(80vh-120px)]" : ""
           )}>
             {messages.map((message) => (
               <div

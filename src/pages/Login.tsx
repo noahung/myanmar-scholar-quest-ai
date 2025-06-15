@@ -22,11 +22,16 @@ export default function Login() {
   const { user, signIn, signUp, signInWithGoogle, isLoading } = useAuth();
 
   useEffect(() => {
-    // Check for ?redirect= in the URL (from 404.html redirect)
+    // If redirected from 404.html (with ?redirect=), restore the intended path after login
     const params = new URLSearchParams(window.location.search);
     const redirect = params.get('redirect');
-    if (user) {
-      // Always go to home page after login via 404.html redirect
+    if (user && redirect) {
+      // Only redirect if not already on the intended page
+      if (window.location.pathname !== decodeURIComponent(redirect)) {
+        navigate(decodeURIComponent(redirect), { replace: true });
+      }
+    } else if (user) {
+      // Default: go to home page after login
       navigate('/', { replace: true });
     }
   }, [user, navigate]);

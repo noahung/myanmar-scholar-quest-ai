@@ -6,7 +6,7 @@ export function Footer() {
       <div className="container py-8 md:py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-semibold text-foreground mb-4">Scholar-M</h3>
+            <h3 className="font-semibold text-foreground mb-4">Myanmar Scholar</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Helping Myanmar students find international scholarships and opportunities.
             </p>
@@ -78,14 +78,14 @@ export function Footer() {
                 Email: hi@myanmarscholar.com
               </li>
               <li className="text-muted-foreground">
-                Yangon, Myanmar
+                Cheltenham, United Kingdom
               </li>
             </ul>
           </div>
         </div>
         <div className="mt-8 pt-6 border-t flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Scholar-M. All rights reserved.
+            © {new Date().getFullYear()} Myanmar Scholar. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <Link to="#" className="text-muted-foreground hover:text-foreground">
@@ -109,7 +109,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-4 text-sm text-muted-foreground">
-          Made with ❤️ by the Scholar-M team.
+          Made with ❤️ by the Thar Htet Aung.
         </div>
       </div>
     </footer>

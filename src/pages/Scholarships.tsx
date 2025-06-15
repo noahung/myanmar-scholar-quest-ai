@@ -354,7 +354,7 @@ export default function Scholarships() {
               whileHover={{ scale: 1.02 }}
               className="h-full"
             >
-              <Card className="h-full rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10 transition-all">
+              <Card className="flex flex-col h-full rounded-2xl shadow-lg border-0 bg-gradient-to-br from-myanmar-jade/10 via-white to-myanmar-gold/10 transition-all">
                 <CardHeader className="flex flex-col items-center">
                   <div className="w-14 h-14 rounded-full bg-myanmar-gold/40 flex items-center justify-center mb-2">
                     <GraduationCap className="w-8 h-8 text-myanmar-maroon" />
@@ -388,7 +388,7 @@ export default function Scholarships() {
                     Deadline: {new Date(scholarship.deadline).toLocaleDateString()}
                   </p>
                 </CardContent>
-                <CardFooter className="flex justify-center">
+                <CardFooter className="flex justify-center mt-auto">
                   <Button asChild variant="outline" className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold w-full">
                     <Link to={`/scholarships/${scholarship.id}`}>
                       View Details

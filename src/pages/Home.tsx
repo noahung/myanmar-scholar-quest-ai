@@ -442,9 +442,9 @@ export default function Home() {
                   </CardContent>
                     <CardFooter className="flex justify-center mt-auto pt-4">
                       <Button asChild variant="outline" className="rounded-full border-myanmar-maroon text-myanmar-maroon font-bold hover:bg-myanmar-maroon hover:text-white transition-colors">
-                      <Link to={`/scholarships/${scholarship.id}`}>View Details</Link>
-                    </Button>
-                  </CardFooter>
+                        <Link to={`/scholarships/${scholarship.id}`}>View Details</Link>
+                      </Button>
+                    </CardFooter>
                 </Card>
                 </motion.div>
               ))
@@ -573,19 +573,7 @@ export default function Home() {
               >
                 <source src="https://aysvkiyuzqktcumdzxqh.supabase.co/storage/v1/object/public/videos//web%20promo.mp4" type="video/mp4" />
               </video>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent rounded-2xl"></div>
-              <div className="absolute bottom-8 left-8 right-8">
-                <div className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-lg">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Bot className="w-5 h-5 text-myanmar-maroon" />
-                    <p className="text-sm font-medium text-myanmar-maroon">AI Companion</p>
-                  </div>
-                  <p className="text-sm text-myanmar-maroon/70">
-                    "Scholarship များနဲ့ ပတ်သက်ပြီး မေးခွန်းများ၊ အကြံပြုချက်များ၊ အကူအညီများကို AI Companion မှ တိုက်ရိုက် ရယူနိုင်ပါတယ်။"
-                  </p>
-                </div>
-              </div>
-          </div>
+            </div>
           </motion.div>
         </div>
       </section>
@@ -609,7 +597,7 @@ export default function Home() {
           viewport={{ once: true }}
           transition={{ delay: 0.15 }}
         >
-          Here are the most common questions from Myanmar students about Scholar-M.
+          Here are the most common questions from Myanmar students about Myanmar Scholar.
         </motion.p>
         <motion.div 
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl mb-16 px-4"
@@ -621,8 +609,8 @@ export default function Home() {
           {[
             {
               icon: <Sparkles className="w-7 h-7 text-myanmar-gold" />, 
-              title: "What is Scholar-M?",
-              desc: "Scholar-M is a free platform for Myanmar students to discover scholarships, connect with peers, and get AI-powered guidance for studying abroad."
+              title: "What is Myanmar Scholar?",
+              desc: "Myanmar Scholar is a free platform for Myanmar students to discover scholarships, connect with peers, and get AI-powered guidance for studying abroad."
             },
             {
               icon: <Bot className="w-7 h-7 text-myanmar-jade" />, 
